@@ -9,6 +9,8 @@ export default {
   'nav.tour': 'Tour',
   'nav.lab': 'Lab',
   'nav.desk': 'Desk',
+  'nav.opportunity': 'Cambodia opportunity',
+  'home.ctaOpportunity': 'Explore the Cambodia opportunity',
   'nav.trust': 'Trust',
   'nav.sources': 'Sources',
   'nav.compare': 'Compare',
