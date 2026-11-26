@@ -1,0 +1,43 @@
+/* Home: the globe is fixed behind the hero; the bands after it slide over it. */
+.home { position: relative; }
+.hero-globe { position: fixed; left: 0; right: 0; top: calc(var(--topbar-h) + env(safe-area-inset-top, 0px)); height: calc(100vh - var(--topbar-h)); height: calc(100svh - var(--topbar-h) - env(safe-area-inset-top, 0px)); z-index: 0; cursor: crosshair; background:
+  radial-gradient(ellipse 80% 60% at 70% 105%, color-mix(in srgb, var(--rose) 35%, transparent), transparent 70%),
+  radial-gradient(ellipse 60% 50% at 72% 100%, color-mix(in srgb, var(--dawn) 30%, transparent), transparent 70%),
+  linear-gradient(180deg, var(--sky-top), var(--sky-mid) 62%, var(--sky-low)); }
+.hero { position: relative; z-index: 1; min-height: calc(100svh - var(--topbar-h) - env(safe-area-inset-top, 0px)); display: flex; align-items: center; pointer-events: none; }
+.hero-in { width: 100%; padding-block: 40px 48px; }
+.hero-in > * { max-width: 600px; pointer-events: auto; }
+.hero-in > .globe-hint { pointer-events: none; }
+.eyebrow { display: flex; gap: 10px; align-items: center; font-family: var(--font-display); letter-spacing: 0.24em; text-transform: uppercase; font-size: 0.92rem; color: var(--dawn-text); margin-bottom: 18px; }
+.eyebrow .dot { color: var(--muted); letter-spacing: 0; }
+.strap1 { font-size: var(--step-4); line-height: 1.02; letter-spacing: -0.01em; margin: 0 0 14px; text-shadow: 0 2px 30px color-mix(in srgb, var(--bg) 70%, transparent); }
+.strap1:lang(th), :lang(th) .strap1, :lang(km) .strap1 { line-height: 1.3; font-size: var(--step-3); }
+.strap2 { font-family: var(--font-display); font-size: var(--step-2); color: var(--dawn-text); margin-bottom: 22px; }
+.pitch { font-size: var(--step-1); line-height: 1.55; color: var(--fg); background: color-mix(in srgb, var(--bg) 55%, transparent); padding: 14px 16px; border-radius: var(--r-l); border: 1px solid var(--line); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.ctas { display: flex; flex-wrap: wrap; gap: 12px; margin: 22px 0 10px; }
+.btn.big { min-height: 52px; padding: 12px 24px; font-size: 1.08rem; text-decoration: none; }
+.btn.glow { position: relative; isolation: isolate; }
+.btn.glow::before { content: ''; position: absolute; inset: -3px; border-radius: inherit; background: conic-gradient(from var(--ang, 0deg), var(--dawn), var(--rose), var(--violet), var(--water), var(--dawn)); z-index: -1; filter: blur(6px); opacity: 0.85; }
+@property --ang { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+@media (prefers-reduced-motion: no-preference) { :root:not([data-motion='reduced']) .btn.glow::before { animation: spin-ang 5s linear infinite; } }
+@keyframes spin-ang { to { --ang: 360deg; } }
+.btn.big:hover { transform: scale(1.04); }
+.globe-hint { color: var(--muted); font-size: 0.92rem; margin-top: 6px; }
+.globe-chip { display: grid; gap: 2px; margin-top: 10px; padding: 12px 14px; border-radius: var(--r-m); background: color-mix(in srgb, var(--panel-solid) 88%, transparent); border: 1px solid var(--dawn); font-size: 0.95rem; max-width: 440px; box-shadow: var(--shadow); }
+.globe-chip b { font-family: var(--font-display); font-size: 1.1rem; }
+.acts-band { position: relative; z-index: 1; background: linear-gradient(180deg, transparent, var(--bg) 70px); padding-block: 70px 30px; }
+.acts { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; counter-reset: act; }
+.act { display: grid; gap: 6px; align-content: start; text-decoration: none; color: var(--fg); padding: 16px; border-radius: var(--r-l); background: var(--panel); border: 1px solid var(--line); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s; }
+.act:hover, .act:focus-visible { transform: translateY(-4px); border-color: var(--dawn); color: var(--fg); }
+.act-n { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; color: var(--on-gold); background: var(--gold-fill); }
+.act-t { font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; }
+.act-d { color: var(--muted); font-size: 0.95rem; }
+.home-lab { position: relative; z-index: 1; background: var(--bg); padding-block: 30px 70px; }
+.fiction { margin-top: 30px; }
+@media (max-width: 1000px) { .acts { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); } }
+@media (max-width: 899px) {
+  .hero { align-items: flex-end; }
+  .hero-in { padding-top: 46svh; }
+  .strap1 { font-size: var(--step-3); }
+  .pitch { font-size: var(--step-0); }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "arun",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ARUN — a laboratory for possible worlds. Static, offline, client-only exhibits.",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "test": "node tools/test-kernels.mjs",
+    "test:browser": "node tools/build.mjs && node test/browser/run.mjs",
+    "serve": "node tools/serve.mjs 8788",
+    "land": "node tools/make-land.mjs",
+    "site": "node tools/build.mjs && node tools/site.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12",
+    "playwright-core": "1.63.0"
+  }
+}
