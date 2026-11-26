@@ -77,6 +77,7 @@ export function desk(main) {
       h('span', { class: 'tagline' }, 'Buyer'), h('h3', {}, p.buyer),
       h('dl', {}, h('dt', {}, 'Pays for'), h('dd', {}, p.pays), h('dt', {}, 'Recurring'), h('dd', {}, p.recurring), h('dt', {}, 'Shared benefit'), h('dd', {}, p.benefit + ' — once validated and permitted')),
       h('p', {}, h('a', { href: '#' + p.ex }, 'See it in ' + p.ex.toUpperCase() + ' →'))))),
+    h('p', {}, h('a', { class: 'btn primary', href: '#opportunity' }, 'Compare Cambodian data acquisition and pilot economics →')),
     h('h2', {}, 'Revenue sandbox'),
     h('div', { class: 'btnrow' }, aIn('cpuCost', 'Compute cost US$/CPU-h', 0.01), aIn('storage', 'Storage per unit US$', 1), aIn('fixed', 'Fixed cost per year US$', 1000),
       button('Zero every price', () => {
