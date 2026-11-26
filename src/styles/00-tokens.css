@@ -1,0 +1,95 @@
+/* Layout: an instrument deck at first light. A live globe stays fixed behind the opening pages;
+   exhibits are one-screen instruments with a stage and a side panel that scrolls on its own. */
+:root {
+  color-scheme: dark;
+  --bg: #0b0d26;
+  --bg-2: #121539;
+  --panel: rgba(21, 25, 68, 0.78);
+  --panel-solid: #161a46;
+  --line: rgba(166, 176, 255, 0.2);
+  --grid: rgba(166, 176, 255, 0.14);
+  --fg: #f1f2ff;
+  --muted: #b3b8e3;
+  --dawn: #ffb84d;
+  --dawn-text: #ffc670;
+  --rose: #ff6b8b;
+  --water: #4cc9f0;
+  --jade: #3ee09a;
+  --violet: #a796ff;
+  --danger: #ff6b6b;
+  --gold-fill: #ffb84d;
+  --on-gold: #111111;
+  --base-arm: #ff8f66;
+  --alt-arm: #3ee09a;
+  --shadow: 0 18px 50px rgba(3, 4, 20, 0.55);
+  --sky-top: #070920;
+  --sky-mid: #1b1650;
+  --sky-low: #5a2a6e;
+  --font-display: 'ARUN Display', 'Chakra Petch', 'Kantumruy Pro', ui-sans-serif, system-ui, sans-serif;
+  --font-text: 'ARUN Text', 'Atkinson Hyperlegible', 'Noto Sans Thai Looped', 'Kantumruy Pro', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-data: 'ARUN Data', 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --r-s: 8px;
+  --r-m: 14px;
+  --r-l: 22px;
+  --step--1: clamp(0.84rem, 0.8rem + 0.15vw, 0.92rem);
+  --step-0: clamp(1.02rem, 0.98rem + 0.2vw, 1.12rem);
+  --step-1: clamp(1.2rem, 1.1rem + 0.45vw, 1.45rem);
+  --step-2: clamp(1.5rem, 1.3rem + 0.9vw, 2.1rem);
+  --step-3: clamp(2rem, 1.6rem + 1.9vw, 3.3rem);
+  --step-4: clamp(2.6rem, 1.9rem + 3.4vw, 5.2rem);
+  --topbar-h: 58px;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    color-scheme: light;
+    --bg: #f3f5ff;
+    --bg-2: #e6eaff;
+    --panel: rgba(255, 255, 255, 0.86);
+    --panel-solid: #ffffff;
+    --line: rgba(28, 34, 110, 0.18);
+    --grid: rgba(28, 34, 110, 0.12);
+    --fg: #14173d;
+    --muted: #474d82;
+    --dawn: #b86200;
+    --dawn-text: #9a5200;
+    --rose: #c0244f;
+    --water: #0369a1;
+    --jade: #0b7a50;
+    --violet: #5a45d4;
+    --danger: #c62828;
+    --gold-fill: #ffb84d;
+    --on-gold: #111111;
+    --base-arm: #d4501f;
+    --alt-arm: #0b8a5a;
+    --shadow: 0 18px 50px rgba(40, 48, 120, 0.16);
+    --sky-top: #cfd8ff;
+    --sky-mid: #f4dcef;
+    --sky-low: #ffe3c2;
+  }
+}
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f3f5ff;
+  --bg-2: #e6eaff;
+  --panel: rgba(255, 255, 255, 0.86);
+  --panel-solid: #ffffff;
+  --line: rgba(28, 34, 110, 0.18);
+  --grid: rgba(28, 34, 110, 0.12);
+  --fg: #14173d;
+  --muted: #474d82;
+  --dawn: #b86200;
+  --dawn-text: #9a5200;
+  --rose: #c0244f;
+  --water: #0369a1;
+  --jade: #0b7a50;
+  --violet: #5a45d4;
+  --danger: #c62828;
+  --gold-fill: #ffb84d;
+  --on-gold: #111111;
+  --base-arm: #d4501f;
+  --alt-arm: #0b8a5a;
+  --shadow: 0 18px 50px rgba(40, 48, 120, 0.16);
+  --sky-top: #cfd8ff;
+  --sky-mid: #f4dcef;
+  --sky-low: #ffe3c2;
+}

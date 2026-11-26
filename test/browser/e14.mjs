@@ -1,0 +1,27 @@
+// E14 browser check: runs, clicks the map, breaks the scheme, exports. Usage: ARUN_PAGE=... node test/browser/e14.mjs
+import { launch, openPage } from './browser.mjs';
+const { browser } = await launch();
+const { page, context, errors, requests } = await openPage(browser, 'e14');
+await page.waitForTimeout(3000);
+const metric = (n) => page.locator(`[data-name="${n}"] .mv`).innerText();
+const before = await metric('mass');
+await page.mouse.click(300, 300);
+await page.waitForTimeout(1500);
+console.log('mass before/after move', before, await metric('mass'));
+const fps = await page.evaluate(() => null);
+await page.getByRole('button', { name: 'Break the scheme' }).click();
+await page.waitForTimeout(2500);
+console.log('halt banner:', await page.locator('.river-halt').innerText().catch(() => 'none'));
+await page.getByRole('button', { name: 'Steady wind' }).click();
+await page.waitForTimeout(2500);
+console.log('after steady wind, banner hidden:', await page.locator('.river-halt').isHidden(), 'residual', await metric('resid'));
+await page.getByRole('tab', { name: 'Export' }).click();
+console.log((await page.locator('.tabpane.export p.small').first().innerText()));
+await page.getByRole('button', { name: 'Run' }).first().click().catch(() => {});
+await page.waitForTimeout(100);
+await page.getByRole('tab', { name: 'Play' }).click();
+await page.waitForTimeout(3000);
+await page.getByRole('tab', { name: 'Export' }).click();
+const rec = await page.evaluate(() => (document.body.innerHTML.match(/&quot;fps&quot;: [\d.]+|"fps": [\d.]+/) || [])[0]);
+console.log('fps in record:', rec, 'errors', errors.length, 'outside', requests.length);
+await context.close(); await browser.close();

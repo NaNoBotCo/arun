@@ -1,0 +1,241 @@
+{
+  "schema": "team-wheel-handoff/draft-1",
+  "project": "ARUN",
+  "createdAt": "2026-11-25",
+  "note": "Drafts only. Not assigned or posted.",
+  "tasks": [
+    {
+      "id": "ARUN-T01",
+      "experimentId": null,
+      "title": "Retell test with three people who have not seen ARUN",
+      "deliverable": "Three written retellings from the Ideas page export",
+      "acceptanceCriteria": [
+        "At least two of three name four of the five recall points after one tour"
+      ],
+      "dependsOn": [],
+      "priority": "P0",
+      "volunteer": null,
+      "due": null,
+      "source": "arun/TEAM-HANDOFF.md",
+      "status": "draft"
+    },
+    {
+      "id": "ARUN-T02",
+      "experimentId": null,
+      "title": "Test in Safari (WebKit) and Firefox, desktop and phone",
+      "deliverable": "Run `test/browser/run.mjs` against both, or a written manual pass",
+      "acceptanceCriteria": [
+        "All 14 checks pass, or each failure is a ticket"
+      ],
+      "dependsOn": [],
+      "priority": "P0",
+      "volunteer": null,
+      "due": null,
+      "source": "arun/TEAM-HANDOFF.md",
+      "status": "draft"
+    },
+    {
+      "id": "ARUN-T03",
+      "experimentId": null,
+      "title": "Native-reader pass on the Thai and Khmer strings",
+      "deliverable": "Corrected `src/i18n/th.js` and `km.js`",
+      "acceptanceCriteria": [
+        "Reader signs off every string"
+      ],
+      "dependsOn": [],
+      "priority": "P1",
+      "volunteer": null,
+      "due": null,
+      "source": "arun/TEAM-HANDOFF.md",
+      "status": "draft"
+    },
+    {
+      "id": "ARUN-T04",
+      "experimentId": null,
+      "title": "Burmese, Lao, Vietnamese and Shan interface strings",
+      "deliverable": "Filled `src/i18n/my.js`, `lo.js`, `vi.js`, `shn.js`",
+      "acceptanceCriteria": [
+        "Status page shows full coverage for each"
+      ],
+      "dependsOn": [
+        "ARUN-T03"
+      ],
+      "priority": "P2",
+      "volunteer": null,
+      "due": null,
+      "source": "arun/TEAM-HANDOFF.md",
+      "status": "draft"
+    },
+    {
+      "id": "ARUN-T05",
+      "experimentId": "E02",
+      "title": "Compare the water model against a reference solver on a benchmark",
+      "deliverable": "Short note with depths and timings side by side",
+      "acceptanceCriteria": [
+        "Peak depth and timing within a stated tolerance on two benchmarks, or the gap documented"
+      ],
+      "dependsOn": [],
+      "priority": "P1",
+      "volunteer": null,
+      "due": null,
+      "source": "arun/TEAM-HANDOFF.md",
+      "status": "draft"
+    },
+    {
+      "id": "ARUN-T06",
+      "experimentId": "E02",
+      "title": "Real elevation for one approved, non-sensitive public area",
+      "deliverable": "Adapter with licence record, datum, checksum and a fetch script",
+      "acceptanceCriteria": [
+        "Sources page shows it enabled behind consent; E02 runs on it, labelled PUBLIC_HISTORICAL"
+      ],
+      "dependsOn": [
+        "ARUN-T05"
+      ],
+      "priority": "P2",
+      "volunteer": null,
+      "due": null,
+      "source": "arun/TEAM-HANDOFF.md",
+      "status": "draft"
+    },
+    {
+      "id": "ARUN-T07",
+      "experimentId": "E03",
+      "title": "Replace the fictional damage curve with a published one and cite it",
+      "deliverable": "Updated kernel and Method text",
+      "acceptanceCriteria": [
+        "Tests updated; source on the Limits tab"
+      ],
+      "dependsOn": [],
+      "priority": "P1",
+      "volunteer": null,
+      "due": null,
+      "source": "arun/TEAM-HANDOFF.md",
+      "status": "draft"
+    },
+    {
+      "id": "ARUN-T08",
+      "experimentId": "E04",
+      "title": "Hindcast protocol on public observations (time-separated, no leakage)",
+      "deliverable": "Notebook or script and a results table",
+      "acceptanceCriteria": [
+        "MAE, RMSE and CRPS against climatology and persistence"
+      ],
+      "dependsOn": [
+        "ARUN-T06"
+      ],
+      "priority": "P2",
+      "volunteer": null,
+      "due": null,
+      "source": "arun/TEAM-HANDOFF.md",
+      "status": "draft"
+    },
+    {
+      "id": "ARUN-T09",
+      "experimentId": "E05",
+      "title": "Durable privacy ledger for a real service: atomic, restart-safe, cross-account",
+      "deliverable": "Design and a server prototype with tests",
+      "acceptanceCriteria": [
+        "Concurrency and restart tests pass; review against NIST SP 800-226"
+      ],
+      "dependsOn": [],
+      "priority": "P2",
+      "volunteer": null,
+      "due": null,
+      "source": "arun/TEAM-HANDOFF.md",
+      "status": "draft"
+    },
+    {
+      "id": "ARUN-T10",
+      "experimentId": "E15",
+      "title": "AlphaEarth embeddings for one approved public area",
+      "deliverable": "Adapter, licence and attribution record",
+      "acceptanceCriteria": [
+        "E15 runs on it, labelled PUBLIC_HISTORICAL, with the CC BY 4.0 credit"
+      ],
+      "dependsOn": [],
+      "priority": "P2",
+      "volunteer": null,
+      "due": null,
+      "source": "arun/TEAM-HANDOFF.md",
+      "status": "draft"
+    },
+    {
+      "id": "ARUN-T11",
+      "experimentId": "E16",
+      "title": "Differential-privacy option with bounded contributions",
+      "deliverable": "Kernel option and tests",
+      "acceptanceCriteria": [
+        "Budget and noise tests pass"
+      ],
+      "dependsOn": [
+        "ARUN-T09"
+      ],
+      "priority": "P2",
+      "volunteer": null,
+      "due": null,
+      "source": "arun/TEAM-HANDOFF.md",
+      "status": "draft"
+    },
+    {
+      "id": "ARUN-T12",
+      "experimentId": "E18",
+      "title": "Feed an imported, schema-checked sensor file into a run",
+      "deliverable": "Exhibit change and test",
+      "acceptanceCriteria": [
+        "A clean file runs; a file with coordinates is refused"
+      ],
+      "dependsOn": [],
+      "priority": "P2",
+      "volunteer": null,
+      "due": null,
+      "source": "arun/TEAM-HANDOFF.md",
+      "status": "draft"
+    },
+    {
+      "id": "ARUN-T13",
+      "experimentId": "E19",
+      "title": "Benchmark one job type on partner hardware, if a partner offers it",
+      "deliverable": "Timings with hardware, power and cost per hour",
+      "acceptanceCriteria": [
+        "Entered as measured figures, not assumptions"
+      ],
+      "dependsOn": [],
+      "priority": "P2",
+      "volunteer": null,
+      "due": null,
+      "source": "arun/TEAM-HANDOFF.md",
+      "status": "draft"
+    },
+    {
+      "id": "ARUN-T14",
+      "experimentId": null,
+      "title": "Screen-reader pass (VoiceOver, TalkBack)",
+      "deliverable": "List of fixes",
+      "acceptanceCriteria": [
+        "Every control has a name; every chart has its text table"
+      ],
+      "dependsOn": [],
+      "priority": "P1",
+      "volunteer": null,
+      "due": null,
+      "source": "arun/TEAM-HANDOFF.md",
+      "status": "draft"
+    },
+    {
+      "id": "ARUN-T15",
+      "experimentId": "E21",
+      "title": "Add team concepts to the comparison",
+      "deliverable": "Concepts entered with their owners' consent",
+      "acceptanceCriteria": [
+        "Each concept appears with equal standing; no automatic winner"
+      ],
+      "dependsOn": [],
+      "priority": "P1",
+      "volunteer": null,
+      "due": null,
+      "source": "arun/TEAM-HANDOFF.md",
+      "status": "draft"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+/* Exhibit pages: one screen. Stage and panel side by side; stacked in portrait. The page itself does not scroll. */
+:root[data-route='exhibit'], :root[data-route='exhibit'] body { height: 100%; overflow: hidden; }
+:root[data-route='exhibit'] #app { height: 100%; display: flex; flex-direction: column; }
+:root[data-route='exhibit'] main { flex: 1; min-height: 0; display: flex; }
+.ex { flex: 1; min-height: 0; display: flex; flex-direction: column; width: 100%; }
+.ex-head { display: flex; align-items: center; gap: 14px; padding: 8px max(16px, env(safe-area-inset-right, 0px)) 8px max(16px, env(safe-area-inset-left, 0px)); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.ex-head .back { text-decoration: none; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.ex-titles { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; flex: 1; min-width: 0; }
+.ex-titles h1 { font-size: var(--step-1); margin: 0; }
+.ex-id { font-family: var(--font-data); font-size: 0.8rem; color: var(--dawn-text); letter-spacing: 0.1em; }
+.ex-sub { color: var(--muted); font-size: 0.92rem; }
+.ex-tags { display: flex; gap: 8px; align-items: center; }
+.ex-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 400px); }
+.ex-stage { position: relative; min-width: 0; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+.ex-panel { min-height: 0; display: flex; flex-direction: column; border-left: 1px solid var(--line); background: color-mix(in srgb, var(--bg-2) 55%, var(--bg)); }
+.tabs { display: flex; gap: 2px; padding: 6px 8px 0; border-bottom: 1px solid var(--line); flex: none; }
+.tabs [role='tab'] { border: 0; background: transparent; padding: 8px 12px; border-radius: var(--r-s) var(--r-s) 0 0; cursor: pointer; font-weight: 700; color: var(--muted); border-bottom: 3px solid transparent; }
+.tabs [role='tab'][aria-selected='true'] { color: var(--fg); border-bottom-color: var(--dawn); }
+.panel-body { flex: 1; min-height: 0; overflow-y: auto; padding: 8px 14px 18px; overscroll-behavior: contain; }
+.tabpane h4:first-child { margin-top: 0.4em; }
+.ex-error { margin: 20px; padding: 14px; border: 1px solid var(--danger); border-radius: var(--r-m); }
+@media (max-width: 860px), (orientation: portrait) and (max-width: 1100px) {
+  .ex-body { grid-template-columns: 1fr; grid-template-rows: minmax(0, 54fr) minmax(0, 46fr); }
+  .ex-panel { border-left: 0; border-top: 1px solid var(--line); }
+  .ex-head { padding-top: 5px; padding-bottom: 5px; gap: 8px; }
+  .ex-sub { display: none; }
+  .ex-tags .btn { display: none; }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  .ex-head { padding-top: 3px; padding-bottom: 3px; }
+  .ex-titles h1 { font-size: 1rem; }
+}
+/* Stage helpers exhibits can use */
+.stage-canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+.stage-overlay { position: absolute; pointer-events: none; inset: 0; }
+.stage-legend { position: absolute; left: 10px; bottom: 10px; display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 0.82rem; background: color-mix(in srgb, var(--bg) 70%, transparent); padding: 6px 10px; border-radius: var(--r-s); pointer-events: none; }
+.stage-legend .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 5px; }
+.stage-split { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 8px; flex: 1; min-height: 0; }
+.stage-split > * { min-width: 0; min-height: 0; position: relative; }
+.stage-label { position: absolute; top: 8px; left: 8px; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; padding: 3px 10px; border-radius: 999px; background: color-mix(in srgb, var(--bg) 75%, transparent); pointer-events: none; }
+.stage-charts { flex: none; padding: 0 8px 8px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; }
+.stage-charts .chart { height: 130px; }
+@media (max-width: 860px), (orientation: portrait) and (max-width: 1100px) {
+  .stage-charts { display: none; }
+}
+/* Compact mode (inside the tour) */
+.ex.compact { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(260px, 1fr); gap: 12px; height: 100%; }
+.ex.compact .ex-stage { border-radius: var(--r-l); border: 1px solid var(--line); background: var(--bg); min-height: 300px; }
+.ex-compact-side { min-width: 0; min-height: 0; overflow-y: auto; }
+@media (max-width: 860px) { .ex.compact { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1.25fr) minmax(0, 1fr); gap: 8px; } .ex.compact .ex-stage { min-height: 0; } .ex.compact .ex-compact-side { overflow-y: auto; overscroll-behavior: contain; } }

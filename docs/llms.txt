@@ -1,0 +1,16 @@
+# ARUN · อรุณ
+
+A thousand tomorrows. One better today. A laboratory for possible worlds.
+
+One page, 21 exhibits of computational foresight. Every number is computed in the browser, seeded and reproducible, on a fictional Mekong-style valley; no real region, buyer or person is described. The page makes no network requests and opens offline. English, Thai and Khmer for the pitch, tour, menus and exhibit names.
+
+Connected flagship (E01–E07): Planetary clock (sun and dawn line) · The Map of Tomorrow (a storm on the valley, today beside the same storm with a wetland; finite-volume water model) · Probability Loom (a thousand 20-year futures, paired Monte Carlo) · The Map That Learns (sensors correct the rain field; optimal interpolation) · Minimum Knowledge (noisy totals under a privacy budget; Laplace mechanism) · Opportunity Engine (solar, drip water and wetland options on a Pareto frontier) · The buyer's desk (a report and sample quote; each result marked current or out of date).
+
+Research toys (E08–E21): Pattern Garden · Butterfly Chamber · Synchronization Garden · Temporal Symmetry Lab · Mathematical Blossoms · The Invisible Landscape · The River of Air · Earth Change Lens · The Signal Loom · The Resilience Network · The Scientific Instrument · Workload · Resource caps · The Laboratory of Alternatives.
+
+Every exhibit exports a JSON run record checked against schemas/run-record.schema.json in the repo.
+
+Page: https://nanobotco.github.io/arun/
+Repo: https://github.com/NaNoBotCo/arun
+
+Text CC BY 4.0, code MIT, fonts SIL OFL 1.1.
