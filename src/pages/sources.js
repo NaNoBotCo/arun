@@ -33,6 +33,7 @@ export function sources(main) {
   main.replaceChildren(h('div', { class: 'wrap page sources' },
     h('h1', {}, 'Sources'),
     h('p', { class: 'lede' }, 'Where real science would plug in, what each source allows, and why each is switched off in this build. The demo runs on seeded fictional data, labelled on every exhibit.'),
+    h('p', {}, h('a', { class: 'btn', href: '#opportunity' }, 'Compare public, licensed, partner and IoT data routes →')),
     h('h2', {}, 'Adapters in this build'),
     h('div', { class: 'cards' }, rows.map((r, i) => h('div', { class: 'card' },
       h('span', { class: 'tagline' }, r.dataStatus), h('h3', {}, r.title),
