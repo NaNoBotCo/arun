@@ -39,6 +39,10 @@ Run `npm test` before `npm run build` so the Status page shows the current test 
 
 The longer run (about 3 minutes): Lab → E02 (press Run, then move the wetland by tapping the right map) → E03 (now linked to E02) → E04 (tap to add sensors; try "Over-trusted noisy sensors") → E05 (ask until the budget runs out) → E06 (pick an option, send it to the desk) → E07 (the report updates; change the storm in E02 and watch sections turn STALE).
 
+## Cambodia opportunity workbench
+
+The `#opportunity` route compares four hypothetical data routes, year-one pilot economics, local delivery spend, and contributor-led product concepts. Public data, commercial licensing, authorized aggregate partnerships and IoT are candidates only; no new access or deployment is asserted. Entry points: Home, Desk and Sources. The workbench is English pending native Khmer and Thai review. Run `node --test test/kernels/opportunity.test.mjs`, then the normal build and browser checks before publishing with `npm run site`.
+
 ## What connects to what
 
 | From | To | What moves |
