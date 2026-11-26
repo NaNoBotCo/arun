@@ -9,4 +9,6 @@ import { compare } from './compare.js';
 import { ideas } from './ideas.js';
 import { status } from './status.js';
 
-export const PAGES = { home, lab, tour, desk, trust, sources, compare, ideas, status };
+import { opportunity } from './opportunity.js';
+
+export const PAGES = { home, lab, tour, desk, trust, sources, compare, ideas, status, opportunity };

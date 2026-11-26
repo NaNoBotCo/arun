@@ -36,6 +36,7 @@ export function home(main) {
         h('div', { class: 'ctas' },
           h('a', { class: 'btn primary big glow', href: '#tour' }, t('home.ctaTour')),
           h('a', { class: 'btn big', href: '#lab' }, t('home.ctaLab'))),
+        h('p', {}, h('a', { class: 'btn', href: '#opportunity' }, t('home.ctaOpportunity'))),
         h('p', { class: 'globe-hint' }, `Dawn is crossing ${Math.abs(Math.round(dawnLonOpen))}°${dawnLonOpen >= 0 ? 'E' : 'W'} as this page opens. `, t('home.globeHint')),
         chip)),
     h('section', { class: 'acts-band' },
