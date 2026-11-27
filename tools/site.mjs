@@ -35,6 +35,7 @@ const today = new Date().toISOString().slice(0, 10);
 writeFileSync(join(DOCS, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>${URL_}</loc><lastmod>${today}</lastmod></url>
+  <url><loc>${URL_}phnom-penh/</loc><lastmod>${today}</lastmod></url>
 </urlset>
 `);
 writeFileSync(join(DOCS, 'robots.txt'), `User-agent: *\nAllow: /\nSitemap: ${URL_}sitemap.xml\n`);

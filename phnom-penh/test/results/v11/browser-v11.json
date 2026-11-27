@@ -1,0 +1,191 @@
+{
+ "ranAt": "2026-11-27T15:04:39.297Z",
+ "browser": "Chrome for Testing (playwright chromium-1228), Apple M2, Metal. Not an Android phone.",
+ "results": [
+  {
+   "name": "first action: skip the opening, tap a sensor, its sheet opens (machine time)",
+   "ok": true,
+   "info": "skip at 1616 ms, sheet at 3086 ms, lens camera c1 "
+  },
+  {
+   "name": "timing.firstAction",
+   "ok": true,
+   "info": "{\"skipMs\":1616,\"firstActionMs\":3086}"
+  },
+  {
+   "name": "360x800 views and challenge sheets: content, no sideways scroll, taps ≥ 44 px, no NaN or raw keys",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "360x800 no errors",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "390x844 views and challenge sheets: content, no sideways scroll, taps ≥ 44 px, no NaN or raw keys",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "390x844 no errors",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "390 km: views in Khmer, no raw keys or overflow",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "390 th: views in Thai, no raw keys or overflow",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "412x915 views and challenge sheets: content, no sideways scroll, taps ≥ 44 px, no NaN or raw keys",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "412x915 no errors",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "915x412 views and challenge sheets: content, no sideways scroll, taps ≥ 44 px, no NaN or raw keys",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "915x412 no errors",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "build: tap shows a preview with cost, Do it adds the gauge",
+   "ok": true,
+   "info": "+ Gauge+ CameraRemoveMoveUndoRedoResetAdd a gauge here?On this storm: notice 34 min → 34 min before water.16:02 → 16:02 "
+  },
+  {
+   "name": "build: undo and redo",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "build: drag moves an added sensor (one move action)",
+   "ok": true,
+   "info": "-1452,-798 → -1129,-504"
+  },
+  {
+   "name": "build: remove shows a preview, then switches the camera off",
+   "ok": true,
+   "info": "+ Gauge+ CameraRemoveMoveUndoRedoResetRemove C7?On this storm: notice 34 min → 3"
+  },
+  {
+   "name": "build: reset returns to the city as it opens",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "build: no errors",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "compare: forecast only until revealed, then 48 unseen storms scored for both",
+   "ok": true,
+   "info": "2722 ms"
+  },
+  {
+   "name": "timing.compare96storms",
+   "ok": true,
+   "info": "2722 ms for 2 × 48 storms"
+  },
+  {
+   "name": "language switch: the experiment and the view stay",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "compare: no errors",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "notebook: save lists the record; export is the notebook format with no free text by default",
+   "ok": true,
+   "info": "actions,baselineHash,buildVersion,experimentId,locale,notes,outcome,provenance,scenario,schemaVersion,seed,timestamp,title,uncertainty,worldId"
+  },
+  {
+   "name": "notebook: replay steps the saved actions back onto the map",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "reload restores the experiment",
+   "ok": true,
+   "info": "{\"r\":true,\"a\":1}"
+  },
+  {
+   "name": "notebook: no errors",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "storage denied: loads, notebook falls back to this session only, no errors",
+   "ok": true,
+   "info": "NotebookThis page cannot store here; use Export to save a copy.Save this experimentSaveNewestTitleLeadCompare the twoSho "
+  },
+  {
+   "name": "outrun: starts with every network sensor off, adds within budget, scores 48 unseen storms",
+   "ok": true,
+   "info": "Median 11 min to prepare (middle half 10–12) · late 0 · missed 0 · false 0 · US$1,800"
+  },
+  {
+   "name": "prove wrong: a facility out west with 30% of reports lost: failures are found and listed",
+   "ok": true,
+   "info": "11 storms with a failure"
+  },
+  {
+   "name": "invisible city: the frame is measured from pixels and set beside the table",
+   "ok": true,
+   "info": "Pixels: 26.0 mm/h · table: 28.9 mm/h · set: 30 mm/h"
+  },
+  {
+   "name": "challenges: no errors",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "no requests leave the page (low tier)",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "page zoom 130% (stand-in for Android text size): no sideways scroll",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "2D fallback: build preview works without WebGL",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "external file: no team names, preliminary results, private links or local paths",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "private file: team results present and labelled preliminary",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "private build: camera sheet shows the team test, labelled",
+   "ok": true,
+   "info": ""
+  }
+ ]
+}

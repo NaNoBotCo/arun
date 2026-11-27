@@ -1,0 +1,19 @@
+/* Machine lens: compact tables, price grid, tornado bars. */
+.mc h3{font-size:16px;margin:18px 0 6px;font-weight:600}
+.mc .presets{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.mc .ptag{margin-left:6px;white-space:nowrap}
+.mc .tier{border-top:1px solid var(--line);padding:8px 0;font-size:14px}
+.mc .tier b{font-variant-numeric:tabular-nums}
+.mc .tier .calc{display:block;color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.mc .pg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:4px 0 12px}
+.mc .pg .pl{grid-column:1/-1;font-size:13px;color:var(--muted);margin-top:8px}
+.mc .pg input{min-height:44px;width:100%;min-width:0;box-sizing:border-box;border-radius:10px;border:1px solid var(--line);background:rgba(244,241,234,.06);color:var(--paper);font:inherit;font-size:16px;padding:0 8px;font-variant-numeric:tabular-nums}
+.mc .torn{display:grid;grid-template-columns:minmax(0,1fr) 84px;gap:2px 8px;align-items:center;font-size:13px;margin:6px 0}
+.mc .torn .nm{overflow-wrap:anywhere}
+.mc .torn .v{text-align:right;font-variant-numeric:tabular-nums}
+.mc .torn .bar{grid-column:1/-1;height:8px;border-radius:4px;background:rgba(244,241,234,.06);margin-bottom:8px;position:relative;overflow:hidden}
+.mc .torn .bar i{position:absolute;top:0;bottom:0;left:0;background:var(--gold);border-radius:4px}
+.mc .answer{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:rgba(244,241,234,.06);margin:8px 0}
+.mc .answer b{font-size:18px}
+.mc table.t{table-layout:fixed}
+.mc table.t td:first-child{overflow-wrap:anywhere}

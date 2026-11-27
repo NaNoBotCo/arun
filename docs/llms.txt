@@ -10,6 +10,8 @@ Research toys (E08–E21): Pattern Garden · Butterfly Chamber · Synchronizatio
 
 Every exhibit exports a JSON run record checked against schemas/run-record.schema.json in the repo.
 
+Phnom Penh (ARUN 11): one offline page for a phone. The mapped city under an illustrative storm; proposed gauges and cameras; a 48-member forecast; build a sensor network, compare it on 48 storms shown nowhere else, inspect the evidence behind a notice, save and replay experiments. English, Khmer, Thai. https://nanobotco.github.io/arun/phnom-penh/
+
 Page: https://nanobotco.github.io/arun/
 Repo: https://github.com/NaNoBotCo/arun
 

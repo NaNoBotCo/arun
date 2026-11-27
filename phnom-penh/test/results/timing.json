@@ -1,0 +1,9 @@
+{
+ "ranAt": "2026-11-27T13:49:24.673Z",
+ "note": "Chrome for Testing on an Apple M2 with the CPU slowed 4× by DevTools; GPU not slowed. Not a phone.",
+ "readyMs": 1080,
+ "loadToReadyMs": 2023,
+ "fpsIdle": 60,
+ "fpsPlaying": 56,
+ "rerunMs": 151
+}

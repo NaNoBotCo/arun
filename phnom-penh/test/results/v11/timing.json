@@ -1,0 +1,13 @@
+{
+ "ranAt": "2026-11-27T14:58:43.373Z",
+ "note": "Chrome for Testing on an Apple M2 with the CPU slowed 4× by DevTools; GPU not slowed. Not a phone. firstExperimentMs runs from page load through skip, one sheet, a build preview and commit, to 96 storms scored, with no human pauses.",
+ "readyMs": 1016,
+ "loadToReadyMs": 1705,
+ "skipToCityMs": 2650,
+ "openSheetMs": 62,
+ "fpsIdle": 60,
+ "fpsPlaying": 56,
+ "buildPreviewMs": 151,
+ "compare96StormsMs": 11486,
+ "firstExperimentMs": 21429
+}

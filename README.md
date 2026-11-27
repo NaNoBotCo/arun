@@ -11,6 +11,10 @@ ARUN (working name; อรุณ and អរុណ both mean dawn) is a static, o
 - Double-click `ARUN.command`, or open `dist/index.html` in any modern browser. It needs no server, account or internet connection once the file is on the machine.
 - Single file: `dist/index.html` (about 1.1 MB, fonts and map outlines inside).
 
+## Phnom Penh (ARUN 11)
+
+`phnom-penh/` is a separate single-file demo for an Android phone: the mapped city of Phnom Penh under an illustrative storm, with proposed rain sensors, a forecast, and a sandbox to build, compare on unseen storms, inspect the evidence and save experiments. Live copy: https://nanobotco.github.io/arun/phnom-penh/ (from `docs/phnom-penh/index.html`). Build, tests and what is synthetic: `phnom-penh/README.md`; changes from v10: `phnom-penh/CHANGELOG.md`.
+
 ## Build and test
 
 ```

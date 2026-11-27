@@ -1,0 +1,20 @@
+// node test/shot.mjs "query" out.png [w h]
+import { chromium } from 'playwright-core';
+import { createServer } from 'node:http';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+const file = fileURLToPath(new URL('../dist/arun-phnom-penh.html', import.meta.url));
+const srv = createServer((q, r) => { r.writeHead(200, { 'content-type': 'text/html' }); r.end(readFileSync(file)); }).listen(0);
+const port = srv.address().port;
+const [query = '', out = 'test/results/shot.png', w = '390', h = '844'] = process.argv.slice(2);
+const exe = process.env.CHROME || `${process.env.HOME}/Library/Caches/ms-playwright/chromium-1228/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing`;
+const browser = await chromium.launch({ executablePath: exe, args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist'] });
+const page = await browser.newPage({ viewport: { width: +w, height: +h }, deviceScaleFactor: 2, hasTouch: true, isMobile: +w < 700 });
+const logs = []; page.on('console', m => logs.push(m.type() + ': ' + m.text())); page.on('pageerror', e => logs.push('pageerror: ' + e.message));
+await page.goto(`http://localhost:${port}/?shot=1&${query}`);
+await page.waitForFunction(() => window.__ready || window.__error, null, { timeout: 60000 });
+await page.waitForTimeout(+(process.env.WAIT || 1500));
+const info = await page.evaluate(() => ({ ready: window.__ready, err: window.__error, fps: window.__world && window.__world.fps, gl: (() => { const c = document.createElement('canvas').getContext('webgl2'); const d = c && c.getExtension('WEBGL_debug_renderer_info'); return d ? c.getParameter(d.UNMASKED_RENDERER_WEBGL) : 'none'; })() }));
+await page.screenshot({ path: out });
+console.log(JSON.stringify(info), logs.slice(0, 8).join('\n'));
+await browser.close(); srv.close();

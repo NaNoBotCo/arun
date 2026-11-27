@@ -1,0 +1,450 @@
+{
+ "made": "2026-11-27",
+ "renders": 368,
+ "ms": 15539,
+ "scene": "src/lenses/faceshield/scene.js, 716×448 px, default setting, ponding 0.3, scene seeds 1–3, 4 frames each",
+ "table": {
+  "day": [
+   [
+    0,
+    0,
+    0,
+    12
+   ],
+   [
+    1,
+    0.94,
+    0.41,
+    12
+   ],
+   [
+    2,
+    2.11,
+    0.64,
+    12
+   ],
+   [
+    3,
+    3.1,
+    0.74,
+    12
+   ],
+   [
+    5,
+    5.3,
+    0.84,
+    12
+   ],
+   [
+    8,
+    8.71,
+    0.9,
+    12
+   ],
+   [
+    12,
+    12.17,
+    1.03,
+    12
+   ],
+   [
+    18,
+    17,
+    2.34,
+    12
+   ],
+   [
+    25,
+    23.58,
+    1.62,
+    12
+   ],
+   [
+    35,
+    34.17,
+    2.72,
+    12
+   ],
+   [
+    50,
+    48.58,
+    3.29,
+    12
+   ],
+   [
+    70,
+    67.58,
+    5.87,
+    12
+   ],
+   [
+    100,
+    102.08,
+    3.75,
+    12
+   ]
+  ],
+  "night": [
+   [
+    0,
+    0,
+    0,
+    12
+   ],
+   [
+    1,
+    0.93,
+    0.44,
+    12
+   ],
+   [
+    2,
+    2.01,
+    0.71,
+    12
+   ],
+   [
+    3,
+    2.95,
+    0.84,
+    12
+   ],
+   [
+    5,
+    5.19,
+    0.99,
+    12
+   ],
+   [
+    8,
+    8.56,
+    0.88,
+    12
+   ],
+   [
+    12,
+    11.92,
+    0.9,
+    12
+   ],
+   [
+    18,
+    17.08,
+    1.93,
+    12
+   ],
+   [
+    25,
+    23.75,
+    1.48,
+    12
+   ],
+   [
+    35,
+    33.5,
+    2.47,
+    12
+   ],
+   [
+    50,
+    47.42,
+    3.26,
+    12
+   ],
+   [
+    70,
+    66.83,
+    4.78,
+    12
+   ],
+   [
+    100,
+    101.25,
+    3.77,
+    12
+   ]
+  ]
+ },
+ "heldout": [
+  {
+   "R": 4,
+   "night": false,
+   "ponding": 0.6,
+   "seed": 7,
+   "measured": [
+    1.9,
+    3.9
+   ]
+  },
+  {
+   "R": 4,
+   "night": false,
+   "ponding": 0.6,
+   "seed": 8,
+   "measured": [
+    3.1,
+    3.1
+   ]
+  },
+  {
+   "R": 10,
+   "night": false,
+   "ponding": 0.6,
+   "seed": 7,
+   "measured": [
+    9.1,
+    11
+   ]
+  },
+  {
+   "R": 10,
+   "night": false,
+   "ponding": 0.6,
+   "seed": 8,
+   "measured": [
+    8.2,
+    6.3
+   ]
+  },
+  {
+   "R": 15,
+   "night": false,
+   "ponding": 0.6,
+   "seed": 7,
+   "measured": [
+    12,
+    16
+   ]
+  },
+  {
+   "R": 15,
+   "night": false,
+   "ponding": 0.6,
+   "seed": 8,
+   "measured": [
+    16,
+    9.8
+   ]
+  },
+  {
+   "R": 30,
+   "night": false,
+   "ponding": 0.6,
+   "seed": 7,
+   "measured": [
+    26,
+    33
+   ]
+  },
+  {
+   "R": 30,
+   "night": false,
+   "ponding": 0.6,
+   "seed": 8,
+   "measured": [
+    31,
+    29
+   ]
+  },
+  {
+   "R": 42,
+   "night": false,
+   "ponding": 0.6,
+   "seed": 7,
+   "measured": [
+    40,
+    42
+   ]
+  },
+  {
+   "R": 42,
+   "night": false,
+   "ponding": 0.6,
+   "seed": 8,
+   "measured": [
+    43,
+    39
+   ]
+  },
+  {
+   "R": 60,
+   "night": false,
+   "ponding": 0.6,
+   "seed": 7,
+   "measured": [
+    56,
+    63
+   ]
+  },
+  {
+   "R": 60,
+   "night": false,
+   "ponding": 0.6,
+   "seed": 8,
+   "measured": [
+    64,
+    62
+   ]
+  },
+  {
+   "R": 85,
+   "night": false,
+   "ponding": 0.6,
+   "seed": 7,
+   "measured": [
+    80,
+    84
+   ]
+  },
+  {
+   "R": 85,
+   "night": false,
+   "ponding": 0.6,
+   "seed": 8,
+   "measured": [
+    85,
+    82
+   ]
+  },
+  {
+   "R": 4,
+   "night": true,
+   "ponding": 0.6,
+   "seed": 7,
+   "measured": [
+    1.8,
+    3.2
+   ]
+  },
+  {
+   "R": 4,
+   "night": true,
+   "ponding": 0.6,
+   "seed": 8,
+   "measured": [
+    2.7,
+    2.9
+   ]
+  },
+  {
+   "R": 10,
+   "night": true,
+   "ponding": 0.6,
+   "seed": 7,
+   "measured": [
+    9,
+    11
+   ]
+  },
+  {
+   "R": 10,
+   "night": true,
+   "ponding": 0.6,
+   "seed": 8,
+   "measured": [
+    7.2,
+    5.9
+   ]
+  },
+  {
+   "R": 15,
+   "night": true,
+   "ponding": 0.6,
+   "seed": 7,
+   "measured": [
+    12,
+    16
+   ]
+  },
+  {
+   "R": 15,
+   "night": true,
+   "ponding": 0.6,
+   "seed": 8,
+   "measured": [
+    15,
+    9.9
+   ]
+  },
+  {
+   "R": 30,
+   "night": true,
+   "ponding": 0.6,
+   "seed": 7,
+   "measured": [
+    26,
+    32
+   ]
+  },
+  {
+   "R": 30,
+   "night": true,
+   "ponding": 0.6,
+   "seed": 8,
+   "measured": [
+    31,
+    30
+   ]
+  },
+  {
+   "R": 42,
+   "night": true,
+   "ponding": 0.6,
+   "seed": 7,
+   "measured": [
+    40,
+    42
+   ]
+  },
+  {
+   "R": 42,
+   "night": true,
+   "ponding": 0.6,
+   "seed": 8,
+   "measured": [
+    39,
+    39
+   ]
+  },
+  {
+   "R": 60,
+   "night": true,
+   "ponding": 0.6,
+   "seed": 7,
+   "measured": [
+    57,
+    64
+   ]
+  },
+  {
+   "R": 60,
+   "night": true,
+   "ponding": 0.6,
+   "seed": 8,
+   "measured": [
+    62,
+    61
+   ]
+  },
+  {
+   "R": 85,
+   "night": true,
+   "ponding": 0.6,
+   "seed": 7,
+   "measured": [
+    81,
+    83
+   ]
+  },
+  {
+   "R": 85,
+   "night": true,
+   "ponding": 0.6,
+   "seed": 8,
+   "measured": [
+    83,
+    82
+   ]
+  }
+ ]
+}
