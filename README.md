@@ -15,6 +15,10 @@ ARUN (working name; อรุณ and អរុណ both mean dawn) is a static, o
 
 `phnom-penh/` is a separate single-file demo for an Android phone: the mapped city of Phnom Penh under an illustrative storm, with proposed rain sensors, a forecast, and a sandbox to build, compare on unseen storms, inspect the evidence and save experiments. Live copy: https://nanobotco.github.io/arun/phnom-penh/ (from `docs/phnom-penh/index.html`). Build, tests and what is synthetic: `phnom-penh/README.md`; changes from v10: `phnom-penh/CHANGELOG.md`.
 
+## Resilience lab
+
+`phnom-penh/src/resilience/` builds a separate single-file lab: fictional facilities and synthetic data for measuring how low-cost telemetry and local computation behave when civilian services (water, cold rooms, power, air, links) are disrupted. Live copy: https://nanobotco.github.io/arun/resilience/ (from `docs/resilience/index.html`). Build: `node tools/build-resilience.mjs`, then `node tools/site-resilience.mjs` in `phnom-penh/`.
+
 ## Build and test
 
 ```
