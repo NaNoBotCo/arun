@@ -18,6 +18,12 @@ import { meta as E03_META } from '../exhibits/e03.js';
 import { vividTerrain as terrainCanvas, vividWater as createWaterLayer } from '../wonder/render.js';
 import { baselineParams, sweepJobs, rowsFromArms, FLOW_VERSION } from '../wonder/flow.js';
 import { loadMap, indexOf, positionOf, mapApplies, PMAP_SIDE } from '../wonder/pmap.js';
+import { sectionWater } from '../wonder/section.js';
+
+function groundAtSection(z, x) {
+  const i = Math.max(0, Math.min(z.length - 2, Math.floor(x)));
+  return z[i] + (z[i + 1] - z[i]) * (x - i);
+}
 
 const PLAY_FPS = 7; // 15-minute frames per second: 1¾ simulated hours each second
 const E03_SEED = 20261125; // E03's own default seed, so the lab shows the same futures
@@ -354,15 +360,51 @@ export function wonder(main) {
     g.fillStyle = sky;
     g.fillRect(at.x, at.y, at.w, at.h);
     if (frame) {
-      g.fillStyle = 'rgba(64,196,255,0.95)';
-      g.beginPath();
+      // Water as a liquid (src/wonder/section.js): exact depth at each cell, level against dry banks.
+      // The body is filled down to the panel's foot; the ground drawn next covers what lies under it.
+      const zs = [];
+      const hs = [];
       for (let c = c0; c <= c1; c++) {
-        const top = region.z[row * N + c] + frame.h[row * N + c];
-        c === c0 ? g.moveTo(X(c), Y(top)) : g.lineTo(X(c), Y(top));
+        zs.push(region.z[row * N + c]);
+        hs.push(frame.h[row * N + c]);
       }
-      for (let c = c1; c >= c0; c--) g.lineTo(X(c), Y(region.z[row * N + c]));
-      g.closePath();
-      g.fill();
+      const { runs, flows } = sectionWater(zs, hs);
+      const XX = (x) => X(c0 + x);
+      const foot = at.y + at.h;
+      for (const r of runs) {
+        let hi = -Infinity;
+        for (const p of r) hi = Math.max(hi, p.top);
+        const body = g.createLinearGradient(0, Y(hi), 0, foot);
+        body.addColorStop(0, 'rgba(96, 208, 255, 0.96)');
+        body.addColorStop(1, 'rgba(22, 96, 214, 0.98)');
+        g.fillStyle = body;
+        g.beginPath();
+        g.moveTo(XX(r[0].x), foot);
+        for (const p of r) g.lineTo(XX(p.x), Y(p.top));
+        g.lineTo(XX(r[r.length - 1].x), foot);
+        g.closePath();
+        g.fill();
+        g.strokeStyle = 'rgba(226, 249, 255, 0.95)';
+        g.lineWidth = 1.6 * dpr;
+        g.beginPath();
+        r.forEach((p, i) => (i ? g.lineTo(XX(p.x), Y(p.top)) : g.moveTo(XX(p.x), Y(p.top))));
+        g.stroke();
+      }
+      // Where the surface slopes the water is running: streaks inside the sheet move downhill.
+      const tNow = performance.now() / 1000;
+      g.save();
+      g.strokeStyle = 'rgba(240, 252, 255, 0.75)';
+      g.lineWidth = 1.3 * dpr;
+      g.setLineDash([7 * dpr, 7 * dpr]);
+      for (const f of flows) {
+        const mid = (x, top) => (Y(top) + Y(groundAtSection(zs, x))) / 2;
+        g.lineDashOffset = -f.down * ((tNow * 28 * dpr) % (14 * dpr));
+        g.beginPath();
+        g.moveTo(XX(f.x0), mid(f.x0, f.top0));
+        g.lineTo(XX(f.x1), mid(f.x1, f.top1));
+        g.stroke();
+      }
+      g.restore();
     }
     const earth = g.createLinearGradient(0, Y(zH), 0, at.y + at.h);
     earth.addColorStop(0, '#6aa83f');

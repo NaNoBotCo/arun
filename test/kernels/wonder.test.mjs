@@ -85,3 +85,70 @@ test('protection map: five spots recomputed now equal the map exactly (hotel sec
   base.runToEnd();
   assert.equal(base.state.assets[0].secondsAbove, M.meta.baseHotelSeconds);
 });
+
+// The side view draws water as a liquid: level against dry banks, exact at every wet cell, never above its own surface.
+import { sectionWater, groundAt } from '../../src/wonder/section.js';
+
+test('side view: water left in the channel lies level and stops where it meets each bank (the 27 Nov screenshot case)', () => {
+  // End of the storm, the hotel's row: only the channel cell is wet.
+  const z = [47.86, 47.56, 45.34, 43.21, 42.45, 45.18, 46.68, 47.57];
+  const h = [0, 0, 0, 0, 0.75, 0, 0, 0];
+  const { runs, flows } = sectionWater(z, h);
+  assert.equal(runs.length, 1);
+  const L = 42.45 + 0.75;
+  for (const p of runs[0]) assert.ok(Math.abs(p.top - L) < 1e-12, `surface ${p.top} at x ${p.x} is level at ${L}`);
+  // It meets the ground at both ends, inside the cells next to the channel.
+  const [a, b] = [runs[0][0], runs[0][runs[0].length - 1]];
+  assert.ok(Math.abs(groundAt(z, a.x) - L) < 1e-9 && a.x > 3 && a.x < 4);
+  assert.ok(Math.abs(groundAt(z, b.x) - L) < 1e-9 && b.x > 4 && b.x < 5);
+  assert.equal(flows.length, 0);
+});
+
+test('side view at the storm\'s peak: the channel pool is level; the sheet on each slope keeps the model\'s z + h, the hotel exactly; water runs down to the pool', () => {
+  // The hotel's row at the deepest moment without the wetland; the hotel is cell 10.
+  const z = [47.86, 47.56, 47.23, 46.69, 46.12, 45.74, 45.34, 43.21, 42.45, 45.18, 46.68, 47.57, 48.38, 49.09, 49.79, 50.83];
+  const h = [0.08, 0.06, 0.05, 0.05, 0.05, 0.05, 0.05, 1.05, 2.52, 0.66, 0.47, 0.48, 0.46, 0.31, 0.2, 0.07];
+  const { runs, flows, pools } = sectionWater(z, h);
+  assert.equal(runs.length, 1);
+  const P = 42.45 + 2.52;
+  assert.equal(pools[0].level, P);
+  const r = runs[0];
+  for (const p of r) {
+    assert.ok(p.top >= groundAt(z, p.x) - 1e-9, 'never under the ground');
+    if (Number.isInteger(p.x) && z[p.x] >= P) assert.equal(p.top, z[p.x] + h[p.x], `sheet cell ${p.x} exact`);
+    if (Number.isInteger(p.x) && z[p.x] < P) assert.equal(p.top, P, `pool cell ${p.x} level`);
+  }
+  assert.equal(r.find((p) => p.x === 10).top, 46.68 + 0.47, 'the hotel shows the model\'s depth');
+  // No dip anywhere: the surface falls toward the pool from the west and rises away from it to the east.
+  const lo = r.findIndex((p) => p.top === P);
+  for (let i = 1; i <= lo; i++) assert.ok(r[i].top <= r[i - 1].top + 1e-12);
+  for (let i = lo + 1; i < r.length; i++) assert.ok(r[i].top >= r[i - 1].top - 1e-12);
+  // Sheet water runs toward the pool on both slopes.
+  assert.ok(flows.some((f) => f.x0 >= 9 && f.down === -1) && flows.some((f) => f.x1 <= 7 && f.down === 1));
+  assert.ok(flows.every((f) => (f.x1 <= 7.5 ? f.down === 1 : f.down === -1)));
+});
+
+test('side view: a dry section has no water; a film thinner than 2 cm is drawn dry', () => {
+  assert.deepEqual(sectionWater([3, 2, 1, 2, 3], [0, 0, 0, 0, 0]).runs, []);
+  assert.deepEqual(sectionWater([3, 2, 1, 2, 3], [0.01, 0.01, 0.015, 0.01, 0]).runs, []);
+  assert.throws(() => sectionWater([1, 2], [0]), /same number/);
+});
+
+test('side view: water on an open slope is a sheet with its own depths, not a level pool', () => {
+  // Ground falls to the east and the section ends: no bank holds the water, so nothing is levelled.
+  const z = [10, 9, 8, 7, 6];
+  const h = [0.3, 0.2, 0.1, 0, 0];
+  const { runs, flows, pools } = sectionWater(z, h);
+  assert.equal(pools.length, 0);
+  for (const p of runs[0]) if (Number.isInteger(p.x) && h[p.x] > 0.02) assert.equal(p.top, z[p.x] + h[p.x]);
+  assert.ok(flows.length > 0 && flows.every((f) => f.down === 1));
+});
+
+test('side view: still water in a basin of several cells is level across them', () => {
+  const z = [5, 3, 2, 2.5, 3, 5];
+  const h = [0, 0.8, 1.8, 1.3, 0.8, 0];
+  const { runs, flows } = sectionWater(z, h);
+  assert.equal(runs.length, 1);
+  for (const p of runs[0]) assert.ok(Math.abs(p.top - 3.8) < 1e-12);
+  assert.equal(flows.length, 0);
+});
