@@ -1,5 +1,5 @@
 {
-  "ranAt": "2026-11-27T03:03:53.849Z",
+  "ranAt": "2026-11-27T04:16:02.152Z",
   "browser": "Chromium 149.0.7827.55",
   "executable": "chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell",
   "firefox": "not installed on this machine: untested",
@@ -73,12 +73,12 @@
     {
       "name": "N. #wonder shows a computed, moving flood without a tap",
       "ok": true,
-      "detail": "frame 1 at 241 ms after load (desktop Chromium, phone viewport)"
+      "detail": "frame 1 at 174 ms after load (desktop Chromium, phone viewport)"
     },
     {
-      "name": "O. Default wetland: result matches the E02 kernel (3.26 h → 1.41 h)",
+      "name": "O. Default wetland: result matches the E02 kernel (3.26 h → 1.41 h) and the precomputed map",
       "ok": true,
-      "detail": "The wetland cuts the hotel’s flooding from 3.3 h to 1.4 h. · flood + futures ready 9243 ms after load"
+      "detail": "With the wetland, the hotel is under water 1.4 h instead of 3.3 h. · map check: yes · flood + futures ready 9177 ms after load"
     },
     {
       "name": "P. Moving the wetland makes the futures stale, then current for the new wetland",
@@ -88,22 +88,27 @@
     {
       "name": "Q. Counterexample: a wetland below the hotel leaves its flooding unchanged",
       "ok": true,
-      "detail": "Here the wetland changes almost nothing: 3.3 h to 3.3 h."
+      "detail": "Here the wetland stores little water for the hotel: 3.3 h becomes 3.3 h. The map shows where it protects most."
     },
     {
       "name": "R. Two quick moves: only the last wetland’s results show",
       "ok": true,
-      "detail": "pressed above, hash a0aa76e2, The wetland cuts the hotel’s flooding from 3.3 h to 1.4 h."
+      "detail": "pressed above, hash a0aa76e2, With the wetland, the hotel is under water 1.4 h instead of 3.3 h."
     },
     {
       "name": "S. Tap, arrow keys and the cost lever each change the computed result",
       "ok": true,
-      "detail": "after tap: stale; after ←: stale; cost lever: “At US$50.0k it pays off in 78% of futures, above the hotel’s 50% bar.”"
+      "detail": "after tap: stale; after ←: stale; cost lever: “At US$50.0k, the hotel’s savings alone pay for it in 79% of futures.”"
     },
     {
       "name": "T. #wonder: no outside requests, no console errors, no sideways scroll",
       "ok": true,
       "detail": "0 requests, 0 errors, overflow false"
+    },
+    {
+      "name": "Y. Tapping the map moves the wetland; this device recomputes that spot and it equals the map",
+      "ok": true,
+      "detail": "Map, this spot: hotel dry 1.42 h longer, river peak 8.7% lower. This device: 1.42 h. Same answer."
     },
     {
       "name": "U. Leaving #wonder mid-run stops its loops and workers",
@@ -113,7 +118,7 @@
     {
       "name": "V. E03 in the lab links to the storm sweep #wonder computed",
       "ok": true,
-      "detail": "Linked: hotel depths come from the E02 sweep (5 storm sizes, scenario hash 4a5b9d27)."
+      "detail": "Linked: hotel depths come from the E02 sweep (5 storm sizes, scenario hash c8f54a3f)."
     },
     {
       "name": "W. Calm motion: no autoplay; the still shows the hotel at its deepest, with the result",

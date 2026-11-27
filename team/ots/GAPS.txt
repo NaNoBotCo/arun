@@ -2,9 +2,9 @@ ARUN over the shoulder: what is tested and what is not
 27 November 2026 · branch over-the-shoulder
 
 TESTED HERE (Apple M2, 8 cores, macOS, node v24.7.0, Chromium 149 headless)
-Kernel tests: 299 pass, 0 fail (293 earlier + 6 new). test/results/kernels.json
-Browser checks: 25 pass, 0 fail (14 earlier + 11 for #wonder). test/results/browser.json
-#wonder checks: moving flood without a tap; default result equals the E02 kernel; futures go stale on a move and come back for the new wetland; below-the-hotel counterexample; two quick moves show only the last; tap, arrow keys and cost lever change results; no outside requests, console errors or sideways scroll; leaving mid-run stops every loop and worker; E03 in the lab links to the sweep #wonder made; calm motion; 320, 360, 390, 430 px; touch targets 44 px; Thai and Khmer titles.
+Kernel tests: 301 pass, 0 fail (293 earlier + 8 new, two of them recomputing five map spots exactly). test/results/kernels.json
+Browser checks: 26 pass, 0 fail (14 earlier + 12 for #wonder). test/results/browser.json
+#wonder checks: moving flood without a tap; default result equals the E02 kernel and the map; tapping the map moves the wetland and this device's rerun equals the map; futures go stale on a move and come back for the new wetland; below-the-hotel counterexample; two quick moves show only the last; tap, arrow keys and cost lever change results; no outside requests, console errors or sideways scroll; leaving mid-run stops every loop and worker; E03 in the lab links to the sweep #wonder made; calm motion; 320, 360, 390, 430 px; touch targets 44 px; Thai and Khmer titles.
 
 TIMINGS (Chromium, 390 × 844 phone viewport, file://, 3 trials each; raw: team/ots/perf-cpu-throttle.jsonl)
                           no slowdown     4× main thread   6× main thread
@@ -19,14 +19,19 @@ after a wetland move      9.2–9.3 s until both beats are current again
 The flood plays at 7 frames a second (1.75 simulated hours a second), so 9 s is playback pace, not compute.
 Chromium's slowdown applies to the page only: workers ran at full Mac speed.
 
+PROTECTION MAP
+10,201 E02 runs (every position 0.00–1.00, step 0.01, default storm), 52 minutes on the Apple M2 with 7 workers, 6.07 CPU-hours, 27 Nov. At 2,946 positions the hotel spends at least 0.1 h less under water; at the best, none of its 3.26 h. Packed: 54 KB in the single file.
+Page size now 1,263 KB (was 1,124 KB before this branch).
+The timings table above was measured before the map, the side view and the gauge were added; not rerun.
+
 NOT MEASURED
 No Android phone. Phone worker time is an estimate: one valley run takes 1.4 s in node on the M2; a midrange phone core is often 3 to 4 times slower, so futures may need roughly 15 to 25 s on first load and 6 to 10 s after a move. Measure on a phone before relying on it.
-No network test. Single file 1,177 KB (was 1,124 KB); gzip 544 KB (was 530 KB). At 1.6 Mbps that is about 2.7 s gzipped, 5.9 s uncompressed. GitHub Pages serves gzip.
+No network test. Single file 1,263 KB (was 1,124 KB); gzip 574 KB (530 KB at the base): about 2.9 s at 1.6 Mbps. GitHub Pages serves gzip.
 Firefox and WebKit: not installed here.
 TalkBack, 200% zoom, contrast audit: not run.
 Observer tests (packet qa/01-acceptance.md): none run. team/ots/qa/observations.csv is the blank sheet; score_observations.py scores it.
 Native-reader review of the new Thai and Khmer lines: not done.
-Recorded demo: 47 s of Chromium at phone size with scripted taps, not a phone and not a person.
+Recorded demo: Chromium at phone size with scripted taps and captions, not a phone and not a person.
 
 NOT BUILT FROM THE PACKET
 Hook tournament (E01, E08, E10, E12). SOKHA and LOTUS reveals. Fragile City research. Sky Reach and Face Shield integration. Buyer dossiers and compute economics beyond the measured-time panel. Cultural and trademark review of names. A share card of its own for #wonder (a #wonder link shows the site's card). Presets in the link. Back restores the wetland and choices, not the scroll position.

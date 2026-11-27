@@ -30,9 +30,9 @@ Run `npm test` before `npm run build` so the Status page shows the current test 
 
 A phone-first route for one person showing another: open `…/arun/#wonder`, no tap needed.
 
-1. **Same storm. Two valleys.** Rain is already falling on two copies of the fictional valley. Tap either valley (or use the arrow keys, or a preset) to move the wetland; both valleys run again and the hotel's hours under water update. *Below the hotel* is the counterexample: no change.
-2. **A thousand tomorrows.** That wetland's five-storm sweep feeds 1,000 twenty-year futures (E03). Tap a line to follow one future; change how many big storms a year.
-3. **One better today.** Flood cost with and without the wetland, a cost lever, the hotel's bar (50 / 80 / 95% of futures), and the highest cost that clears it.
+1. **Same storm. Two valleys.** Rain is already falling on two copies of the fictional valley, without and with a wetland. Tap either valley (or use the arrow keys, or a preset) to move the wetland; both valleys run again and the hotel's hours under water update. *Below the hotel* is the counterexample: no change.
+2. **Where does it protect most?** The same run at all 10,201 spots the page can set, computed ahead (`node tools/protection-map.mjs`), glowing where the wetland spares the hotel the most hours under water or lowers the river's peak downstream. Tap a spot: the wetland moves there, this device reruns that spot, and the page says whether it equals the map. A disclosure works through what the same search needs on a real river.
+3. **A thousand tomorrows. One better today.** That wetland's five-storm sweep feeds 1,000 twenty-year futures (E03): what it saves the hotel, year by year, against a cost line; who it protects; a cost slider.
 
 Not linked from the menu yet. Decisions and gaps: `team/ots/DECISIONS.txt`, `team/ots/GAPS.txt`.
 

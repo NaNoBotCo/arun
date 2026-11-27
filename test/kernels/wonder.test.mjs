@@ -1,7 +1,8 @@
 // Route jobs for the over-the-shoulder page: they must reproduce E02 exactly, arm by arm.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { runPair, hazardCurve, CURVE_MULTIPLIERS } from '../../src/kernels/e02.js';
+import { runPair, hazardCurve, CURVE_MULTIPLIERS, makeRegion, createSim, METHOD_VERSION } from '../../src/kernels/e02.js';
+import { loadMap, indexOf, positionOf, mapApplies, PMAP_SIDE } from '../../src/wonder/pmap.js';
 import { defaultScenario } from '../../src/core/scenario.js';
 import { baselineParams, runArm, sweepJobs, rowsFromArms, streamRun } from '../../src/wonder/flow.js';
 
@@ -57,4 +58,30 @@ test('water budget closes in every arm of the stream (residual within 0.1% of in
     const s = r.summaries[arm];
     assert.ok(Math.abs(s.residual_m3) <= Math.max(1e-6, 0.001 * s.input_m3), `${arm} residual ${s.residual_m3}`);
   }
+});
+
+// The precomputed protection map must be what the kernel gives today, spot for spot.
+
+test('protection map was made with today’s defaults (seed, storm, wetland size, model version)', () => {
+  const M = loadMap();
+  assert.equal(M.hotelSeconds.length, PMAP_SIDE * PMAP_SIDE);
+  assert.ok(mapApplies(S.seed, S.hydro));
+  assert.ok(!mapApplies(S.seed, { ...S.hydro, stormIntensity_mm_h: 50 }));
+  assert.equal(M.meta.method, METHOD_VERSION);
+});
+
+test('protection map: five spots recomputed now equal the map exactly (hotel seconds; peak flow to 0.1 m³/s)', () => {
+  const M = loadMap();
+  const region = makeRegion(S.seed, S.hydro.grid);
+  const spots = [[0.59, 0.44], [0.3, 0.7], [0.55, 0.85], positionOf(M.best.hotel), positionOf(M.best.river)].map((p) => (Array.isArray(p) ? { x: p[0], y: p[1] } : p));
+  for (const { x, y } of spots) {
+    const sim = createSim(region, { ...S.hydro, interventionX: x, interventionY: y }, true, { snapshots: false });
+    sim.runToEnd();
+    const i = indexOf(x, y);
+    assert.equal(sim.state.assets[0].secondsAbove, M.hotelSeconds[i], `hotel at ${x},${y}`);
+    assert.equal(Math.round(sim.state.peakQ * 10) / 10, M.peakQ[i], `peak flow at ${x},${y}`);
+  }
+  const base = createSim(region, S.hydro, false, { snapshots: false });
+  base.runToEnd();
+  assert.equal(base.state.assets[0].secondsAbove, M.meta.baseHotelSeconds);
 });
