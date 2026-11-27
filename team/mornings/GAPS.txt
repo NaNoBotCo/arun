@@ -1,0 +1,9 @@
+ARUN possible mornings: what is not checked
+27 November 2026
+
+No physical Android phone. Timings are desktop Chromium on an Apple M2 with a phone-sized window.
+No observers. The A/B/C comparison (10-second reading, 30-second control use, 60-second retelling) has not been run.
+No TalkBack or VoiceOver run; no contrast tool run; Firefox and WebKit untested.
+Thai and Khmer written in this build; no native reader yet.
+The data-center arithmetic rests on three assumptions written on the page (300 places, 30 changes, three at a time); no unit economics behind them.
+The city, its traffic and its rain are synthetic: a 10 × 8 grid with seeded weights from the candidate page. No costs, capacity, queues, land, shifting demand or step-free access.

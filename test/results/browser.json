@@ -1,17 +1,17 @@
 {
-  "ranAt": "2026-11-27T04:29:53.447Z",
+  "ranAt": "2026-11-27T05:34:00.198Z",
   "browser": "Chromium 149.0.7827.55",
   "executable": "chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell",
   "firefox": "not installed on this machine: untested",
   "webkit": "not installed on this machine: untested",
   "results": [
     {
-      "name": "A. 31 routes load clean at desktop 1366×820",
+      "name": "A. 33 routes load clean at desktop 1366×820",
       "ok": true,
       "detail": ""
     },
     {
-      "name": "A. 31 routes load clean at phone 390×844",
+      "name": "A. 33 routes load clean at phone 390×844",
       "ok": true,
       "detail": ""
     },
@@ -73,12 +73,12 @@
     {
       "name": "N. #wonder shows a computed, moving flood without a tap",
       "ok": true,
-      "detail": "frame 1 at 310 ms after load (desktop Chromium, phone viewport)"
+      "detail": "frame 1 at 241 ms after load (desktop Chromium, phone viewport)"
     },
     {
       "name": "O. Default wetland: result matches the E02 kernel (3.26 h → 1.41 h) and the precomputed map",
       "ok": true,
-      "detail": "With the wetland, the hotel is under water 1.4 h instead of 3.3 h. · map check: yes · flood + futures ready 9317 ms after load"
+      "detail": "With the wetland, the hotel is under water 1.4 h instead of 3.3 h. · map check: yes · flood + futures ready 9252 ms after load"
     },
     {
       "name": "P. Moving the wetland makes the futures stale, then current for the new wetland",
@@ -129,6 +129,51 @@
       "name": "X. #wonder at 320, 360 and 430 px; touch targets 44 px; Thai and Khmer titles",
       "ok": true,
       "detail": "พายุลูกเดียวกัน สองหุบเขา | ព្យុះដដែល។ ជ្រលងភ្នំពីរ។"
+    },
+    {
+      "name": "PM1. #mornings and #minutes at 320, 390, 430, 1024 px: clean, no outside requests, no sideways scroll, targets ≥ 44 px, numbers and the one choice on the first screen with no tap",
+      "ok": true,
+      "detail": "both routes, four widths"
+    },
+    {
+      "name": "PM2. Numbers on the stage equal the kernel: morning 39, new bridge 26.0 → 17.7 min (8.3), 1.79 min per trip; ferry on the same morning",
+      "ok": true,
+      "detail": "bridge: 8.3 min, 26.0 → 17.7 min, pin to Market, 1.79 min · ferry: 2.8 min, 0.12 min (kernel 2.8 min)"
+    },
+    {
+      "name": "PM3. City in time: corners move from street positions to minutes (in between at 350 ms), settle, and stop; the clinic re-centres it",
+      "ok": true,
+      "detail": "m at 350 ms 0.32; settled m 1, s 1; clinic: 29.2 → 29.2 min, pin to Clinic; loops after 0"
+    },
+    {
+      "name": "PM4. A tap on the map moves the pin; the race runs, ends at the longer trip, and the loop stops",
+      "ok": true,
+      "detail": "pin 68; race ended at 5.57 min (kernel 5.57); loops 0"
+    },
+    {
+      "name": "PM5. 512 mornings: a tapped strand opens its morning; arrow keys step; least useful and typical equal the kernel; compare lists all three",
+      "ok": true,
+      "detail": "strand → 232, ← 40, least useful ferry 9 (kernel 9, 0.0 min), typical bridge 39, rows 3"
+    },
+    {
+      "name": "PM6. Run record: valid JSON, method and city hash, replays to the same numbers in node and on the page",
+      "ok": true,
+      "detail": "morning 39, bridge, seed 1809"
+    },
+    {
+      "name": "PM7. Leaving the route mid-animation stops its loops and workers",
+      "ok": true,
+      "detail": "{\"loops\":0,\"workers\":0,\"hook\":\"undefined\",\"loopsDuring\":1}"
+    },
+    {
+      "name": "PM8. Calm motion: #minutes opens settled on the map in minutes; switching views jumps; nothing keeps running",
+      "ok": true,
+      "detail": "opening m 1, s 1; after switch m 0, racing false; loops 0"
+    },
+    {
+      "name": "PM9. #minutes opens on minutes and the change pulls the city in; Thai and Khmer titles; #mornings opens on the street map",
+      "ok": true,
+      "detail": "s at 400 ms 0.00 → 1; ระยะทางที่มีค่าที่สุดในเมืองนี้ ไม่ใช่ระยะทางเลย | ចម្ងាយដែលមានតម្លៃបំផុតក្នុងទីក្រុងនេះ មិនមែនជាចម្ងាយទាល់តែសោះ។"
     },
     {
       "name": "M. Page runs from a file:// URL",
