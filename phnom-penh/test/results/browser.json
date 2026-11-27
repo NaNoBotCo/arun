@@ -1,0 +1,181 @@
+{
+ "ranAt": "2026-11-27T14:56:58.009Z",
+ "browser": "Chrome for Testing (playwright chromium-1228), Apple M2, Metal",
+ "results": [
+  {
+   "name": "360x800 loads",
+   "ok": true,
+   "info": "{\"ms\":283,\"buildings\":81153,\"tier\":\"mid\",\"flat\":false,\"edition\":\"external\",\"restored\":false}"
+  },
+  {
+   "name": "360x800 headline has minutes",
+   "ok": true,
+   "info": "A hotel (illustrative)34minto prepare\n    On its own9 minWha"
+  },
+  {
+   "name": "360x800 7 lenses × 3 depths have content, no NaN/undefined, no sideways scroll",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "360x800 buttons and sliders at least 44 px",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "360x800 no errors",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "390x844 loads",
+   "ok": true,
+   "info": "{\"ms\":264,\"buildings\":81153,\"tier\":\"mid\",\"flat\":false,\"edition\":\"external\",\"restored\":false}"
+  },
+  {
+   "name": "390x844 headline has minutes",
+   "ok": true,
+   "info": "A hotel (illustrative)34minto prepare\n    On its own9 minWha"
+  },
+  {
+   "name": "390x844 7 lenses × 3 depths have content, no NaN/undefined, no sideways scroll",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "390x844 buttons and sliders at least 44 px",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "390x844 no errors",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "tap on the map opens a lens",
+   "ok": true,
+   "info": "depth 1"
+  },
+  {
+   "name": "network toggle changes the headline and back",
+   "ok": true,
+   "info": "34min → A hotel (illustrative)9minto prepare\n    Network o → 34min"
+  },
+  {
+   "name": "time slider sets the clock",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "Khmer on screen and in a lens",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "Thai in a lens",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "camera lens: three numbers from pixels, message under 200 bytes",
+   "ok": true,
+   "info": "Sent: 62 bytes. Picture: 75 kB, stays on the camera."
+  },
+  {
+   "name": "river slider changes the land reached",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "adding a gauge reruns the scenario",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "another storm",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "frame rate on this Mac (GPU)",
+   "ok": true,
+   "info": "58 fps, ready 264 ms"
+  },
+  {
+   "name": "412x915 loads",
+   "ok": true,
+   "info": "{\"ms\":253,\"buildings\":81153,\"tier\":\"mid\",\"flat\":false,\"edition\":\"external\",\"restored\":false}"
+  },
+  {
+   "name": "412x915 headline has minutes",
+   "ok": true,
+   "info": "A hotel (illustrative)34minto prepare\n    On its own9 minWha"
+  },
+  {
+   "name": "412x915 7 lenses × 3 depths have content, no NaN/undefined, no sideways scroll",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "412x915 buttons and sliders at least 44 px",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "412x915 no errors",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "915x412 loads",
+   "ok": true,
+   "info": "{\"ms\":274,\"buildings\":81153,\"tier\":\"mid\",\"flat\":false,\"edition\":\"external\",\"restored\":false}"
+  },
+  {
+   "name": "915x412 headline has minutes",
+   "ok": true,
+   "info": "A hotel (illustrative)34minto prepare\n    On its own9 minWha"
+  },
+  {
+   "name": "915x412 7 lenses × 3 depths have content, no NaN/undefined, no sideways scroll",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "915x412 buttons and sliders at least 44 px",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "915x412 no errors",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "same storm, same headline on two loads",
+   "ok": true,
+   "info": "A hotel (illustrative)34minto prepare\n    On its own9 minWha"
+  },
+  {
+   "name": "reduced motion: straight to the city, no errors",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "flat fallback: map, lenses, no errors",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "opening: photo first, then the city and the notice within 17 s",
+   "ok": true,
+   "info": ""
+  },
+  {
+   "name": "a tap skips the opening",
+   "ok": true,
+   "info": ""
+  }
+ ]
+}

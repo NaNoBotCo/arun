@@ -1,0 +1,31 @@
+/* Two shores */
+.ts .ts-cards{display:grid;gap:10px;margin:10px 0}
+.ts .ts-card{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:rgba(244,241,234,.04)}
+.ts .ts-card h3{margin:0 0 2px;font-size:16px;font-weight:600}
+.ts .ts-card.cm h3{color:var(--gold)}.ts .ts-card.pp h3{color:var(--cyan)}
+.ts .ts-card .note{margin:0 0 6px}
+.ts .ts-tog{display:flex;width:100%;justify-content:space-between;align-items:center;text-align:left;margin:6px 0 0;border-radius:14px}
+.ts .ts-tog b{font-weight:700}
+.ts .ts-tog[aria-pressed="false"]{color:var(--muted)}
+.ts .ts-res{margin:16px 0 4px}
+.ts .ts-res h3{margin:0 0 4px;font-size:16px;font-weight:600}
+.ts .ts-arm{padding:8px 0;border-bottom:1px solid var(--line)}
+.ts .ts-head{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-size:14px}
+.ts .ts-sign{font-variant-numeric:tabular-nums;font-weight:700}
+.ts .ts-arm.pos .ts-sign{color:var(--jade)}.ts .ts-arm.neg .ts-sign{color:var(--rose)}.ts .ts-arm.zero .ts-sign{color:var(--silver)}
+.ts .ts-bar{position:relative;height:22px;margin:6px 0 2px}
+.ts .ts-bar .axis{position:absolute;left:50%;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--paper);opacity:.55}
+.ts .ts-bar .fill{position:absolute;top:5px;height:12px;border-radius:3px;background:var(--jade)}
+.ts .ts-arm.neg .fill{background:var(--rose)}.ts .ts-arm.zero .fill{background:var(--silver)}
+.ts .ts-bar .whisk{position:absolute;top:10px;height:2px;background:var(--paper);opacity:.85}
+.ts .ts-bar .cap{position:absolute;top:6px;width:2px;height:10px;background:var(--paper);opacity:.85}
+.ts .ts-axis{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+.ts .ts-sub{font-size:13px;color:var(--muted);margin-top:2px}
+.ts .ts-tag{display:inline-block;margin-top:3px;padding:1px 8px;border-radius:10px;font-size:12px;font-weight:600;color:var(--ink);background:var(--silver)}
+.ts .ts-arm.neg .ts-tag{background:var(--rose)}.ts .ts-arm.pos .ts-tag{background:var(--jade)}
+.ts .ts-prov{font-size:12px;color:var(--muted);margin-top:3px}
+.ts .ts-arm.na{opacity:.8}.ts .ts-arm.na .ts-head{color:var(--muted)}
+.ts details p{margin:4px 0;font-size:13px;color:var(--muted)}
+.ts .ts-note{margin-top:14px;padding:10px 12px;border:1px solid var(--violet);border-radius:12px}
+.ts .ts-note h3{margin:0 0 4px;font-size:15px;font-weight:600;color:var(--violet)}
+.ts .ts-note p{margin:0;font-size:14px}

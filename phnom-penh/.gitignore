@@ -1,0 +1,17 @@
+node_modules/
+dist/
+data/raw/
+test/results/*.png
+test/results/*.webm
+test/results/*.mp4
+test/results/intro/
+test/results/video/
+test/results/survey-*/
+test/results/faceshield/*.png
+private/
+test/results/v11/shots/
+test/results/v11/*.webm
+test/results/v11/*.mp4
+test/results/*.harness.js
+test/results/faceshield/
+test/results/kernel-tests.txt

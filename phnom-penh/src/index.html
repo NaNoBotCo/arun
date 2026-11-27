@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#0b1220">
+<link rel="icon" href="data:,">
+<title>ARUN · Phnom Penh</title>
+<meta name="description" content="Phnom Penh, worlds in your hands: proposed cameras and gauges report an illustrative storm over the mapped city, a forecast forms, and a facility gets time to prepare. Build, compare, inspect and save experiments.">
+<style>/*FONTS*/</style>
+<style>/*CSS*/</style>
+</head>
+<body>
+<div id="app" data-depth="0">
+  <canvas id="world" aria-label="Phnom Penh, seen from the south-east, with an illustrative storm" role="img"></canvas>
+  <div id="labels" aria-hidden="true"></div>
+  <div id="bubble" hidden></div>
+
+  <header id="top">
+    <div class="brand"><b>ARUN</b><span class="place" data-t="place">Phnom Penh</span></div>
+    <button id="lang" class="chip" aria-label="Language">EN</button>
+  </header>
+  <div id="scenario" class="tag" data-t="scenarioTag">Illustrative storm · proposed sensors</div>
+  <div id="caption" aria-live="polite"></div>
+
+  <section id="sheet" aria-live="polite">
+    <div id="grip" aria-hidden="true"></div>
+    <nav id="modes" aria-label="Modes">
+      <button data-v="observe" aria-current="true">Observe</button><button data-v="build">Build</button><button data-v="compare">Compare</button><button data-v="notebook">Notebook</button>
+    </nav>
+    <nav id="depths" hidden>
+      <button id="back" class="iconbtn" aria-label="Back">‹</button>
+      <div class="dtabs"><button data-d="1">1</button><button data-d="2">2</button><button data-d="3">3</button></div>
+      <button id="close" class="iconbtn" aria-label="Close">×</button>
+    </nav>
+    <div id="sheetBody"></div>
+  </section>
+
+  <footer id="timebar">
+    <button id="play" class="iconbtn big" aria-label="Play">▶</button>
+    <div id="scrub">
+      <div id="clock">15:00</div>
+      <input id="time" type="range" min="0" max="180" step="1" value="0" aria-label="Time, 15:00 to 18:00">
+      <div id="marks"></div>
+    </div>
+    <button id="net" class="toggle on" aria-pressed="true"><span class="dot"></span><span data-t="network">Network</span></button>
+  </footer>
+
+  <div id="showbar" hidden><span class="st"></span><button class="btn ch" data-t="v_changeIt">Change it</button><button class="btn nx" data-t="v_next">Next</button><button class="btn go ex" data-t="v_exitShow">Exit</button></div>
+
+  <div id="opening">
+    <img id="hero" src="%HERO%" alt="Koh Pich and downtown Phnom Penh from a drone, looking north-west">
+    <div class="veil"></div>
+    <div class="titles">
+      <div class="km">ភ្នំពេញ</div>
+      <h1>Phnom Penh</h1>
+      <p class="line" data-t="tagline">Information outruns water.</p>
+    </div>
+    <div class="credit">Eva Berlinson · CC BY-SA 4.0 · Wikimedia Commons</div>
+  </div>
+</div>
+<script id="arun-data" type="application/json">/*DATA*/</script>
+<script>/*JS*/</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "name": "arun-phnom-penh",
+  "version": "0.11.0",
+  "private": true,
+  "description": "ARUN 11 \u2014 Worlds in your hands: Phnom Penh. One offline file for an Android phone.",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "data": "node tools/make-data.mjs",
+    "build": "node tools/build.mjs --edition external && node tools/build.mjs --edition private",
+    "test": "node --test test/kernels/*.test.mjs",
+    "test:browser": "node tools/build.mjs --edition external && node test/run.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.12",
+    "geotiff": "^2.1.3",
+    "playwright-core": "^1.63.0",
+    "three": "^0.170.0"
+  },
+  "imports": {
+    "#edition": "./src/edition/evidence.external.js"
+  }
+}

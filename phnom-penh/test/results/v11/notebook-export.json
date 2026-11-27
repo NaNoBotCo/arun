@@ -1,0 +1,126 @@
+{
+ "format": "arun-notebook",
+ "schemaVersion": 1,
+ "includesText": false,
+ "records": [
+  {
+   "schemaVersion": 1,
+   "buildVersion": "0.11.0 external",
+   "experimentId": "1954a9cfe5933518",
+   "seed": 1,
+   "worldId": "phnom-penh",
+   "timestamp": "2026-11-27T15:04:24.843Z",
+   "locale": "en",
+   "scenario": {
+    "schemaVersion": 1,
+    "worldId": "phnom-penh",
+    "seed": 1,
+    "facility": {
+     "x": -1500,
+     "y": -600,
+     "kind": "hotel"
+    },
+    "ring": "region",
+    "off": [],
+    "added": [
+     {
+      "id": "n1",
+      "kind": "gauge",
+      "x": -5200,
+      "y": -500
+     }
+    ],
+    "hydro": {
+     "catchHa": 20,
+     "runoff": 0.85,
+     "drainMmH": 20,
+     "pondHa": 0.9,
+     "kerbCm": 15
+    },
+    "extra": {
+     "pumpM3min": 0
+    },
+    "warnP": 0.4,
+    "obs": {
+     "fieldError": 0.25,
+     "drop": 0.02,
+     "delay": 0,
+     "noiseScale": 1
+    }
+   },
+   "actions": [
+    {
+     "type": "add",
+     "kind": "gauge",
+     "x": -5200,
+     "y": -500
+    },
+    {
+     "type": "threshold",
+     "value": 0.4
+    }
+   ],
+   "baselineHash": "56f6dda4",
+   "provenance": {
+    "kernelVersion": "nowcast/11.0",
+    "adapterVersion": "observe/11.0",
+    "inputs": [
+     {
+      "name": "OpenStreetMap streets and rivers",
+      "kind": "source"
+     },
+     {
+      "name": "Overture buildings 2026-11-18.0",
+      "kind": "source"
+     },
+     {
+      "name": "Copernicus DEM GLO-30",
+      "kind": "source"
+     },
+     {
+      "name": "JRC Global Surface Water",
+      "kind": "source"
+     },
+     {
+      "name": "illustrative storm",
+      "kind": "synthetic"
+     },
+     {
+      "name": "camera table from drawn-street renders",
+      "kind": "synthetic"
+     },
+     {
+      "name": "proposed sensor positions",
+      "kind": "proposed"
+     },
+     {
+      "name": "street water bucket",
+      "kind": "assumed"
+     }
+    ]
+   },
+   "outcome": {
+    "seed": 1,
+    "tWater": 96,
+    "gain": 27,
+    "net": {
+     "tWarn": 60,
+     "prep": 36,
+     "outcome": "hit"
+    },
+    "alone": {
+     "tWarn": 87,
+     "prep": 9,
+     "outcome": "hit"
+    }
+   },
+   "uncertainty": {
+    "coverAtNotice": 0.449,
+    "chanceAtNotice": 0.458,
+    "heldout": null
+   },
+   "title": "Experiment 1",
+   "notes": ""
+  }
+ ]
+}

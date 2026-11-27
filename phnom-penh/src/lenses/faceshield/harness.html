@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Face Shield harness</title>
+<link rel="icon" href="data:,">
+<style>
+  :root { --ink:#0b1220; --paper:#f4f1ea; --muted:#a9b4c4; --violet:#a98bff; --cyan:#5fd4e6; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ink); color: var(--paper); font: 14px/1.4 "Kantumruy Pro", system-ui, sans-serif; }
+  #wrap { max-width: 480px; margin: 0 auto; padding: 0 0 16px; }
+  canvas { display: block; width: 100%; aspect-ratio: 9 / 16; background: #111; }
+  .ctl { display: grid; grid-template-columns: 92px 1fr 56px; gap: 6px 10px; align-items: center; padding: 12px 16px 0; }
+  .ctl label { color: var(--muted); }
+  input[type=range] { width: 100%; height: 44px; accent-color: var(--violet); }
+  select, input[type=number], button { min-height: 44px; font: inherit; background: #182236; color: var(--paper); border: 1px solid #2c3a55; border-radius: 8px; padding: 0 10px; }
+  pre { margin: 12px 16px 0; padding: 12px; background: #121b2c; border-radius: 8px; white-space: pre-wrap; font: 12px/1.45 ui-monospace, Menlo, monospace; color: #dfe6f0; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="c"></canvas>
+  <div class="ctl">
+    <label for="rain">rain</label><input id="rain" type="range" min="0" max="120" step="1" value="18"><span id="rainv"></span>
+    <label for="ponding">ponding</label><input id="ponding" type="range" min="0" max="1" step="0.01" value="0.3"><span id="pondingv"></span>
+    <label for="shield">shield</label><input id="shield" type="range" min="0" max="1" step="0.01" value="0"><span id="shieldv"></span>
+    <label for="dissolve">dissolve</label><input id="dissolve" type="range" min="0" max="1" step="0.01" value="0"><span id="dissolvev"></span>
+    <label for="night">night</label><select id="night"><option value="0">day</option><option value="1">night</option></select><span></span>
+    <label for="setting">setting</label><select id="setting"><option>default</option><option>strict</option></select><span></span>
+    <label for="lang">lang</label><select id="lang"><option>en</option><option>km</option><option>th</option></select><span></span>
+    <label for="seed">seed</label><input id="seed" type="number" value="1" min="1" max="9999"><button id="m">measure</button>
+  </div>
+  <pre id="out">…</pre>
+</div>
+<script type="module">
+  import { createFaceShieldScene } from './scene.js';
+  window.createFaceShieldScene = createFaceShieldScene;
+  const c = document.getElementById('c');
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const size = () => { const r = c.getBoundingClientRect(); c.width = Math.round(r.width * dpr); c.height = Math.round(r.height * dpr); };
+  size();
+  let scene = createFaceShieldScene(c, { seed: 1, lang: 'en' });
+  window.scene = scene;
+  const ids = ['rain', 'ponding', 'shield', 'dissolve', 'night', 'setting', 'lang'];
+  const read = () => ({ rain: +rain.value, ponding: +ponding.value, shield: +shield.value, dissolve: +dissolve.value, night: night.value === '1', setting: setting.value, lang: lang.value });
+  const show = () => { for (const k of ['rain', 'ponding', 'shield', 'dissolve']) document.getElementById(k + 'v').textContent = document.getElementById(k).value; };
+  for (const k of ids) document.getElementById(k).addEventListener('input', () => { scene.set(read()); show(); });
+  document.getElementById('seed').addEventListener('change', (e) => { scene.destroy(); scene = createFaceShieldScene(c, { seed: +e.target.value || 1 }); window.scene = scene; scene.set(read()); scene.start(); });
+  async function measure() {
+    const inp = read(); const m = await scene.measure();
+    const f = scene.faces(); const missed = f.filter((x) => x.missed).length;
+    document.getElementById('out').textContent =
+      `input    rain ${inp.rain} mm/h · ponding ${inp.ponding} · ${inp.night ? 'night' : 'day'}\n` +
+      `measured rain ${m.rain.value} mm/h · water ${m.water.value}% · visibility ${m.visibility.value} m\n` +
+      `picture ${m.pictureBytes} bytes · sent ${m.sentBytes} bytes  ${m.sent}\n` +
+      `faces ${f.length} · missed (${inp.setting}) ${missed} · raw ${JSON.stringify(m.raw)}`;
+  }
+  document.getElementById('m').addEventListener('click', measure);
+  window.addEventListener('resize', () => { size(); scene.resize(); });
+  show(); scene.set(read()); scene.start();
+  window.sceneReady = true;
+</script>
+</body>
+</html>

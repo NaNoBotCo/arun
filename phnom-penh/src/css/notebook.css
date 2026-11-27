@@ -1,0 +1,16 @@
+/* Notebook lens: save form, rows, export and import. */
+.nb h3{font-size:16px;margin:14px 0 6px;font-weight:600}
+.nb .nb-in{display:block;width:100%;min-width:0;min-height:44px;margin:6px 0;border-radius:10px;border:1px solid var(--line);background:rgba(244,241,234,.06);color:var(--paper);font:inherit;font-size:16px;padding:0 10px}
+.nb textarea.nb-in{padding:8px 10px;min-height:88px;font-size:14px;resize:vertical}
+.nb .nb-msg{margin:8px 0;color:var(--jade);font-size:14px}
+.nb .nb-row{border-top:1px solid var(--line);padding:8px 0}
+.nb .nb-t{font-size:16px;font-weight:600;overflow-wrap:anywhere}
+.nb .nb-row .row{margin:6px 0 2px;gap:6px}
+.nb .nb-row .btn{padding:0 12px;min-width:44px}
+.nb .btn:disabled{opacity:.4;cursor:default}
+.nb .nb-ask{align-self:center;font-size:14px;flex:1 1 100%}
+.nb .nb-inc{display:flex;align-items:center;gap:10px;min-height:44px;font-size:14px;cursor:pointer}
+.nb .nb-inc input{width:24px;height:24px;margin:0;flex:none;accent-color:var(--gold)}
+.nb .nb-report{margin-top:8px;font-size:14px}
+.nb .nb-errs{margin:4px 0;padding-left:18px;font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.nb .nb-io{margin-top:18px;border-top:1px solid var(--line);padding-top:6px}

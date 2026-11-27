@@ -1,0 +1,15 @@
+{
+ "count": 81153,
+ "bytes": 1698759,
+ "stats": {
+  "measured": 49,
+  "floors": 793,
+  "surface": 105,
+  "estimated": 80206,
+  "dropped_small": 10654
+ },
+ "release": "Overture 2026-11-18.0 buildings",
+ "licence": "ODbL 1.0 (Overture buildings theme); sources Google Open Buildings, OpenStreetMap, Microsoft ML Buildings",
+ "credit": "\u00a9 OpenStreetMap contributors, Overture Maps Foundation; Google Open Buildings; Microsoft ML Buildings",
+ "heights": "in order of preference: Overture height (measured, OSM); num_floors x 3.3 m; Copernicus GLO-30\nsurface minus local ground where that excess is over 15 m (a tall building there in 2011-2015);\notherwise an estimate from footprint area and distance from the riverfront, with a fixed per-building jitter."
+}
