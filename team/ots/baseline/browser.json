@@ -1,0 +1,79 @@
+{
+  "ranAt": "2026-11-27T02:31:32.337Z",
+  "browser": "Chromium 149.0.7827.55",
+  "executable": "chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell",
+  "firefox": "not installed on this machine: untested",
+  "webkit": "not installed on this machine: untested",
+  "results": [
+    {
+      "name": "A. 30 routes load clean at desktop 1366×820",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "A. 30 routes load clean at phone 390×844",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B. All 21 exhibits export a schema-valid run record",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "C. Deep links and back/forward land on the right exhibit",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "D. Flagship chain links and goes stale when the storm changes",
+      "ok": true,
+      "detail": "Hotel hours above 0.2 m h 3.3 1.4 −1.9; E03 mean US$59.3k; E07 before CURRENT,CURRENT,MISSING,CURRENT; after STALE,STALE,MISSING,CURRENT"
+    },
+    {
+      "name": "E. Privacy budget runs out at ε 3 and finer geography is refused",
+      "ok": true,
+      "detail": "by village, ε 0.5: Finer than district: refused by the public geography rule. | by weekly-delivery band, ε 0.5: Budget: this needs ε = 0.5, only 0.00 of 3 is left."
+    },
+    {
+      "name": "F. Built page carries no keys, sets connect-src none, and calls no network APIs",
+      "ok": true,
+      "detail": "secret patterns 0, CSP true, network calls in code 0"
+    },
+    {
+      "name": "G. Keyboard: tab list and sliders work without a mouse",
+      "ok": true,
+      "detail": "11 h 17 min → 11 h 03 min"
+    },
+    {
+      "name": "H. Out-of-range typed values are refused with a message",
+      "ok": true,
+      "detail": "Enter a number from 0 to 0.2 per year."
+    },
+    {
+      "name": "I. Calm motion: exhibits wait for Run",
+      "ok": true,
+      "detail": "Run"
+    },
+    {
+      "name": "J. Thai and Khmer switch in and English comes back verbatim",
+      "ok": true,
+      "detail": "พรุ่งนี้นับพัน วันนี้ที่ดีกว่า | ថ្ងៃស្អែករាប់ពាន់។ ថ្ងៃនេះដែលល្អជាង។"
+    },
+    {
+      "name": "K. Leaving a page mid-search cancels its job without errors",
+      "ok": true,
+      "detail": "page errors 0"
+    },
+    {
+      "name": "L. Replay from Compare reproduces every metric",
+      "ok": true,
+      "detail": "Reproduced: every metric matches the saved run"
+    },
+    {
+      "name": "M. Page runs from a file:// URL",
+      "ok": true,
+      "detail": "every test above loaded dist/index.html from disk"
+    }
+  ]
+}

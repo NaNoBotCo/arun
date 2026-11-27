@@ -1,0 +1,9 @@
+{"cpuSlowdown":"1×","trial":1,"firstFrameMs":778,"floodDoneMs":9769,"futuresReadyMs":9778,"fpsMedian":60,"frameP95":18,"longTasks":1,"longest":99,"over100":0,"tapToVisibleMs":33,"afterMoveReadyMs":9249}
+{"cpuSlowdown":"1×","trial":2,"firstFrameMs":489,"floodDoneMs":9510,"futuresReadyMs":9523,"fpsMedian":60,"frameP95":18,"longTasks":0,"longest":0,"over100":0,"tapToVisibleMs":28,"afterMoveReadyMs":9252}
+{"cpuSlowdown":"1×","trial":3,"firstFrameMs":530,"floodDoneMs":9537,"futuresReadyMs":9547,"fpsMedian":60,"frameP95":18,"longTasks":0,"longest":0,"over100":0,"tapToVisibleMs":23,"afterMoveReadyMs":9281}
+{"cpuSlowdown":"4×","trial":1,"firstFrameMs":1019,"floodDoneMs":10066,"futuresReadyMs":10083,"fpsMedian":60,"frameP95":18,"longTasks":4,"longest":140,"over100":1,"tapToVisibleMs":63,"afterMoveReadyMs":9281}
+{"cpuSlowdown":"4×","trial":2,"firstFrameMs":909,"floodDoneMs":9976,"futuresReadyMs":9993,"fpsMedian":60,"frameP95":18,"longTasks":4,"longest":148,"over100":1,"tapToVisibleMs":64,"afterMoveReadyMs":9250}
+{"cpuSlowdown":"4×","trial":3,"firstFrameMs":951,"floodDoneMs":9960,"futuresReadyMs":9982,"fpsMedian":60,"frameP95":18,"longTasks":4,"longest":145,"over100":1,"tapToVisibleMs":63,"afterMoveReadyMs":9273}
+{"cpuSlowdown":"6×","trial":1,"firstFrameMs":1132,"floodDoneMs":10193,"futuresReadyMs":10219,"fpsMedian":60,"frameP95":33,"longTasks":4,"longest":217,"over100":2,"tapToVisibleMs":112,"afterMoveReadyMs":9223}
+{"cpuSlowdown":"6×","trial":2,"firstFrameMs":1208,"floodDoneMs":10423,"futuresReadyMs":10448,"fpsMedian":60,"frameP95":33,"longTasks":4,"longest":221,"over100":2,"tapToVisibleMs":88,"afterMoveReadyMs":9265}
+{"cpuSlowdown":"6×","trial":3,"firstFrameMs":1198,"floodDoneMs":10257,"futuresReadyMs":10282,"fpsMedian":60,"frameP95":33,"longTasks":4,"longest":207,"over100":2,"tapToVisibleMs":93,"afterMoveReadyMs":9308}

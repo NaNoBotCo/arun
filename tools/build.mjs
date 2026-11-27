@@ -20,6 +20,8 @@ const argVal = (k) => {
 // half-finished file elsewhere does not break this build. --out DIR writes there instead of dist/.
 const only = argVal('--only') ? argVal('--only').toUpperCase().split(',').map((s) => s.trim()) : null;
 const OUT = argVal('--out') || join(ROOT, 'dist');
+// --home wonder: a candidate build that opens on another route when the link has no #. The site keeps #home.
+const HOME = argVal('--home') || 'home';
 const t0 = Date.now();
 
 const onlyPlugin = {
@@ -69,6 +71,7 @@ const appBuild = await esbuild.build({
   define: {
     __WORKER_SRC__: JSON.stringify(workerSrc),
     __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+    __HOME_ROUTE__: JSON.stringify(HOME),
     __TEST_RESULTS__: existsSync(join(ROOT, 'test/results/kernels.json')) ? readFileSync(join(ROOT, 'test/results/kernels.json'), 'utf8') : 'null',
   },
   legalComments: 'none',

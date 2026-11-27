@@ -10,6 +10,7 @@ const log = []; // measured work, for the compute-economics views
 let workerUrl = null;
 let workerBroken = false;
 let seq = 0;
+let liveWorkerCount = 0; // workers started and not yet terminated, for cleanup checks
 
 function getWorkerUrl() {
   if (workerUrl || workerBroken) return workerUrl;
@@ -68,12 +69,12 @@ export function clearJobCache() {
   cache.clear();
 }
 
-function runOnMain(fn, payload, onProgress) {
+function runOnMain(fn, payload, onProgress, onFrame) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       const t0 = performance.now();
       try {
-        const result = fn(payload, { progress: (p) => onProgress && onProgress(p), cancelled: () => false });
+        const result = fn(payload, { progress: (p) => onProgress && onProgress(p), emit: (d) => onFrame && onFrame(d), cancelled: () => false });
         resolve({ result, elapsedMs: performance.now() - t0, where: 'main thread' });
       } catch (e) {
         reject(e);
@@ -83,7 +84,8 @@ function runOnMain(fn, payload, onProgress) {
 }
 
 // Returns a handle: { id, promise, cancel(), state }.
-export function runJob(name, payload, { onProgress, onState, timeoutMs = 60000, useCache = true } = {}) {
+// onFrame receives data a streaming job sends with emit(); a cached result sends no frames.
+export function runJob(name, payload, { onProgress, onState, onFrame, timeoutMs = 60000, useCache = true } = {}) {
   const fn = JOBS[name];
   const id = `job-${++seq}`;
   const handle = { id, name, state: 'queued', cancel: () => {} };
@@ -116,7 +118,7 @@ export function runJob(name, payload, { onProgress, onState, timeoutMs = 60000, 
   let promise;
   if (!url) {
     setState('running');
-    promise = runOnMain(fn, payload, progress);
+    promise = runOnMain(fn, payload, progress, onFrame);
   } else {
     promise = new Promise((resolve, reject) => {
       let w;
@@ -124,11 +126,13 @@ export function runJob(name, payload, { onProgress, onState, timeoutMs = 60000, 
         w = new Worker(url);
       } catch (e) {
         workerBroken = true;
-        runOnMain(fn, payload, progress).then(resolve, reject);
+        runOnMain(fn, payload, progress, onFrame).then(resolve, reject);
         return;
       }
       let done = false;
+      liveWorkerCount++;
       const finish = () => {
+        if (!done) liveWorkerCount--;
         done = true;
         clearTimeout(timer);
         w.terminate();
@@ -151,7 +155,9 @@ export function runJob(name, payload, { onProgress, onState, timeoutMs = 60000, 
       w.onmessage = (ev) => {
         const m = ev.data || {};
         if (m.type === 'progress') progress(m.p);
-        else if (m.type === 'done') {
+        else if (m.type === 'frame') {
+          if (!done && onFrame) onFrame(m.data);
+        } else if (m.type === 'done') {
           finish();
           resolve({ result: m.result, elapsedMs: m.elapsedMs, where: 'Web Worker' });
         } else if (m.type === 'error') {
@@ -187,6 +193,10 @@ export function runJob(name, payload, { onProgress, onState, timeoutMs = 60000, 
   if (useCache) cache.set(key, { promise: wrapped });
   handle.promise = wrapped;
   return handle;
+}
+
+export function liveWorkers() {
+  return liveWorkerCount;
 }
 
 export function workerAvailable() {

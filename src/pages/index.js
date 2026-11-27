@@ -8,5 +8,6 @@ import { sources } from './sources.js';
 import { compare } from './compare.js';
 import { ideas } from './ideas.js';
 import { status } from './status.js';
+import { wonder } from './wonder.js';
 
-export const PAGES = { home, lab, tour, desk, trust, sources, compare, ideas, status };
+export const PAGES = { home, lab, tour, desk, trust, sources, compare, ideas, status, wonder };

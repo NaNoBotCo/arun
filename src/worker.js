@@ -16,9 +16,11 @@ self.onmessage = (ev) => {
       self.postMessage({ id, type: 'progress', p });
     }
   };
+  // Streaming jobs send frames as they compute (every frame is sent; progress is throttled).
+  const emit = (data) => self.postMessage({ id, type: 'frame', data });
   const t0 = performance.now();
   try {
-    const result = fn(payload, { progress, cancelled: () => false });
+    const result = fn(payload, { progress, emit, cancelled: () => false });
     self.postMessage({ id, type: 'done', result, elapsedMs: performance.now() - t0 });
   } catch (e) {
     self.postMessage({ id, type: 'error', message: String((e && e.message) || e) });
