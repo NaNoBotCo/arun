@@ -1,5 +1,5 @@
 {
-  "ranAt": "2026-11-27T05:13:47.319Z",
+  "ranAt": "2026-11-27T05:34:00.198Z",
   "browser": "Chromium 149.0.7827.55",
   "executable": "chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell",
   "firefox": "not installed on this machine: untested",
@@ -73,12 +73,12 @@
     {
       "name": "N. #wonder shows a computed, moving flood without a tap",
       "ok": true,
-      "detail": "frame 1 at 221 ms after load (desktop Chromium, phone viewport)"
+      "detail": "frame 1 at 241 ms after load (desktop Chromium, phone viewport)"
     },
     {
       "name": "O. Default wetland: result matches the E02 kernel (3.26 h → 1.41 h) and the precomputed map",
       "ok": true,
-      "detail": "With the wetland, the hotel is under water 1.4 h instead of 3.3 h. · map check: yes · flood + futures ready 9227 ms after load"
+      "detail": "With the wetland, the hotel is under water 1.4 h instead of 3.3 h. · map check: yes · flood + futures ready 9252 ms after load"
     },
     {
       "name": "P. Moving the wetland makes the futures stale, then current for the new wetland",

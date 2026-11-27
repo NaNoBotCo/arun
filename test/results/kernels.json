@@ -1,53 +1,53 @@
 {
-  "ranAt": "2026-11-27T05:14:04.273Z",
+  "ranAt": "2026-11-27T05:29:26.352Z",
   "node": "v24.7.0",
   "files": {
     "e01.test.mjs": {
       "pass": 13,
       "fail": 0,
-      "ms": 1285,
+      "ms": 897,
       "failed": []
     },
     "e02.test.mjs": {
       "pass": 14,
       "fail": 0,
-      "ms": 11884,
+      "ms": 12045,
       "failed": []
     },
     "e03.test.mjs": {
       "pass": 10,
       "fail": 0,
-      "ms": 901,
+      "ms": 933,
       "failed": []
     },
     "e04.test.mjs": {
       "pass": 10,
       "fail": 0,
-      "ms": 902,
+      "ms": 901,
       "failed": []
     },
     "e05.test.mjs": {
       "pass": 10,
       "fail": 0,
-      "ms": 896,
+      "ms": 926,
       "failed": []
     },
     "e06.test.mjs": {
       "pass": 8,
       "fail": 0,
-      "ms": 907,
+      "ms": 913,
       "failed": []
     },
     "e07.test.mjs": {
       "pass": 7,
       "fail": 0,
-      "ms": 894,
+      "ms": 965,
       "failed": []
     },
     "e08.test.mjs": {
       "pass": 13,
       "fail": 0,
-      "ms": 892,
+      "ms": 947,
       "failed": []
     },
     "e09.test.mjs": {
@@ -59,7 +59,7 @@
     "e10.test.mjs": {
       "pass": 16,
       "fail": 0,
-      "ms": 2036,
+      "ms": 1998,
       "failed": []
     },
     "e11.test.mjs": {
@@ -71,73 +71,73 @@
     "e12.test.mjs": {
       "pass": 11,
       "fail": 0,
-      "ms": 894,
+      "ms": 905,
       "failed": []
     },
     "e13.test.mjs": {
       "pass": 13,
       "fail": 0,
-      "ms": 902,
+      "ms": 908,
       "failed": []
     },
     "e14.test.mjs": {
       "pass": 13,
       "fail": 0,
-      "ms": 1453,
+      "ms": 1414,
       "failed": []
     },
     "e15.test.mjs": {
       "pass": 19,
       "fail": 0,
-      "ms": 905,
+      "ms": 904,
       "failed": []
     },
     "e16.test.mjs": {
       "pass": 20,
       "fail": 0,
-      "ms": 896,
+      "ms": 903,
       "failed": []
     },
     "e17.test.mjs": {
       "pass": 18,
       "fail": 0,
-      "ms": 884,
+      "ms": 1246,
       "failed": []
     },
     "e18.test.mjs": {
       "pass": 19,
       "fail": 0,
-      "ms": 894,
+      "ms": 904,
       "failed": []
     },
     "e19.test.mjs": {
       "pass": 19,
       "fail": 0,
-      "ms": 896,
+      "ms": 899,
       "failed": []
     },
     "e20.test.mjs": {
       "pass": 13,
       "fail": 0,
-      "ms": 887,
+      "ms": 884,
       "failed": []
     },
     "e21.test.mjs": {
       "pass": 16,
       "fail": 0,
-      "ms": 894,
+      "ms": 901,
       "failed": []
     },
     "mornings.test.mjs": {
       "pass": 20,
       "fail": 0,
-      "ms": 888,
+      "ms": 880,
       "failed": []
     },
     "wonder.test.mjs": {
-      "pass": 8,
+      "pass": 13,
       "fail": 0,
-      "ms": 20480,
+      "ms": 20192,
       "failed": []
     }
   }
