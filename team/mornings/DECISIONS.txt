@@ -1,0 +1,30 @@
+ARUN possible mornings: decision log
+27 November 2026 · branch possible-mornings · base over-the-shoulder 1d87e2a
+
+Baseline on this branch before any change: 301 kernel tests and 26 browser checks pass (Chromium 149, Apple M2), as on over-the-shoulder.
+
+1. Two new routes from the candidate page in the possible-mornings handoff (arun-possible-city.html): #mornings opens on the street map (candidate B), #minutes opens on the map in minutes (candidate C). #wonder (candidate A) is unchanged. Neither new route is in the menu. Revert: remove mornings and minutes from src/pages/index.js.
+
+2. Model: src/mornings/city.js is the candidate page's graph model, extracted line for line: the same 80-corner street grid and river, the same seeded weights (morning n uses seed n + 1771), the same shortest-path rule and tie order, the same 24 homes × 3 places. test/kernels/mornings.test.mjs carries the candidate's own code as a reference and requires equality for all 512 mornings, today and each option, and for the search trees that draw the routes. Shortest paths are also checked against Floyd–Warshall.
+
+3. Losses stay losses. The page's three changes only add a link, so no trip gets longer; the kernel also takes removals and slowdowns, and a test closes and slows an old bridge to show the saving goes negative, unclipped. The candidate clipped savings at zero; this version does not.
+
+4. The first screen needs no run. It opens on morning 39, the new bridge's typical morning; a test checks that 39 is the morning nearest the bridge's median saving. The 512-morning run (6,144 searches, a Web Worker) fills the second beat.
+
+5. City in time: every corner moves from its street-map position to its position in minutes, as a tween of coordinates, not a crossfade. Bearing from the chosen place is the street map's; distance is minutes; one scale for today and with the change. The map is scaled and shifted to fill the phone, so the place is not always at the centre of the frame. Rings every 10 minutes are labelled where they cross open space. Market, Clinic and Jobs re-centre it.
+
+6. The race: on the street map, two travellers leave the pin together and move by their computed minutes along their computed routes, 10 simulated minutes a second, then stop. Tap the map to move the pin; arrow keys move it one corner.
+
+7. The drawn city comes from the street graph: each block is a face of the grid, split into lots with buildings set back, taller toward Jobs and the market; parks, a market of stalls, a clinic, a river with banks, paddy fields outside. Seeded, illustration only; How it works says so.
+
+8. 512 mornings, two views of the same records: Strands (each morning a vertical strand from today's average trip to the average with the change, sorted from calmest to most jammed) and Dots (the candidate's chart: minutes saved against rain). Tap or arrow keys open a morning on the map. Typical and least useful mornings come from the kernel. Compare lists all three changes.
+
+9. Why a data center: this device's measured time for the 512 mornings; a measured city-sized search (binary-heap Dijkstra on a 19,881-corner grid, median of 6); then arithmetic, labelled as arithmetic, for a set search: 30 changes three at a time, 300 places, 512 mornings. No server number is claimed.
+
+10. Run record: every state on the stage has a JSON record (method version, city hash, seed, morning, option, place, start, minutes) that replays to the same numbers; the page shows the replay check.
+
+11. Copy written to the house style from the candidate's lines; page text describes, it does not promise. Thai and Khmer for headings, controls, legends and key lines; How it works and the arithmetic in English, as on #wonder.
+
+12. Integrator files changed, each change backward compatible: src/pages/index.js (two routes), src/jobs-registry.js (mornings.run, mornings.bench), src/i18n/en.js, th.js, km.js (m.* lines), test/browser/run.mjs (nine PM checks; mornings and minutes added to the all-routes sweep). New: src/mornings/, src/pages/mornings.js, src/styles/70-mornings.css, test/kernels/mornings.test.mjs.
+
+13. Not built from the next-build brief: opportunity constellation, portfolio microscope, evidence lens (all P1); a navigable camera; focus zoom; canals.

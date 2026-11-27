@@ -4,7 +4,7 @@ import { launch, openPage, ROOT } from './browser.mjs';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
-const ROUTES = ['home', 'tour', 'lab', 'desk', 'trust', 'sources', 'compare', 'ideas', 'status', 'wonder', ...Array.from({ length: 21 }, (_, i) => 'e' + String(i + 1).padStart(2, '0'))];
+const ROUTES = ['home', 'tour', 'lab', 'desk', 'trust', 'sources', 'compare', 'ideas', 'status', 'wonder', 'mornings', 'minutes', ...Array.from({ length: 21 }, (_, i) => 'e' + String(i + 1).padStart(2, '0'))];
 const results = [];
 const record = (name, ok, detail = '') => {
   results.push({ name, ok, detail });
@@ -323,6 +323,143 @@ let wonderHash0 = '';
   await page.click('.lang-btn[data-code="en"]');
   await context.close();
   record('X. #wonder at 320, 360 and 430 px; touch targets 44 px; Thai and Khmer titles', bad.length === 0 && /พายุ/.test(th) && /ព្យុះ/.test(km), bad.join(' | ') || `${th} | ${km}`);
+}
+
+// PM. Possible mornings: #mornings (candidate B) and #minutes (candidate C).
+const K = await import('../../src/mornings/city.js');
+const mq = (page) => page.evaluate(() => ({ ...(window.__arun_mornings ? window.__arun_mornings() : {}), big: document.querySelector('.m-p1 .m-big')?.textContent, line: document.querySelector('.m-line')?.textContent, all: document.querySelector('.m-all')?.textContent, tag: document.querySelector('.m-tag')?.textContent }));
+const kernelRun = K.runMornings({ count: 512 });
+{
+  const bad = [];
+  for (const route of ['mornings', 'minutes'])
+    for (const width of [320, 390, 430, 1024]) {
+      const { page, context, errors, requests } = await openPage(browser, route, { width, height: width > 900 ? 768 : 844, isMobile: width < 900, hasTouch: width < 900 });
+      const t0 = Date.now();
+      await page.waitForFunction(() => /\d\.\d min/.test(document.querySelector('.m-p1 .m-big')?.textContent || ''), null, { timeout: 5000 }).catch(() => {});
+      const tNum = Date.now() - t0;
+      await page.waitForTimeout(900);
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1);
+      const small = await page.evaluate(() => [...document.querySelectorAll('.mornings button, .m-more > summary')].filter((e) => e.offsetParent && e.getBoundingClientRect().height < 44).map((e) => e.className + ':' + e.textContent.slice(0, 12)));
+      const fold = await page.evaluate(() => {
+        const bottom = (s) => document.querySelector(s).getBoundingClientRect().bottom;
+        return { opts: bottom('.m-opts'), tabs: bottom('.m-b1 .m-tabs'), vh: innerHeight };
+      });
+      const inView = fold.opts <= fold.vh && fold.tabs <= fold.vh;
+      if (errors.length || requests.length || overflow || small.length || !inView || tNum > 3000) bad.push(`${route} ${width}px: ${errors.length} errors${errors[0] ? ' (' + errors[0] + ')' : ''}, ${requests.length} requests, overflow ${overflow}, small ${small.join(',')}, choices+tabs in first screen ${inView} (${Math.round(fold.opts)}/${Math.round(fold.tabs)} of ${fold.vh}), numbers at ${tNum} ms`);
+      await context.close();
+    }
+  record('PM1. #mornings and #minutes at 320, 390, 430, 1024 px: clean, no outside requests, no sideways scroll, targets ≥ 44 px, numbers and the one choice on the first screen with no tap', bad.length === 0, bad.join(' | ') || 'both routes, four widths');
+}
+{
+  const { page, context, errors } = await openPage(browser, 'mornings', PHONE);
+  await page.waitForFunction(() => window.__arun_mornings && window.__arun_mornings().ready, null, { timeout: 20000 });
+  const a = await mq(page);
+  const w = K.world(38);
+  const s = K.solve(w, -1);
+  const f = K.solve(w, 0);
+  const st = K.EXAMPLE_START[0];
+  await page.click('.m-opt[data-opt="ferry"]');
+  await page.waitForTimeout(300);
+  const b = await mq(page);
+  const wantFerry = (s.dist[0][st] - f.dist[0][st]).toFixed(1) + ' min';
+  const ok = a.big === '8.3 min' && /26\.0 → 17\.7/.test(a.line) && a.all === '1.79 min' && /MORNING 39/i.test(a.tag) && b.big === wantFerry && b.all === (s.mean - f.mean).toFixed(2) + ' min' && b.morning === 39 && errors.length === 0;
+  record('PM2. Numbers on the stage equal the kernel: morning 39, new bridge 26.0 → 17.7 min (8.3), 1.79 min per trip; ferry on the same morning', ok, `bridge: ${a.big}, ${a.line}, ${a.all} · ferry: ${b.big}, ${b.all} (kernel ${wantFerry})`);
+  // City in time: the corners move to their minutes, then settle; places re-centre the map.
+  const geo0 = (await mq(page)).posB;
+  await page.click('.m-b1 .m-tab[data-view="time"]');
+  await page.waitForTimeout(350);
+  const mid = await mq(page);
+  await page.waitForFunction(() => window.__arun_mornings().tweens === 0, null, { timeout: 8000 });
+  const end = await mq(page);
+  const moved = geo0.some((v, i) => Math.abs(v - end.posB[i]) > 2);
+  const midway = mid.m > 0 && mid.m < 1;
+  await page.click('.m-chip[data-place="clinic"]');
+  await page.waitForFunction(() => window.__arun_mornings().tweens === 0, null, { timeout: 8000 });
+  const clinic = await mq(page);
+  const loopsTime = await page.evaluate(() => window.__arun.liveLoops());
+  record('PM3. City in time: corners move from street positions to minutes (in between at 350 ms), settle, and stop; the clinic re-centres it', midway && moved && end.m === 1 && end.s === 1 && clinic.place === 1 && /Clinic/.test(clinic.line) && loopsTime === 0, `m at 350 ms ${mid.m.toFixed(2)}; settled m ${end.m}, s ${end.s}; clinic: ${clinic.line}; loops after ${loopsTime}`);
+  await page.click('.m-b1 .m-tab[data-view="geo"]');
+  await page.click('.m-chip[data-place="market"]');
+  await page.waitForFunction(() => window.__arun_mornings().tweens === 0 && !window.__arun_mornings().racing, null, { timeout: 10000 });
+  // A tap moves the pin and races two travellers by their computed minutes, then stops.
+  const box = await page.$eval('.m-canvas', (c) => { const r = c.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; });
+  await page.mouse.click(box.x + box.w * 0.78, box.y + box.h * 0.6);
+  await page.waitForTimeout(150);
+  const tap = await mq(page);
+  await page.waitForFunction(() => !window.__arun_mornings().racing, null, { timeout: 10000 });
+  const after = await mq(page);
+  const loops = await page.evaluate(() => window.__arun.liveLoops());
+  const want = K.solve(K.world(38), -1).dist[0][after.start];
+  record('PM4. A tap on the map moves the pin; the race runs, ends at the longer trip, and the loop stops', tap.start !== 41 && tap.racing && Math.abs(after.tau - want) < 1e-9 && loops === 0 && errors.length === 0, `pin ${tap.start}; race ended at ${after.tau.toFixed(2)} min (kernel ${want.toFixed(2)}); loops ${loops}`);
+  // Lens: tap a strand, keys, least useful, compare.
+  await page.$eval('.m-lens', (c) => c.scrollIntoView());
+  const lb = await page.$eval('.m-lens', (c) => { const r = c.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; });
+  await page.mouse.click(lb.x + lb.w * 0.85, lb.y + lb.h * 0.5);
+  await page.waitForTimeout(200);
+  const strand = await mq(page);
+  await page.focus('.m-lens');
+  await page.keyboard.press('ArrowLeft');
+  await page.waitForTimeout(100);
+  const key = await mq(page);
+  await page.click('.m-opt[data-opt="ferry"]');
+  await page.click('.m-chips .m-chip:nth-child(2)');
+  await page.waitForTimeout(200);
+  const least = await mq(page);
+  const wantLeast = K.leastUsefulMorning(K.savings(kernelRun, 0));
+  await page.click('.m-chips .m-chip:nth-child(3)');
+  const rows = await page.$$eval('.m-table tbody tr', (r) => r.length);
+  const typical = await page.evaluate(() => { document.querySelector('.m-opt[data-opt="bridge"]').click(); document.querySelector('.m-chips .m-chip:nth-child(1)').click(); return window.__arun_mornings().morning; });
+  record('PM5. 512 mornings: a tapped strand opens its morning; arrow keys step; least useful and typical equal the kernel; compare lists all three', strand.morning !== 39 && key.morning !== strand.morning && least.morning === wantLeast && /0\.0 min/.test(least.big) && rows === 3 && typical === 39, `strand → ${strand.morning}, ← ${key.morning}, least useful ferry ${least.morning} (kernel ${wantLeast}, ${least.big}), typical bridge ${typical}, rows ${rows}`);
+  // Run record and replay.
+  const rec = await page.evaluate(() => { document.querySelectorAll('.m-more').forEach((d) => (d.open = true)); return { json: document.querySelector('.m-rec').textContent, ok: document.querySelector('.m-recok').dataset.ok }; });
+  let parsed = null;
+  try { parsed = JSON.parse(rec.json); } catch {}
+  const rep = parsed ? K.replay(parsed) : null;
+  const same = rep && rep.trip_min.today === parsed.trip_min.today && rep.trip_min.changed === parsed.trip_min.changed && rep.mean72_min.changed === parsed.mean72_min.changed;
+  record('PM6. Run record: valid JSON, method and city hash, replays to the same numbers in node and on the page', !!same && rec.ok === 'true' && parsed.methodVersion === K.METHOD_VERSION && parsed.fixture === K.FIXTURE_HASH, parsed ? `morning ${parsed.morning}, ${parsed.option}, seed ${parsed.seed}` : 'no record');
+  // Leaving stops everything.
+  // Leave mid-animation, to a page with no animation of its own.
+  await page.$eval('.m-canvas', (c) => c.scrollIntoView());
+  await page.click('.m-b1 .m-tab[data-view="time"]');
+  await page.waitForTimeout(100);
+  const during = await page.evaluate(() => window.__arun.liveLoops());
+  await page.evaluate(() => (location.hash = '#sources'));
+  await page.waitForTimeout(400);
+  const gone = await page.evaluate(() => ({ loops: window.__arun.liveLoops(), workers: window.__arun.liveWorkers(), hook: typeof window.__arun_mornings }));
+  gone.loopsDuring = during;
+  record('PM7. Leaving the route mid-animation stops its loops and workers', gone.loopsDuring >= 1 && gone.loops === 0 && gone.workers === 0 && gone.hook === 'undefined', JSON.stringify(gone));
+  await context.close();
+}
+{
+  const { page, context, errors } = await openPage(browser, 'minutes', { ...PHONE, reducedMotion: 'reduce' });
+  await page.waitForTimeout(600);
+  const a = await mq(page);
+  await page.click('.m-b1 .m-tab[data-view="geo"]');
+  await page.waitForTimeout(100);
+  const b = await mq(page);
+  const loops = await page.evaluate(() => window.__arun.liveLoops());
+  record('PM8. Calm motion: #minutes opens settled on the map in minutes; switching views jumps; nothing keeps running', a.view === 'time' && a.m === 1 && a.s === 1 && a.tweens === 0 && b.m === 0 && !b.racing && loops === 0 && errors.length === 0, `opening m ${a.m}, s ${a.s}; after switch m ${b.m}, racing ${b.racing}; loops ${loops}`);
+  await context.close();
+}
+{
+  const { page, context, errors } = await openPage(browser, 'minutes', PHONE);
+  await page.waitForTimeout(400);
+  const intro = await mq(page);
+  await page.waitForFunction(() => window.__arun_mornings().tweens === 0, null, { timeout: 8000 });
+  const settled = await mq(page);
+  await page.click('.lang-btn[data-code="th"]');
+  await page.waitForTimeout(400);
+  const th = await page.textContent('.m-b1 h1');
+  const thTag = await page.textContent('.m-tag');
+  await page.click('.lang-btn[data-code="km"]');
+  await page.waitForTimeout(400);
+  const km = await page.textContent('.m-b1 h1');
+  await page.click('.lang-btn[data-code="en"]');
+  await page.evaluate(() => (location.hash = '#mornings'));
+  await page.waitForTimeout(400);
+  const bTitle = await page.textContent('.m-b1 h1');
+  record('PM9. #minutes opens on minutes and the change pulls the city in; Thai and Khmer titles; #mornings opens on the street map', intro.view === 'time' && intro.s < 1 && settled.s === 1 && /ระยะทาง/.test(th) && /เช้าที่ 39/.test(thTag) && /ចម្ងាយ/.test(km) && /rehearse/.test(bTitle) && errors.length === 0, `s at 400 ms ${intro.s.toFixed(2)} → ${settled.s}; ${th} | ${km}`);
+  await context.close();
 }
 
 // M. Opens from disk with no server (file://).
