@@ -24,7 +24,7 @@ const fonts = `
 const MBF = `${process.env.HOME}/.tokens/MAPBOX_TOKEN`;
 const MBT = process.env.ARUN_NO_MAPBOX ? '' : (process.env.ARUN_MAPBOX_TOKEN || (existsSync(MBF) ? readFileSync(MBF, 'utf8').trim() : ''));
 if (MBT && !MBT.startsWith('pk.')) { console.error('MAPBOX token must be a public pk. token'); process.exit(2); }
-const landmarks = JSON.parse(readFileSync(R('data/landmarks.json'))).map(({ id, lat, lng, en, km, th }) => ({ id, lat, lng, en, km, th }));
+const landmarks = JSON.parse(readFileSync(R('data/landmarks.json'))).map(({ id, lat, lng, en, km, th, t_en, t_km, t_th }) => ({ id, lat, lng, en, km, th, t_en, t_km, t_th }));
 const geoJ = JSON.parse(readFileSync(R('data/geo.json')));
 const tf = Date.now();
 const fixture = makeFixture(geoJ);
@@ -38,6 +38,13 @@ const data = {
   // real: 360° street photos at the junctions (Mapillary, CC BY-SA 4.0; files served beside the page as pano/J-xx.jpg) and OpenStreetMap traffic lights
   panos: existsSync(R('data/panos.json')) ? JSON.parse(readFileSync(R('data/panos.json'))) : null,
   signals: existsSync(R('data/signals.json')) ? JSON.parse(readFileSync(R('data/signals.json'))) : null,
+  // real: places and bus lines (OpenStreetMap, ODbL), people per flood cell (Meta 2020, CC BY 4.0), landmark photos and Wikipedia links, older 360° photos
+  places: existsSync(R('data/places.json')) ? JSON.parse(readFileSync(R('data/places.json'))) : null,
+  buses: existsSync(R('data/buses.json')) ? JSON.parse(readFileSync(R('data/buses.json'))) : null,
+  pop: existsSync(R('data/pop.json')) ? JSON.parse(readFileSync(R('data/pop.json'))) : null,
+  photos: existsSync(R('data/photos.json')) ? JSON.parse(readFileSync(R('data/photos.json'))) : null,
+  wiki: existsSync(R('data/landmarks-wiki.json')) ? JSON.parse(readFileSync(R('data/landmarks-wiki.json'))) : null,
+  panosOld: existsSync(R('data/panos-old.json')) ? JSON.parse(readFileSync(R('data/panos-old.json'))) : null,
   // real: drive times asked of Mapbox when a person taps (public pk. token; ARUN_NO_MAPBOX=1 leaves it out)
   mapbox: MBT ? { token: MBT, logo: readFileSync(R('data/mapbox-logo.svg'), 'utf8') } : null,
 };

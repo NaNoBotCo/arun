@@ -157,3 +157,18 @@ html.carded #compass, html.carded #orbit { display: none; }
 .credit.mb { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
 .credit.mb a { margin-right: 6px; }
 .mb-logo { display: inline-block; width: 88px; height: 23px; background: var(--mb-logo) no-repeat center / contain; flex: none; }
+/* real data: landmarks, bus stops, sensors, then and now */
+.lbl.tap { padding: 3px 9px; }
+.lbl.sensor { pointer-events: none; color: #fff; border: 1px solid rgba(255,255,255,.35); font-weight: 600; }
+.lbl.sensor i, .bdot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: 0; }
+.lmk-img { display: block; width: 100%; height: auto; max-height: 240px; object-fit: cover; border-radius: 10px; margin: 6px 0 4px; background: #111a2b; }
+.lmk-t { font-size: 15px; line-height: 1.5; margin: 8px 0 4px; }
+.street .pano-cv.then { z-index: 3; pointer-events: none; }
+.street .tn-h { position: absolute; top: 0; bottom: 0; width: 44px; margin-left: -22px; z-index: 4; display: none; cursor: ew-resize; touch-action: none; }
+.street .tn-h::before { content: ''; position: absolute; left: 21px; top: 0; bottom: 0; width: 2px; background: #fff; box-shadow: 0 0 6px rgba(0,0,0,.6); }
+.street .tn-h i { position: absolute; left: 4px; top: 50%; width: 36px; height: 36px; margin-top: -18px; border-radius: 50%; background: #fff; color: #0b1220; font-style: normal; font-weight: 700; font-size: 15px; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 6px rgba(0,0,0,.5); }
+.street .tn-y { position: absolute; top: 8px; z-index: 4; display: none; padding: 2px 9px; border-radius: 10px; background: rgba(11,18,32,.75); font-size: 12px; font-weight: 600; pointer-events: none; }
+.street .tn-y.l { left: 8px; } .street .tn-y.r { right: 8px; }
+.street.tn:not(.shield) .tn-h, .street.tn:not(.shield) .tn-y { display: block; }
+.street.shield .pano-cv.then { display: none; }
+#reach-o .verdict { display: block; color: var(--paper); margin: 8px 0 2px; }

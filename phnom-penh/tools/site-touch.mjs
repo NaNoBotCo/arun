@@ -6,7 +6,7 @@ import { readFileSync, writeFileSync, mkdirSync, readdirSync, copyFileSync } fro
 const [docs, path = 'city'] = process.argv.slice(2);
 const url = `https://nanobotco.github.io/arun/${path}/`;
 const title = 'ARUN · Phnom Penh, ready for tomorrow';
-const desc = 'Phnom Penh on the real map: a real 360° street photo at every camera, the city\'s traffic lights, and simulated air, rain, water and traffic with warnings before each. Twist to turn the city, drag time, try a higher river. English, Khmer, Thai.';
+const desc = 'Phnom Penh on the real map: a 360° street photo at every camera with the same corner in 2023, the city\'s landmarks, traffic lights and bus lines, drive times, air sensors and weather right now, and who lives under a higher river; plus a simulated 48 hours of air, rain, water and traffic. English, Khmer, Thai.';
 const esc = s => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 const tags = `<link rel="canonical" href="${url}">
 <meta property="og:type" content="website"><meta property="og:site_name" content="NaNoBotCo">
@@ -21,6 +21,11 @@ writeFileSync(`${docs}/${path}/index.html`, html);
 // the real street photos, beside the page
 mkdirSync(`${docs}/${path}/pano`, { recursive: true });
 for (const f of readdirSync(new URL('../data/panos/', import.meta.url))) if (f.endsWith('.jpg')) copyFileSync(new URL('../data/panos/' + f, import.meta.url), `${docs}/${path}/pano/${f}`);
+// older 360° photos (then and now) and the landmark photos, beside the page
+for (const [src, dst, ext] of [['panos-old', 'pano-then', '.jpg'], ['photos', 'photo', '.webp']]) {
+  mkdirSync(`${docs}/${path}/${dst}`, { recursive: true });
+  for (const f of readdirSync(new URL(`../data/${src}/`, import.meta.url))) if (f.endsWith(ext)) copyFileSync(new URL(`../data/${src}/` + f, import.meta.url), `${docs}/${path}/${dst}/${f}`);
+}
 const srv = createServer((q, r) => { r.writeHead(200, { 'content-type': 'text/html' }); r.end(html); }).listen(0);  // the card needs no photos
 const exe = `${process.env.HOME}/Library/Caches/ms-playwright/chromium-1228/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing`;
 const browser = await chromium.launch({ executablePath: exe, args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist'] });

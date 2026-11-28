@@ -13,6 +13,7 @@ import { createStreets } from './streets.js';
 import { createTraffic, createAir, createJunctions, createSignals, STATE_COL } from './layers.js';
 import { createPano } from './pano.js';
 import { createDrive, CONG } from './drive.js';
+import { createBuses, createSpots, createArea, inRing, fetchLive, fetchIsochrone } from './real.js';
 import { createTimebar, HAZ_COL } from './timebar.js';
 import { createStreetView } from './street.js';
 import { WORDS } from './words.js';
@@ -35,8 +36,8 @@ const DC = { x: 0, y: 1800, h: 900 };                 // the shared computing no
 const POSE = { x: -1700, y: 300, dist: 11500, az: -0.3, el: 0.78 };
 const LABELS = ['central-market', 'royal-palace', 'wat-phnom', 'independence', 'russian-market', 'koh-pich', 'chroy-changvar', 'olympic'];
 
-export const S = { m: START, playing: false, sel: null, layers: { air: true, traffic: true, cams: true, signals: true }, jview: null, orbit: null, story: 0, rise: 0, divider: 0.5, ready: false };
-let pano = null, signals = null, drive = null; const panoFail = new Set();
+export const S = { m: START, playing: false, sel: null, layers: { air: true, traffic: true, cams: true, signals: true, buses: true }, jview: null, orbit: null, story: 0, rise: 0, divider: 0.5, ready: false };
+let pano = null, panoThen = null, signals = null, drive = null, buses = null, spots = null, area = null, popArr = null, placeCells = null; const panoFail = new Set();
 let world, sim, ALERTS = [], FX, grid, airBuf, airLayer, traffic, junc, tbar, prepR, city, reachLayer, scene = null, simMs = 0;
 let lastAirM = 1e9, lastCard = 0;
 const LMK = {};
@@ -133,11 +134,11 @@ function chips(C) {
 }
 
 // ---------- cards ----------
-function killViews() { if (scene) { scene.destroy(); scene = null; } if (pano) { pano.destroy(); pano = null; } }
+function killViews() { if (scene) { scene.destroy(); scene = null; } if (panoThen) { panoThen.destroy(); panoThen = null; } if (pano) { pano.destroy(); pano = null; } }
 const mapBearing = () => -world.ctrl.az * 180 / Math.PI;
 const fmtDate = d => { const [y, m, dd] = d.split('-').map(Number); return new Date(Date.UTC(y, m - 1, dd)).toLocaleDateString(lang === 'km' ? 'km-KH' : lang === 'th' ? 'th-TH' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }); };
 function openCard(sel) {
-  killViews(); if (drive) drive.clear();
+  killViews(); if (drive) drive.clear(); clearReal();
   if (reachLayer) reachLayer.visible(false);
   hideTitle();
   if (!(history.state && history.state.card)) history.pushState({ card: 1 }, '');
@@ -155,9 +156,9 @@ function closeCard() {
 addEventListener('popstate', () => { if (skipPop) { skipPop = false; return; } dropCard(); });
 function dropCard() {
   if (!S.sel) return;
-  killViews(); if (drive) drive.clear();
+  killViews(); if (drive) drive.clear(); clearReal();
   if (reachLayer) reachLayer.visible(false);
-  if (S.rise) { S.rise = 0; world.setFlood(null); }
+  if (S.rise) { S.rise = 0; world.setFlood(null); if (spots) spots.clear(); }
   S.sel = null; $('#card').hidden = true; document.documentElement.classList.remove('carded'); lastAlertKey = ''; renderAlerts();
   junc.set(sim.J.map((_, i) => jState(i, S.m, sim.idx(S.m))));
 }
@@ -190,10 +191,25 @@ function buildCard() {
     if (pn) pano = createPano(box, { url: `pano/${j.id}.jpg`, heading: pn.heading, bearing: mapBearing(),
       onFail: () => { panoFail.add(j.id); if (S.sel && S.sel.kind === 'j' && S.sel.i === s.i) { S.jview = 'shield'; killViews(); buildCard(); updateCard(cityNow(S.m)); } },
       onLoad: () => { if (S.sweepPano && pano) { pano.sweep(360, 7000); S.sweepPano = false; } setTimeout(() => { const h = box.querySelector('.hint'); if (h) h.style.opacity = 0; }, 3500); } });
+    const pt = pn && DATA.panosOld ? DATA.panosOld.panos[j.id] : null;
+    if (pano && pt) {
+      // then and now: the same corner years apart, a handle to drag between them
+      panoThen = createPano(box, { url: `pano-then/${j.id}.jpg`, heading: pt.heading, bearing: mapBearing(), follow: pano, cls: 'then', onFail: () => box.classList.remove('tn') });
+      box.classList.add('tn');
+      box.insertAdjacentHTML('beforeend', `<span class="tn-y l">${pt.date.slice(0, 4)}</span><span class="tn-y r">${pn.date.slice(0, 4)}</span><span class="tn-h" role="slider" aria-label="${esc(w('thenNowA'))}" tabindex="0"><i>‹ ›</i></span>`);
+      const H = box.querySelector('.tn-h'), thenCv = box.querySelector('.pano-cv.then');
+      const setThen = x => { S.thenX = Math.max(0, Math.min(1, x)); thenCv.style.clipPath = `inset(0 ${((1 - S.thenX) * 100).toFixed(1)}% 0 0)`; H.style.left = (S.thenX * 100).toFixed(1) + '%'; H.setAttribute('aria-valuenow', Math.round(S.thenX * 100)); };
+      setThen(S.thenX ?? 0.5);
+      const mv = e => { const rr = box.getBoundingClientRect(); setThen((e.clientX - rr.left) / rr.width); };
+      H.addEventListener('pointerdown', e => { e.stopPropagation(); H.setPointerCapture(e.pointerId); mv(e); });
+      H.addEventListener('pointermove', e => { if (H.hasPointerCapture(e.pointerId)) mv(e); });
+      H.addEventListener('keydown', e => { if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') setThen(S.thenX + (e.key === 'ArrowLeft' ? -0.05 : 0.05)); });
+    }
     const setView = v => {
       S.jview = v; box.classList.toggle('shield', v === 'shield');
       el.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.v === v)));
-      $('#credit').innerHTML = v === 'photo' && pn ? `<a href="https://www.mapillary.com/app/?pKey=${pn.id}" target="_blank" rel="noopener">${esc(w('photoBy', { d: fmtDate(pn.date), by: pn.by }))}</a>${pn.dist > 40 ? ' · ' + esc(w('fromCorner', { m: pn.dist })) : ''}`
+      const pt = pn && panoThen && DATA.panosOld ? DATA.panosOld.panos[j.id] : null;
+      $('#credit').innerHTML = v === 'photo' && pn ? `<a href="https://www.mapillary.com/app/?pKey=${pn.id}" target="_blank" rel="noopener">${esc(w('photoBy', { d: fmtDate(pn.date), by: pn.by }))}</a>${pt ? ` · <a href="https://www.mapillary.com/app/?pKey=${pt.id}" target="_blank" rel="noopener">${esc(w('thenBy', { d: fmtDate(pt.date), by: pt.by }))}</a>` : ''}${pn.dist > 40 ? ' · ' + esc(w('fromCorner', { m: pn.dist })) : ''}`
         : `<span class="tagsim">${w('camSim')}</span>`;
     };
     el.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => setView(b.dataset.v)));
@@ -201,12 +217,14 @@ function buildCard() {
     if (S.dkFor !== s.i) { S.dk = 0; S.dkFor = s.i; }
     if ($('#drive-b')) { driveLabel(s.i); $('#drive-b').onclick = () => runDrive(s.i); }
     const div = e => { if (S.jview === 'photo') return; const rr = box.getBoundingClientRect(); S.divider = Math.max(0, Math.min(1, (e.clientX - rr.left) / rr.width)); scene.set({ divider: S.divider }); sweep = null; };
-    box.addEventListener('pointerdown', e => { box.setPointerCapture(e.pointerId); div(e); });
+    box.addEventListener('pointerdown', e => { if (S.jview === 'photo') return; box.setPointerCapture(e.pointerId); div(e); });
     box.addEventListener('pointermove', e => { if (box.hasPointerCapture(e.pointerId)) div(e); });
   } else if (s.kind === 'air') {
     el.innerHTML = `<h2>${w('airTitle')}</h2><div class="sub"><span class="tagsim">${w('sim')}</span><span>PM2.5 · US EPA AQI</span></div>
       <div class="big"><b id="aqi-v"></b><span class="cat" id="aqi-c"></span></div><div class="fine" id="aqi-s"></div>
-      <canvas class="chart" id="achart"></canvas><p class="fine">${w('airNote')}</p>`;
+      <canvas class="chart" id="achart"></canvas><p class="fine">${w('airNote')}</p>
+      <h3 class="sec">${w('liveTitle')} <span class="tagreal">${w('real')}</span></h3><div id="live-air"><p class="fine">${w('liveWaitAll')}</p></div>`;
+    loadLive('air');
   } else if (s.kind === 'rain' || s.kind === 'water') {
     const ra = ALERTS.find(a => a.kind === 'rain'), wa = ALERTS.find(a => a.kind === 'water');
     el.innerHTML = s.kind === 'rain'
@@ -217,7 +235,8 @@ function buildCard() {
           <div><span>${w('leadMed', { t: '' }).trim()}</span><b>${dur(ra.lead)}</b></div>
           <div><span>${w('late', { n: ra.missed })}</span><b>${ra.missed}/${ra.n}</b></div>` : ''}
           ${wa ? `<div><span>${w('aWater')}</span><b>${SIM.label(wa.event).hhmm} · ${w('nJ', { n: wa.n })} · ${w('leadMed', { t: dur(wa.lead) })}</b></div>` : ''}</div>
-        <canvas class="chart" id="rchart"></canvas><p class="fine">${w('rainNote')}</p>`
+        <canvas class="chart" id="rchart"></canvas><p class="fine">${w('rainNote')}</p>
+        <h3 class="sec">${w('liveTitle')} <span class="tagreal">${w('real')}</span></h3><div id="live-rain"><p class="fine">${w('liveWaitAll')}</p></div>`
       : `<h2>${w('waterTitle')}</h2><div class="sub"><span class="tagsim">${w('sim')}</span></div>
         <div class="list"><div><span>${w('riverNow')}</span><b id="river-v"></b></div><div><span>${w('streetWater')}</span><b id="sw-v"></b></div></div>
         <canvas class="chart" id="wchart"></canvas>
@@ -225,6 +244,7 @@ function buildCard() {
         <div class="ruler"><input id="rise" type="range" min="0" max="14" step="0.5" value="${S.rise}" aria-label="${w('possible')}"><output id="rise-o">+${S.rise} m</output></div>
         <div class="fine" id="rise-s"></div><p class="fine">${w('possibleNote')}</p>`;
     if (s.kind === 'water') $('#rise').addEventListener('input', e => setRise(+e.target.value));
+    if (s.kind === 'rain') loadLive('rain');
   } else if (s.kind === 'dc') {
     el.innerHTML = `<h2>${w('dcTitle')}</h2><div class="sub"><span class="tagsim">${w('sim')}</span></div>
       <div class="flow">
@@ -246,6 +266,19 @@ function buildCard() {
       <h3 class="sec">${w('realH')}</h3><p class="fine">${esc(w('realT', { n: signals ? signals.n : 0, y: yrs.length ? (Math.min(...yrs) === Math.max(...yrs) ? Math.max(...yrs) : Math.min(...yrs) + '–' + Math.max(...yrs)) : '' }))}</p>
       <h3 class="sec">${w('modelH')}</h3><p class="fine">${w('modelT')}</p>`;
     if ($('#tr-live')) $('#tr-live').onclick = () => { const i = busiestAt(S.m); openCard({ kind: 'j', i }); runDrive(i); };
+  } else if (s.kind === 'lmk') {
+    const l = LMK[s.id], ph = DATA.photos && DATA.photos[s.id], wk = (DATA.wiki && DATA.wiki[s.id]) || {}, wl = wk[lang] || wk.en;
+    el.innerHTML = `<h2>${esc((l[lang] || l.en).split(' · ')[0])}</h2>
+      ${ph ? `<img class="lmk-img" src="photo/${s.id}.webp" alt="" width="${ph.w}" height="${ph.h}">` : ''}
+      <p class="lmk-t">${esc(l['t_' + lang] || l.t_en || '')}</p>
+      <div class="credit">${ph ? `<a href="${esc(ph.page)}" target="_blank" rel="noopener">${esc(w('photoCredit', { by: ph.author, lic: ph.licence }))}</a>` : ''}${wl ? ` · <a href="${esc(wl)}" target="_blank" rel="noopener">Wikipedia</a>` : ''}</div>`;
+    const im = el.querySelector('.lmk-img'); if (im) im.onerror = () => im.remove();
+  } else if (s.kind === 'stop') {
+    const st = DATA.buses.stops[s.i]; if (buses) buses.select(s.i);
+    el.innerHTML = `<h2>${esc((lang === 'km' && st.km) || st.n || w('busStop'))}</h2>
+      <div class="sub"><span class="tagreal">${w('real')}</span><span>${esc(w(st.r.length === 1 ? 'busLines1' : 'busLines', { n: st.r.length }))}</span></div>
+      <div class="list">${st.r.map(ri => { const r = DATA.buses.routes[ri]; return `<div><span><i class="bdot" style="background:${buses ? buses.colOf(ri) : '#4fc3f7'}"></i>${esc([r.ref, r.name].filter(Boolean).join(' · '))}</span></div>`; }).join('')}</div>
+      <p class="fine">${w('busNote')}</p>`;
   } else if (s.kind === 'place') {
     const c = prepR ? cellAt(prepR, s.x, s.y) : -1;
     if (c < 0) { el.innerHTML = `<h2>${w('hereTitle')}</h2><p class="fine">${w('unavailable')}</p>`; return; }
@@ -255,7 +288,7 @@ function buildCard() {
       <div class="list"><div><span>AQI</span><b id="p-aqi"></b></div><div><span>${w('rain')}</span><b id="p-rain"></b></div>
         <div><span>${w('water')}</span><b>${Number.isFinite(har) ? w('har', { m: har.toFixed(1) }) : '·'}</b></div></div>
       <p class="fine">${occ === 255 ? '' : occ > 0 ? w('satWater', { p: occ }) : w('satNone')}</p>
-      <button class="btn" id="reach-b">${w('reach')}</button><p class="fine" id="reach-o"></p>`;
+      <button class="btn" id="reach-b">${w(drive && drive.on ? 'reach10' : 'reach')}</button><div class="fine" id="reach-o"></div>`;
     $('#reach-b').onclick = () => runReach(s.x, s.y);
   }
 }
@@ -395,18 +428,102 @@ function drawAir(cv, j) {
 let mask = null;
 function setRise(r) {
   S.rise = r; const o = $('#rise-o'), t = $('#rise-s'); if (o) o.textContent = `+${r} m`;
-  if (r > 0) { flood(prepR, r, mask); world.setFlood(mask); const u = streetsUnder(prepR, mask, DATA.geo); if (t) t.textContent = w('streetsUnder', { km: u.km.toFixed(0) }); return u.km; }
-  world.setFlood(null); if (t) t.textContent = ''; return 0;
+  if (r > 0) {
+    flood(prepR, r, mask); world.setFlood(mask); const u = streetsUnder(prepR, mask, DATA.geo), c = underBlue(mask);
+    if (spots) spots.set(c.list);
+    if (t) t.innerHTML = `${esc(w('streetsUnder', { km: u.km.toFixed(0) }))}<br><b>${esc(w('inBlue', c.w))}</b><br><span class="credit">${esc(w('popSrc'))}</span>`;
+    return u.km;
+  }
+  world.setFlood(null); if (spots) spots.clear(); if (t) t.textContent = ''; return 0;
+}
+const roundP = n => n < 1000 ? Math.round(n / 10) * 10 : n < 10000 ? Math.round(n / 100) * 100 : Math.round(n / 1000) * 1000;
+const countWords = (people, list) => {
+  const k = { s: 0, h: 0, m: 0 }; for (const p of list) k[p[2]]++;
+  const parts = ['s', 'h', 'm'].filter(c => k[c]).map(c => w('n' + c.toUpperCase() + (k[c] === 1 ? '1' : ''), { n: k[c] }));
+  return { p: num(roundP(people)), rest: parts.length ? w('sep') + parts.join(w('sep')) : '' };
+};
+// what lies under a possible river level: people (population map) and places (OpenStreetMap)
+function underBlue(mask) {
+  let people = 0; if (popArr) for (let i = 0; i < mask.length; i++) if (mask[i]) people += popArr[i];
+  const list = DATA.places && placeCells ? DATA.places.pts.filter((_, k) => placeCells[k] >= 0 && mask[placeCells[k]]) : [];
+  return { list, w: countWords(people / 10, list) };
+}
+// what lies inside the ten-minute drive
+function insideRings(rings) {
+  const pts = rings.flat(); let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+  for (const [x, y] of pts) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+  const inside = (x, y) => x >= x0 && x <= x1 && y >= y0 && y <= y1 && rings.some(r => inRing(r, x, y));
+  let people = 0;
+  if (popArr && prepR) {
+    const g = prepR.t.grid, o = DATA.geo.origin, kx = DATA.geo.kx, ky = DATA.geo.ky, dl = (g.east - g.west) / g.w, dt = (g.north - g.south) / g.h;
+    for (let r = 0; r < g.h; r++) { const y = (g.north - (r + 0.5) * dt - o.lat) * ky; if (y < y0 || y > y1) continue;
+      for (let c = 0; c < g.w; c++) { const v = popArr[r * g.w + c]; if (!v) continue; const x = (g.west + (c + 0.5) * dl - o.lon) * kx; if (inside(x, y)) people += v; } }
+  }
+  const list = DATA.places ? DATA.places.pts.filter(p => inside(p[0], p[1])) : [];
+  return { list, w: countWords(people / 10, list) };
+}
+const mbCredit = (x, y) => `<div class="credit mb"><a class="mb-logo" href="https://www.mapbox.com/" target="_blank" rel="noopener" aria-label="Mapbox"></a><span><a href="https://www.mapbox.com/about/maps/" target="_blank" rel="noopener">© Mapbox</a> <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap</a> <a href="${drive.feedback(x, y)}" target="_blank" rel="noopener"><b>Improve this map</b></a></span></div>`;
+const ppHM = iso => new Date(iso).toLocaleTimeString(lang === 'km' ? 'km-KH' : lang === 'th' ? 'th-TH' : 'en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Phnom_Penh' });
+let sensorEls = [];
+function clearReal() {
+  if (buses) buses.select(-1); if (area) area.clear(); if (spots && !S.rise) spots.clear();
+  for (const L of sensorEls) { L.el.remove(); const k = labelEls.indexOf(L); if (k >= 0) labelEls.splice(k, 1); } sensorEls = [];
+}
+async function loadLive(kind) {
+  const box = $('#live-' + kind); if (!box) return;
+  try {
+    const d = await fetchLive();
+    if (!document.body.contains(box)) return;
+    if (kind === 'air') {
+      box.innerHTML = d.air && d.air.length
+        ? `<div class="list">${d.air.map(a => { const aq = SIM.aqi(a.pm25), cat = SIM.catOf(aq); return `<div><span>${esc(a.name)} · ${esc(ppHM(a.at))}</span><b><i class="bdot" style="background:${cat.col}"></i>${a.pm25} µg/m³ · AQI ${aq}</b></div>`; }).join('')}</div>
+          <p class="credit">${esc(w('airSrc'))} · <a href="https://openaq.org/" target="_blank" rel="noopener">OpenAQ</a></p>`
+        : `<p class="fine">${esc(w('noSensors'))}</p>`;
+      for (const a of d.air || []) {
+        const el = document.createElement('div'), aq = SIM.aqi(a.pm25), cat = SIM.catOf(aq);
+        el.className = 'lbl sensor'; el.innerHTML = `<i style="background:${cat.col}"></i>PM2.5 ${a.pm25}`; $('#labels').append(el);
+        const L = { el, p: toLocal(a.lon, a.lat), id: 'sensor', h: 40, w: 0 }; labelEls.unshift(L); sensorEls.push(L);
+      }
+    } else {
+      const x = d.weather;
+      box.innerHTML = x ? `<div class="list"><div><span>${esc(w('temp'))}</span><b>${x.t} °C</b></div><div><span>${esc(w('rain'))}</span><b>${x.rain} mm</b></div>
+          <div><span>${esc(w('humid'))}</span><b>${x.rh}%</b></div><div><span>${esc(w('windW'))}</span><b>${x.wind} km/h</b></div></div>
+          <p class="credit">${esc(w('wxSrc', { t: x.at.slice(11, 16) }))} · <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a></p>`
+        : `<p class="fine">${esc(w('liveFailAll'))}</p>`;
+    }
+  } catch (e) {
+    if (document.body.contains(box)) box.innerHTML = `<p class="fine">${esc(w(e && e.why === 'offline' ? 'liveOffAll' : 'liveFailAll'))}</p>`;
+  }
 }
 let rd = null, reachAnim = null;
-function runReach(x, y) {
+let reachNote = '';
+async function runReach(x, y) {
+  reachNote = '';
+  if (drive && drive.on && navigator.onLine) {
+    const o = $('#reach-o'), b = $('#reach-b'); if (!o || !b || b.disabled) return;
+    b.disabled = true; o.textContent = w('liveWait');
+    try {
+      const rings = await fetchIsochrone(DATA.mapbox.token, DATA.geo, x, y, 10);
+      if (!(S.sel && S.sel.kind === 'place') || !document.body.contains(o)) return;
+      area.set(rings); if (reachLayer) reachLayer.visible(false);
+      const c = insideRings(rings); if (spots) spots.set(c.list);
+      o.innerHTML = `<b class="verdict">${esc(w('reach10Out', c.w))}</b>${mbCredit(x, y)}<p class="fine">${esc(w('liveAt', { t: ppTime() }))} ${esc(w('liveNote'))} ${esc(w('popSrc'))}</p>`;
+      world.flyTo(fitRoute(rings.flat().map(([px, py]) => ({ x: px, y: py }))), 1200);
+      if (document.body.contains(b)) b.disabled = false;
+      return;
+    } catch (e) {
+      if (document.body.contains(b)) b.disabled = false;
+      if (!(S.sel && S.sel.kind === 'place') || !document.body.contains(o)) return;
+      reachNote = w({ offline: 'liveOff', limit: 'liveLimit' }[e && e.why] || 'liveFail') + ' ' + w('modelInstead');
+    }
+  }
   if (!city) return;
   if (!rd) rd = { dist: new Float64Array(city.nN), times: new Float32Array(city.nB) };
   const st = K.startAt(city, x, y);
   K.reach(city, st, 'tuk', null, 720, rd.dist); K.doorTimes(city, rd.dist, 0, rd.times);
   reachLayer.set(rd.dist, city.cost.tuk, null, null); reachLayer.pin(x, y); reachLayer.U.uBudget.value = 600;
   reachLayer.visible(true); reachAnim = reduced ? null : { t0: performance.now() }; if (reduced) reachLayer.U.uFront.value = 600;
-  $('#reach-o').textContent = w('reachOut', { n: num(K.countWithin(rd.times, 600)) });
+  $('#reach-o').textContent = (reachNote ? reachNote + ' ' : '') + w('reachOut', { n: num(K.countWithin(rd.times, 600)) });
 }
 
 // ---------- story: one button through the day ----------
@@ -423,7 +540,7 @@ function makeStory() {
   const air = AL('air'), rain = AL('rain'), water = AL('water'), tr = AL('traffic');
   const worstAir = () => { let b = 0; sim.J.forEach((j, i) => { if (sim.aqiAt(j, START) > sim.aqiAt(sim.J[b], START)) b = i; }); return b; };
   const st = [];
-  st.push({ cap: () => w('st0'), go: () => { if (S.rise) { S.rise = 0; world.setFlood(null); } closeCard(); tweenTime(START); world.flyTo(POSE, 1400); } });
+  st.push({ cap: () => w('st0'), go: () => { if (S.rise) { S.rise = 0; world.setFlood(null); if (spots) spots.clear(); } closeCard(); tweenTime(START); world.flyTo(POSE, 1400); } });
   st.push({ cap: () => w('stTurn'), go: () => { closeCard(); tweenTime(START); world.flyTo(POSE, 1000); if (!reduced) S.orbit = { left: 2 * Math.PI, wait: performance.now() + 1100, rate: 0.9 }; } });
   const i1 = worstAir(), hasPano = () => DATA.panos && DATA.panos.panos[sim.J[i1].id] && !panoFail.has(sim.J[i1].id);
   st.push({ cap: () => w(hasPano() ? 'st1p' : 'st1'), go: () => { S.orbit = null; tweenTime(START); world.flyTo(poseNear(sim.J[i1]), 1400); S.jview = hasPano() ? 'photo' : 'shield'; S.sweepPano = !reduced; if (S.sel && S.sel.kind === 'j') { killViews(); S.sel = { kind: 'j', i: i1 }; buildCard(); updateCard(cityNow(S.m)); } else openCard({ kind: 'j', i: i1 }); if (!hasPano() && !reduced) sweep = { t0: performance.now() + 500 }; } });
@@ -438,7 +555,7 @@ function makeStory() {
     if (drive && drive.on) st.push({ cap: () => w('stLive'), go: () => { const b = busiestAt(t); if (!(S.sel && S.sel.kind === 'j' && S.sel.i === b)) openCard({ kind: 'j', i: b }); runDrive(b); } });
   }
   st.push({ cap: () => w('st7', { r: RISE }), go: () => { closeCard(); world.flyTo(RISE_POSE, 1400); if (prepR) setRise(RISE); } });
-  st.push({ cap: () => w('st8'), go: () => { if (S.rise) { S.rise = 0; world.setFlood(null); } world.flyTo(POSE, 1400); openCard({ kind: 'dc' }); } });
+  st.push({ cap: () => w('st8'), go: () => { if (S.rise) { S.rise = 0; world.setFlood(null); if (spots) spots.clear(); } world.flyTo(POSE, 1400); openCard({ kind: 'dc' }); } });
   st.push({ cap: () => w('st9'), go: () => { closeCard(); world.flyTo(POSE, 1400); tween = null; setPlaying(true); } });
   return st;
 }
@@ -480,16 +597,33 @@ function closeMenu() { document.querySelectorAll('.menu').forEach(m => m.remove(
 const labelEls = [];
 function makeLabels() {
   const d = document.createElement('div'); d.className = 'lbl dc'; $('#labels').append(d); labelEls.push({ el: d, p: DC, id: 'dc', h: DC.h, w: 0 });
-  for (const id of LABELS) { const l = LMK[id]; if (!l) continue; const d = document.createElement('div'); d.className = 'lbl'; $('#labels').append(d); labelEls.push({ el: d, p: toLocal(l.lng, l.lat), id, w: 0 }); }
+  for (const id of [...LABELS, ...Object.keys(LMK).filter(k => !LABELS.includes(k))]) {
+    const l = LMK[id]; if (!l) continue; const d = document.createElement('div'); d.className = 'lbl tap'; d.setAttribute('role', 'button'); d.tabIndex = 0; $('#labels').append(d);
+    d.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLandmark(id); } });
+    labelEls.push({ el: d, p: toLocal(l.lng, l.lat), id, w: 0, minor: !LABELS.includes(id) });
+  }
   labelText();
 }
-function labelText() { for (const L of labelEls) { if (L.id === 'dc') { L.el.textContent = w('dc4'); L.w = 0; continue; } const l = LMK[L.id]; L.el.textContent = (l[lang] || l.en).split(' · ')[0]; L.w = 0; } }
+function openLandmark(id) {
+  const l = LMK[id]; if (!l) return; hideTitle(); openCard({ kind: 'lmk', id });
+  const p = toLocal(l.lng, l.lat); world.flyTo({ x: p.x, y: p.y, dist: Math.min(world.ctrl.dist, 3200), az: world.ctrl.az, el: Math.max(world.ctrl.el, 0.75) }, 1100);
+}
+// a tap on a place name: its box, grown to a 40 px target
+function labelAt(cx, cy) {
+  for (const L of labelEls) {
+    if (!L.el.classList.contains('tap') || L.el.style.display === 'none') continue;
+    const r = L.el.getBoundingClientRect(), pad = Math.max(0, (40 - r.height) / 2);
+    if (cx >= r.left - 6 && cx <= r.right + 6 && cy >= r.top - pad && cy <= r.bottom + pad) return L.id;
+  }
+  return null;
+}
+function labelText() { for (const L of labelEls) { if (L.id === 'sensor') continue; if (L.id === 'dc') { L.el.textContent = w('dc4'); L.w = 0; continue; } const l = LMK[L.id]; L.el.textContent = (l[lang] || l.en).split(' · ')[0]; L.w = 0; } }
 function placeLabels() {
   const taken = [], bottom = innerHeight - ($('#card').hidden ? 130 : $('#card').offsetHeight + 80);
   for (const L of labelEls) {
     const q = world.project(L.p.x, L.p.y, L.h || 30), wd = L.w || (L.w = L.el.offsetWidth || 80);
     if (L.id === 'dc') q.y += 34;
-    let show = q.on && q.y > 130 && q.y < bottom;
+    let show = q.on && q.y > 130 && q.y < bottom && !(L.minor && world.ctrl.dist > 7000);
     if (show) for (const t of taken) if (Math.abs(t.x - q.x) < (t.w + wd) / 2 + 4 && Math.abs(t.y - q.y) < 22) { show = false; break; }
     L.el.style.display = show ? '' : 'none';
     if (show) { L.el.style.transform = `translate(${(q.x - wd / 2).toFixed(0)}px, ${(q.y - 10).toFixed(0)}px)`; taken.push({ x: q.x, y: q.y, w: wd }); }
@@ -514,9 +648,12 @@ const frame = () => new Promise(r => requestAnimationFrame(() => setTimeout(r, 0
 function onTap(cx, cy) {
   if (!S.ready) return;
   const r = $('#world').getBoundingClientRect();
+  const lb = labelAt(cx, cy); if (lb) return openLandmark(lb);
   const hit = junc.pick(world.project, cx - r.left, cy - r.top, 34);
   if (hit === 'dc') return openCard({ kind: 'dc' });
   if (hit >= 0) return openCard({ kind: 'j', i: hit });
+  const stp = buses ? buses.pick(world.project, cx - r.left, cy - r.top) : -1;
+  if (stp >= 0) return openCard({ kind: 'stop', i: stp });
   const g = world.pickGround(cx, cy); if (!g) { pulseTime(); return; }
   openCard({ kind: 'place', x: g.x, y: g.y });
 }
@@ -552,6 +689,8 @@ async function boot() {
   traffic = createTraffic(world, DATA.geo, { count: tier === 'low' ? 2200 : 4200, extent: { x0: -12000, x1: 9000, y0: -9000, y1: 9000 } });
   junc = createJunctions(world, FX.junctions, DC);
   if (DATA.signals) signals = createSignals(world, DATA.signals.pts);
+  if (DATA.buses) buses = createBuses(world, DATA.buses);
+  spots = createSpots(world); area = createArea(world);
   if (DATA.mapbox && DATA.mapbox.token) {
     drive = createDrive(world, DATA.geo, DATA.mapbox.token);
     document.documentElement.style.setProperty('--mb-logo', `url("data:image/svg+xml;charset=utf-8,${encodeURIComponent(DATA.mapbox.logo)}")`);
@@ -572,6 +711,8 @@ async function boot() {
     needle.setAttribute('transform', `rotate(${(world.ctrl.az * 180 / Math.PI).toFixed(1)} 12 12)`);
     if (signals) signals.frame(reduced ? 0 : now, S.layers.signals);
     if (drive) drive.frame(world.ctrl.dist, world.camera);
+    if (buses) buses.frame(world.ctrl.dist, world.camera, S.layers.buses);
+    if (area) area.frame(world.ctrl.dist, world.camera);
     if (S.playing) { const rate = S.m >= -30 && S.m <= 240 ? 5 : 30; setTime(S.m + dt * rate); if (S.m >= SIM.M1) setPlaying(false); }
     const k = sim.idx(S.m);
     let qm = 0, rmax = 0; for (const j of sim.J) { qm += j.queue[k]; rmax = Math.max(rmax, j.rain[k]); } qm /= sim.J.length;
@@ -592,6 +733,8 @@ async function boot() {
   // the river model and the street graph for "possible water level" and "how far from here", after first paint
   await frame();
   prepR = prepare(terrain); mask = new Uint8Array(prepR.N);
+  if (DATA.pop) popArr = new Uint16Array(await gunzip(DATA.pop.pop));
+  if (DATA.places) placeCells = DATA.places.pts.map(p => cellAt(prepR, p[0], p[1]));
   city = K.prepareCity(buildGraph(DATA.geo), prepR, K.buildingCentres(new Uint8Array(buildings)));
   reachLayer = createStreets(world, city); reachLayer.visible(false);
   window.__ready.full = Math.round(performance.now() - t0);
@@ -606,12 +749,12 @@ $('#world').addEventListener('pointerdown', () => { if (S.orbit) S.orbit = null;
 $('#coach-next').addEventListener('click', storyNext);
 addEventListener('pointerdown', e => { if (!e.target.closest('#coach')) hideTitle(); }, { capture: true, passive: true });
 $('#lang').addEventListener('click', e => menu(e.currentTarget, [['English', 'en'], ['ខ្មែរ', 'km'], ['ไทย', 'th']].map(([n, l]) => [n, l === lang, () => applyLang(l)])));
-$('#layers').addEventListener('click', e => menu(e.currentTarget, [['lAir', 'air'], ['lTraffic', 'traffic'], ['lSignals', 'signals'], ['lCams', 'cams']].map(([k, id]) => [w(k), S.layers[id], () => { S.layers[id] = !S.layers[id]; }]), true));
+$('#layers').addEventListener('click', e => menu(e.currentTarget, [['lAir', 'air'], ['lTraffic', 'traffic'], ['lSignals', 'signals'], ['lBuses', 'buses'], ['lCams', 'cams']].map(([k, id]) => [w(k), S.layers[id], () => { S.layers[id] = !S.layers[id]; }]), true));
 document.querySelectorAll('.cchip').forEach(b => b.addEventListener('click', () => {
   openCard({ kind: b.dataset.k });
 }));
 addEventListener('resize', () => { if (world) { world.resize(); tbar.resize(); } });
 addEventListener('keydown', e => { if (e.key === 'Escape') { closeMenu(); if (S.sel) closeCard(); } });
 
-window.__touch = { drive: i => runDrive(i), dests: i => destsFor(i), route: () => !!(drive && drive.shown), next: storyNext, story: () => STORY.length, S, setTime: m => setTime(m, true), open: sel => openCard(sel), close: closeCard, play: p => setPlaying(p), alerts: () => ALERTS, active: () => activeAlerts(S.m), sim: () => sim, project: (x, y, h) => world.project(x, y, h) };
+window.__touch = { panoBearing: () => pano ? pano.bearing() : null, busesNear: () => !!(buses && buses.near), underBlue: () => S.rise ? underBlue(mask).w : null, live: k => loadLive(k), drive: i => runDrive(i), dests: i => destsFor(i), route: () => !!(drive && drive.shown), next: storyNext, story: () => STORY.length, S, setTime: m => setTime(m, true), open: sel => openCard(sel), close: closeCard, play: p => setPlaying(p), alerts: () => ALERTS, active: () => activeAlerts(S.m), sim: () => sim, project: (x, y, h) => world.project(x, y, h) };
 boot().catch(e => { console.error(e); window.__error = String(e && e.stack || e); });

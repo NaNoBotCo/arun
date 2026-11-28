@@ -18,6 +18,7 @@ page.on('pageerror', e => errs.push(e.message)); page.on('console', m => { if (m
 page.on('request', q => { const u = new URL(q.url()); if (u.hostname !== 'localhost' && !u.protocol.startsWith('data')) outside.push(u.hostname); });
 // the made-up reply: a bent line between the two corners asked for, four congestion levels, 10 min now against 8 usually
 let mode = 'ok';
+await ctx.route('https://arun-live.nanobotco.workers.dev/**', r => r.abort());  // the air card in the story asks the worker; refused here
 await ctx.route('https://api.mapbox.com/**', route => {
   const u = new URL(route.request().url()); asks.push(u);
   if (mode === 'limit') return route.fulfill({ status: 429, contentType: 'application/json', body: '{"message":"Too Many Requests"}' });
@@ -80,7 +81,7 @@ for (const l of ['km', 'th']) {
   ok(`${l}: words in ${l}`, l === 'km' ? /ពិនិត្យ/.test(t) && /យឺត/.test(t) : /เช็ก/.test(t) && /ช้ากว่าปกติ/.test(t));
   await page.screenshot({ path: `${out}/drive-${l}.png` });
 }
-ok('no outside requests except Mapbox (none real)', outside.every(h => h === 'api.mapbox.com'));
+ok('no outside requests except Mapbox and the live worker (none real)', outside.every(h => h === 'api.mapbox.com' || h === 'arun-live.nanobotco.workers.dev'));
 ok('no errors', errs.filter(e => !/net::ERR_INTERNET_DISCONNECTED|Failed to load resource/.test(e)).length === 0);
 if (errs.length) console.log(errs);
 writeFileSync(`${out}/drive.json`, JSON.stringify(R, null, 1));

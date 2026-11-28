@@ -15,7 +15,8 @@ async function open(vp, q = '', extra = {}, cpu = 1) {
   const ctx = await browser.newContext({ viewport: vp, deviceScaleFactor: 2, hasTouch: true, isMobile: vp.width < 700, ...extra });
   const page = await ctx.newPage();
   page.on('pageerror', e => errs.push(e.message)); page.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
-  page.on('request', r => { const u = r.url(); if (!u.startsWith(base) && !u.startsWith('data:') && !u.startsWith('blob:')) outside.push(u); });
+  await ctx.route(/^https:\/\/(arun-live\.nanobotco\.workers\.dev|api\.mapbox\.com)\//, r => r.abort());  // live data on tap: refused here, so no real calls
+  page.on('request', r => { const u = r.url(); if (!u.startsWith(base) && !u.startsWith('data:') && !u.startsWith('blob:') && !/^https:\/\/(arun-live\.nanobotco\.workers\.dev|api\.mapbox\.com)\//.test(u)) outside.push(u); });
   const cdp = await ctx.newCDPSession(page);
   if (cpu > 1) await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpu });
   await page.goto(base + q); await page.waitForFunction(() => (window.__ready && window.__ready.full) || window.__error, null, { timeout: 60000 });
@@ -125,8 +126,8 @@ for (const vp of [{ width: 360, height: 780 }, { width: 412, height: 915 }, { wi
   check('CPU slowed 4×: ready, one time step, frame rate with a street view open', true, `first frame ${r.ms} ms (${JSON.stringify(r.steps)}), all ready ${r.full} ms; one time step ${scrub} ms; ${fps.toFixed(0)} fps`);
   await ctx.close();
 }
-check('no outside requests', outside.length === 0, outside.slice(0, 3).join(' '));
-check('no errors', errs.length === 0, errs.slice(0, 3).join(' | '));
+check('no outside requests (live worker and Mapbox only on a tap, refused here)', outside.length === 0, outside.slice(0, 3).join(' '));
+check('no errors (the refused live requests aside)', errs.filter(e => !/net::ERR_FAILED/.test(e)).length === 0, errs.filter(e => !/net::ERR_FAILED/.test(e)).slice(0, 3).join(' | '));
 writeFileSync('test/results/touch/check.json', JSON.stringify({ when: new Date().toISOString(), browser: 'Chrome for Testing 1228 (playwright-core), macOS, Apple M2, GPU on', note: 'not an Android phone', results }, null, 1));
 console.log(results.filter(r => r.ok).length + '/' + results.length);
 await browser.close(); srv.close();

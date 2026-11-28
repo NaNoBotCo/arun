@@ -226,3 +226,44 @@ Object.assign(WORDS.th, {
   liveTitle: 'ตอนนี้', liveT: 'เวลาขับรถจริงจาก Mapbox แตะกล้อง แล้วแตะปุ่มเช็กเวลาขับ', trLive: 'เช็กเวลาขับจริงตอนนี้',
   modelT: 'รถที่วิ่ง จังหวะไฟจราจร จำนวนรถ และแถวรถ เป็นไปตามวันทำงานทั่วไป',
 });
+
+// Real data on existing touches, 28 Nov: landmarks, buses, what's under the water, ten minutes by car, sensors and weather, then and now.
+Object.assign(WORDS.en, {
+  lBuses: 'Buses', busStop: 'Bus stop', busLines: '{n} bus lines stop here', busLines1: '1 bus line stops here',
+  busNote: 'Routes and stops from OpenStreetMap. Live bus positions are not public.',
+  photoCredit: 'Photo: {by} · {lic} · Wikimedia Commons',
+  inBlue: 'In the blue: about {p} people{rest}.', sep: ', ', nS: '{n} schools', nS1: '1 school', nH: '{n} hospitals', nH1: '1 hospital', nM: '{n} markets', nM1: '1 market',
+  popSrc: 'People: Meta population map 2020, CC BY 4.0. Places: OpenStreetMap.',
+  reach10: 'Where a car gets in 10 minutes now',
+  reach10Out: 'In 10 minutes by car right now: about {p} people{rest}.',
+  liveWaitAll: 'Getting readings…', liveOffAll: 'No internet. Live readings need a connection.', liveFailAll: 'The readings didn’t arrive. Try again.',
+  airSrc: 'Sensors: AirGradient, CC BY 4.0, via OpenAQ', noSensors: 'No sensor in the city has reported in the last 3 hours.',
+  temp: 'Temperature', humid: 'Humidity', windW: 'Wind', wxSrc: 'Phnom Penh at {t}, CC BY 4.0',
+  thenBy: 'Then: {d} · {by}', thenNowA: 'Drag between then and now', modelInstead: 'Showing the tuk-tuk model instead:',
+});
+Object.assign(WORDS.km, {
+  lBuses: 'ឡានក្រុង', busStop: 'ចំណត​ឡានក្រុង', busLines: 'ខ្សែ​ឡានក្រុង {n} ឈប់​នៅ​ទីនេះ', busLines1: 'ខ្សែ​ឡានក្រុង ១ ឈប់​នៅ​ទីនេះ',
+  busNote: 'ផ្លូវ​និង​ចំណត​ពី OpenStreetMap។ ទីតាំង​ឡានក្រុង​ផ្ទាល់​មិន​ត្រូវ​បាន​ផ្សព្វផ្សាយ​ជា​សាធារណៈ​ទេ។',
+  photoCredit: 'រូបថត៖ {by} · {lic} · Wikimedia Commons',
+  inBlue: 'ក្នុង​ពណ៌​ខៀវ៖ មនុស្ស​ប្រហែល {p} នាក់{rest}។', sep: ' ', nS: 'សាលារៀន {n}', nS1: 'សាលារៀន ១', nH: 'មន្ទីរពេទ្យ {n}', nH1: 'មន្ទីរពេទ្យ ១', nM: 'ផ្សារ {n}', nM1: 'ផ្សារ ១',
+  popSrc: 'មនុស្ស៖ ផែនទី​ប្រជាជន Meta ២០២០ CC BY 4.0។ ទីកន្លែង៖ OpenStreetMap។',
+  reach10: 'ឡាន​ទៅ​ដល់​ណា​ក្នុង ១០ នាទី​ឥឡូវ',
+  reach10Out: 'ក្នុង ១០ នាទី​ជិះ​ឡាន​ឥឡូវ៖ មនុស្ស​ប្រហែល {p} នាក់{rest}។',
+  liveWaitAll: 'កំពុង​ទាញ​យក​ការ​វាស់…', liveOffAll: 'គ្មាន​អ៊ីនធឺណិត។ ការ​វាស់​ផ្ទាល់​ត្រូវការ​អ៊ីនធឺណិត។', liveFailAll: 'ការ​វាស់​មិន​បាន​មក​ដល់។ សាកល្បង​ម្តង​ទៀត។',
+  airSrc: 'ឧបករណ៍​វាស់៖ AirGradient, CC BY 4.0, តាម OpenAQ', noSensors: 'គ្មាន​ឧបករណ៍​វាស់​ណា​ក្នុង​ទីក្រុង​រាយការណ៍​ក្នុង ៣ ម៉ោង​ចុងក្រោយ​ទេ។',
+  temp: 'សីតុណ្ហភាព', humid: 'សំណើម', windW: 'ខ្យល់', wxSrc: 'ភ្នំពេញ​ម៉ោង {t}, CC BY 4.0',
+  thenBy: 'មុន៖ {d} · {by}', thenNowA: 'អូស​រវាង​មុន​និង​ឥឡូវ', modelInstead: 'បង្ហាញ​គំរូ​តុកតុក​ជំនួស៖',
+});
+Object.assign(WORDS.th, {
+  lBuses: 'รถเมล์', busStop: 'ป้ายรถเมล์', busLines: 'รถเมล์ {n} สายจอดที่นี่', busLines1: 'รถเมล์ 1 สายจอดที่นี่',
+  busNote: 'เส้นทางและป้ายจาก OpenStreetMap ตำแหน่งรถเมล์สดไม่ได้เปิดเผยต่อสาธารณะ',
+  photoCredit: 'ภาพ: {by} · {lic} · Wikimedia Commons',
+  inBlue: 'ในพื้นที่สีฟ้า: ประชากรราว {p} คน{rest}', sep: ' ', nS: 'โรงเรียน {n} แห่ง', nS1: 'โรงเรียน 1 แห่ง', nH: 'โรงพยาบาล {n} แห่ง', nH1: 'โรงพยาบาล 1 แห่ง', nM: 'ตลาด {n} แห่ง', nM1: 'ตลาด 1 แห่ง',
+  popSrc: 'ประชากร: แผนที่ประชากร Meta 2020, CC BY 4.0 สถานที่: OpenStreetMap',
+  reach10: 'รถไปถึงไหนได้ใน 10 นาทีตอนนี้',
+  reach10Out: 'ใน 10 นาทีโดยรถตอนนี้: ประชากรราว {p} คน{rest}',
+  liveWaitAll: 'กำลังดึงค่าที่วัดได้…', liveOffAll: 'ไม่มีอินเทอร์เน็ต ค่าสดต้องใช้อินเทอร์เน็ต', liveFailAll: 'ค่าที่วัดได้ยังไม่มา ลองอีกครั้ง',
+  airSrc: 'เซนเซอร์: AirGradient, CC BY 4.0, ผ่าน OpenAQ', noSensors: 'ไม่มีเซนเซอร์ในเมืองรายงานในช่วง 3 ชั่วโมงที่ผ่านมา',
+  temp: 'อุณหภูมิ', humid: 'ความชื้น', windW: 'ลม', wxSrc: 'พนมเปญ เวลา {t}, CC BY 4.0',
+  thenBy: 'ก่อน: {d} · {by}', thenNowA: 'ลากระหว่างก่อนและตอนนี้', modelInstead: 'แสดงแบบจำลองตุ๊กตุ๊กแทน:',
+});
