@@ -12,7 +12,7 @@ Every exhibit exports a JSON run record checked against schemas/run-record.schem
 
 Phnom Penh (ARUN 11): one offline page for a phone. The mapped city under an illustrative storm; proposed gauges and cameras; a 48-member forecast; build a sensor network, compare it on 48 storms shown nowhere else, inspect the evidence behind a notice, save and replay experiments. English, Khmer, Thai. https://nanobotco.github.io/arun/phnom-penh/
 
-Phnom Penh, ready for tomorrow: one offline page for a phone. A simulated 48 hours on the mapped city; junction cameras that send numbers, not pictures; warnings before bad air, heavy rain, flooded streets and traffic jams; drag time; try a higher river; a data center at the centre. English, Khmer, Thai. https://nanobotco.github.io/arun/city/
+Phnom Penh, ready for tomorrow: a page for a phone on the real map. A real 360° street photo at every junction camera (Mapillary, CC BY-SA 4.0), the city's 394 traffic lights (OpenStreetMap), and a simulated 48 hours of air, rain, water and traffic with warnings before each; twist to turn the city, tilt, drag time, try a higher river. English, Khmer, Thai. https://nanobotco.github.io/arun/city/
 
 Resilience lab: fictional facilities and synthetic data; how soon an alert arrives, what a data gap hides, and what a battery and a message cost when water, cold rooms, power, air sensors or links are disrupted. Seeded, replayable, the truth hidden until revealed. English, Khmer, Thai. https://nanobotco.github.io/arun/resilience/
 
