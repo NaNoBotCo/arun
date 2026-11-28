@@ -1,22 +1,22 @@
 {
- "when": "2026-11-28T06:09:45.353Z",
+ "when": "2026-11-28T07:38:24.564Z",
  "browser": "Chrome for Testing 1228 (playwright-core), macOS, Apple M2, GPU on",
  "note": "not an Android phone",
  "results": [
   {
    "name": "opens on the simulated city with the cached world",
    "ok": true,
-   "detail": "ready 392 ms, full 804 ms, alerts air rain water traffic"
+   "detail": "ready 302 ms, full 660 ms, alerts air rain water traffic"
   },
   {
    "name": "07:40 Friday: an air alert is on screen, with its warning time",
    "ok": true,
-   "detail": "● · Unhealthy air · 9 junctions · 4 h 10 min ahead"
+   "detail": "● · Bad air now · 9 corners · warned 4 h 10 min ahead"
   },
   {
-   "name": "18 words or fewer on the first screen (Day 3 rule)",
+   "name": "words on the first screen, counted",
    "ok": true,
-   "detail": "16: ● Unhealthy air junctions ahead Touch a camera at a junction Skip River Traffic Fri Nov"
+   "detail": "25: ● Bad air now corners warned ahead Each glowing dot is a street camera. Next Air Unhealthy Rain None Water Dry Traffic Heavy Fri Nov"
   },
   {
    "name": "map above the chips and time bar at rest",
@@ -61,7 +61,7 @@
   {
    "name": "play moves time forward",
    "ok": true,
-   "detail": "-360 → -313"
+   "detail": "-360 → -314"
   },
   {
    "name": "air card opens",
@@ -131,7 +131,7 @@
   {
    "name": "CPU slowed 4×: ready, one time step, frame rate with a street view open",
    "ok": true,
-   "detail": "first frame 1060 ms ({\"world\":751,\"sim\":249,\"ready\":1060}), all ready 2316 ms; one time step 83 ms; 58 fps"
+   "detail": "first frame 1091 ms ({\"world\":776,\"sim\":251,\"ready\":1091}), all ready 2386 ms; one time step 83 ms; 58 fps"
   },
   {
    "name": "no outside requests",

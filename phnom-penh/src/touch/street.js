@@ -13,9 +13,9 @@ function hash(...n) { let h = 2166136261; for (const v of n) { h ^= v | 0; h = M
 const hf = (...n) => (hash(...n) % 100000) / 100000;
 
 export const WORDS = {
-  en: { camera: 'Camera sees', leaves: 'What leaves', miss: 'Amber = cover missed · illustrative rate 10%', n: 'N', e: 'E', s: 'S', w: 'W' },
-  km: { camera: 'កាមេរ៉ាឃើញ', leaves: 'អ្វីដែលចេញទៅ', miss: 'លឿង = គ្របមិនជិត · អត្រាបង្ហាញ ១០%', n: 'ជើង', e: 'កើត', s: 'ត្បូង', w: 'លិច' },
-  th: { camera: 'กล้องเห็น', leaves: 'สิ่งที่ส่งออก', miss: 'เหลือง = ปิดไม่ทัน · อัตราตัวอย่าง 10%', n: 'เหนือ', e: 'ออก', s: 'ใต้', w: 'ตก' },
+  en: { camera: 'Camera sees', leaves: 'What it sends', miss: 'Amber = a cover missed', n: 'N', e: 'E', s: 'S', w: 'W' },
+  km: { camera: 'កាមេរ៉ាឃើញ', leaves: 'អ្វីដែលវាផ្ញើ', miss: 'លឿង = គ្របមិនជិត', n: 'ជើង', e: 'កើត', s: 'ត្បូង', w: 'លិច' },
+  th: { camera: 'กล้องเห็น', leaves: 'สิ่งที่กล้องส่ง', miss: 'เหลือง = ปิดไม่ทัน', n: 'เหนือ', e: 'ออก', s: 'ใต้', w: 'ตก' },
 };
 const FONT = '"Kantumruy Pro","Noto Sans Thai","Khmer Sangam MN","Noto Sans Khmer",system-ui,sans-serif';
 const MONO = 'ui-monospace,Menlo,Consolas,monospace';

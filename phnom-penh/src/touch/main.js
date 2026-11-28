@@ -22,7 +22,7 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches || Q.has(
 const toLocal = (lon, lat) => ({ x: (lon - DATA.geo.origin.lon) * DATA.geo.kx, y: (lat - DATA.geo.origin.lat) * DATA.geo.ky });
 
 let lang = 'en';
-const w = (k, v = {}) => { const s = WORDS[lang][k] ?? WORDS.en[k] ?? k; return typeof s === 'string' ? s.replace(/\{(\w+)\}/g, (_, n) => v[n] ?? '') : s; };
+const w = (k, v = {}) => { if (k === 'nJ' && +v.n === 1) k = 'nJ1'; const s = WORDS[lang][k] ?? WORDS.en[k] ?? k; return typeof s === 'string' ? s.replace(/\{(\w+)\}/g, (_, n) => v[n] ?? '') : s; };
 const num = n => Math.round(n).toLocaleString('en-US');
 const dur = min => { min = Math.round(min); return min >= 60 ? `${Math.floor(min / 60)} h${min % 60 ? ' ' + (min % 60) + ' min' : ''}` : `${min} min`; };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -32,7 +32,7 @@ const DC = { x: 0, y: 1800, h: 900 };                 // the shared computing no
 const POSE = { x: -1700, y: 300, dist: 11500, az: -0.3, el: 0.78 };
 const LABELS = ['central-market', 'royal-palace', 'wat-phnom', 'independence', 'russian-market', 'koh-pich', 'chroy-changvar', 'olympic'];
 
-export const S = { m: START, playing: false, sel: null, layers: { air: true, traffic: true, cams: true }, coach: 0, rise: 0, divider: 0.5, ready: false };
+export const S = { m: START, playing: false, sel: null, layers: { air: true, traffic: true, cams: true }, story: 0, rise: 0, divider: 0.5, ready: false };
 let world, sim, ALERTS = [], FX, grid, airBuf, airLayer, traffic, junc, tbar, prepR, city, reachLayer, scene = null, simMs = 0;
 let lastAirM = 1e9, lastCard = 0;
 const LMK = {};
@@ -62,7 +62,6 @@ function jState(i, m, k) {
 function setTime(m, user) {
   const prev = S.m;
   S.m = Math.max(SIM.M0, Math.min(SIM.M1, m));
-  if (user && S.coach === 2 && S.m >= 60) setCoach(9);
   world.setTime(S.m);
   const C = cityNow(S.m);
   // haze: the sky and the far city go brown-grey as the air gets worse
@@ -90,7 +89,7 @@ function activeAlerts(m) {
 }
 function alertText(a, m) {
   const k = sim.idx(m);
-  if (a.kind === 'air') return a.phase === 'w' ? [w('wAir'), `${SIM.label(a.issue).hhmm} · 3 h`] : [w('aAir'), `${w('nJ', { n: sim.J.filter(j => sim.aqiAt(j, m) >= SIM.AQI_ALERT).length })}${a.issue != null ? ' · ' + w('ahead', { t: dur(a.event - a.issue) }) : ''}`];
+  if (a.kind === 'air') return a.phase === 'w' ? [w('wAir'), w('next3h')] : [w('aAir'), `${w('nJ', { n: sim.J.filter(j => sim.aqiAt(j, m) >= SIM.AQI_ALERT).length })}${a.issue != null ? ' · ' + w('ahead', { t: dur(a.event - a.issue) }) : ''}`];
   if (a.kind === 'rain') {
     if (a.phase === 'w') return [w('wRain'), w('nJ', { n: FX.junctions.filter(f => f.tWarn >= 0 && f.tWarn <= m).length })];
     return [w('aRain'), `${w('nJ', { n: sim.J.filter(j => j.rain[k] >= SIM.HEAVY).length })} · ${w('leadMed', { t: dur(a.lead) })}`];
@@ -118,28 +117,41 @@ function renderAlerts() {
 
 // ---------- chips ----------
 function chips(C) {
+  const put = (k, word, col) => { $('#c-' + k).textContent = word; $('#c-' + k).closest('.cchip').style.setProperty('--dc', col); };
   const cat = SIM.catOf(C.aqiMax);
-  $('#c-air').textContent = C.aqiMax; document.querySelector('.cchip[data-k="air"]').style.setProperty('--aq', cat.col);
-  $('#c-rain').textContent = Math.round(C.rainMax);
-  $('#c-river').textContent = SIM.riverStage(S.m).toFixed(2) + ' m';
-  $('#c-traffic').textContent = Math.min(100, Math.round(C.traffic * 100)) + '%';
+  const AQW = { good: 'vGood', moderate: 'vOk', usg: 'vPoor', unhealthy: 'vUnhealthy', veryUnhealthy: 'vVeryBad', hazardous: 'vHazardous' };
+  put('air', w(AQW[cat.key] || 'vOk'), cat.col);
+  const r = C.rainMax;
+  put('rain', w(r < 0.5 ? 'vNone' : r < 10 ? 'vLight' : r < SIM.HEAVY ? 'vRain' : 'vHeavy'), r < 0.5 ? '#3ccf6e' : r < SIM.HEAVY ? '#7aa7ff' : '#ff5a4d');
+  put('water', w(C.wet ? 'vFlooding' : C.waterMax >= 3 ? 'vWet' : 'vDry'), C.wet ? '#ff5a4d' : C.waterMax >= 3 ? '#3aa0ff' : '#3ccf6e');
+  const t = C.traffic;
+  put('traffic', w(C.queues ? 'vJammed' : t < 0.35 ? 'vClear' : t < 0.75 ? 'vBusy' : 'vThick'), C.queues ? '#ff5a4d' : t < 0.35 ? '#3ccf6e' : t < 0.75 ? '#f5c451' : '#ffb347');
 }
 
 // ---------- cards ----------
 function openCard(sel) {
   if (scene) { scene.destroy(); scene = null; }
   if (reachLayer) reachLayer.visible(false);
+  hideTitle();
+  if (!(history.state && history.state.card)) history.pushState({ card: 1 }, '');
   S.sel = sel; document.documentElement.classList.add('carded');
   $('#card').hidden = false; $('#card').scrollTop = 0;
   buildCard(); updateCard(cityNow(S.m));
-  if (sel.kind === 'j' && S.coach === 0) setCoach(1);
   lastAlertKey = ''; renderAlerts();
 }
+let skipPop = false;
 function closeCard() {
+  if (!S.sel) return;
+  dropCard();
+  if (history.state && history.state.card) { skipPop = true; history.back(); }
+}
+addEventListener('popstate', () => { if (skipPop) { skipPop = false; return; } dropCard(); });
+function dropCard() {
+  if (!S.sel) return;
   if (scene) { scene.destroy(); scene = null; }
   if (reachLayer) reachLayer.visible(false);
   if (S.rise) { S.rise = 0; world.setFlood(null); }
-  S.sel = null; $('#card').hidden = true; document.documentElement.classList.remove('carded'); lastAlertKey = ''; renderAlerts(); setCoach(S.coach);
+  S.sel = null; $('#card').hidden = true; document.documentElement.classList.remove('carded'); lastAlertKey = ''; renderAlerts();
   junc.set(sim.J.map((_, i) => jState(i, S.m, sim.idx(S.m))));
 }
 function nearName(x, y) {
@@ -154,18 +166,17 @@ function buildCard() {
     el.innerHTML = `<h2>${j.id} <span style="font-weight:400;color:var(--muted)">${esc(nearName(j.x, j.y))}</span></h2>
       <div class="sub"><span class="tagsim">${w('camSim')}</span><span>Face Shield</span></div>
       <div class="street" id="street"><canvas></canvas></div>
+      <div class="sends-h"><b>${w('sends')}</b><span id="pbytes"></span></div>
       <div class="nums" id="jnums"></div>
-      <div class="pkt-h"><span>${w('leaves')}</span><span id="pbytes"></span></div>
-      <pre class="pkt" id="pkt"></pre>
-      <p class="fine">${w('stays')}</p>
-      <canvas class="chart" id="jchart" aria-label="${w('traffic')}"></canvas>`;
+      <p class="fine">${w('numbersOnly')}</p>
+      <details class="raw"><summary>${w('raw')}</summary><pre class="pkt" id="pkt"></pre></details>`;
     const box = $('#street'), cv = box.querySelector('canvas');
     const dpr = Math.min(2, devicePixelRatio || 1), r = box.getBoundingClientRect();
     cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
     scene = createStreetView(cv, { seed: 11 + s.i, node: j.id, lang });
     scene.set({ divider: S.divider, still: reduced });
     if (!reduced) scene.start();
-    const div = e => { const rr = box.getBoundingClientRect(); S.divider = Math.max(0, Math.min(1, (e.clientX - rr.left) / rr.width)); scene.set({ divider: S.divider }); if (S.coach === 1) setCoach(2); };
+    const div = e => { const rr = box.getBoundingClientRect(); S.divider = Math.max(0, Math.min(1, (e.clientX - rr.left) / rr.width)); scene.set({ divider: S.divider }); sweep = null; };
     box.addEventListener('pointerdown', e => { box.setPointerCapture(e.pointerId); div(e); });
     box.addEventListener('pointermove', e => { if (box.hasPointerCapture(e.pointerId)) div(e); });
   } else if (s.kind === 'air') {
@@ -199,8 +210,9 @@ function buildCard() {
         <div class="st"><i>▦</i><span>${w('dc4')}</span></div><div class="ar">↓</div>
       </div>
       <div class="uses">${w('uses').map(u => `<span>${esc(u)}</span>`).join('')}</div>
-      <p class="fine">${w('dcRuns', { ms: num(simMs), n: sim.J.length })}</p><p class="fine">${w('dcNote')}</p>
-      <p><a class="lab" href="https://nanobotco.github.io/arun/phnom-penh/">${w('lab')}</a></p>`;
+      <h3 class="sec">${w('dcWho')}</h3><div class="who">${w('who').map(u => `<div>${esc(u)}</div>`).join('')}</div>
+      <h3 class="sec">${w('dcWhy')}</h3><div class="uses">${w('why').map(u => `<span>${esc(u)}</span>`).join('')}</div>
+      <p class="fine">${w('dcNote')}</p>`;
   } else if (s.kind === 'place') {
     const c = prepR ? cellAt(prepR, s.x, s.y) : -1;
     if (c < 0) { el.innerHTML = `<h2>${w('hereTitle')}</h2><p class="fine">${w('unavailable')}</p>`; return; }
@@ -295,9 +307,9 @@ function drawAir(cv, j) {
 // ---------- possible water level and reach ----------
 let mask = null;
 function setRise(r) {
-  S.rise = r; $('#rise-o').textContent = `+${r} m`;
-  if (r > 0) { flood(prepR, r, mask); world.setFlood(mask); const u = streetsUnder(prepR, mask, DATA.geo); $('#rise-s').textContent = w('streetsUnder', { km: u.km.toFixed(0) }); }
-  else { world.setFlood(null); $('#rise-s').textContent = ''; }
+  S.rise = r; const o = $('#rise-o'), t = $('#rise-s'); if (o) o.textContent = `+${r} m`;
+  if (r > 0) { flood(prepR, r, mask); world.setFlood(mask); const u = streetsUnder(prepR, mask, DATA.geo); if (t) t.textContent = w('streetsUnder', { km: u.km.toFixed(0) }); return u.km; }
+  world.setFlood(null); if (t) t.textContent = ''; return 0;
 }
 let rd = null, reachAnim = null;
 function runReach(x, y) {
@@ -310,13 +322,52 @@ function runReach(x, y) {
   $('#reach-o').textContent = w('reachOut', { n: num(K.countWithin(rd.times, 600)) });
 }
 
-// ---------- coach ----------
-const COACH = ['coachJ', 'coachD', 'coachT'];
-function setCoach(n) {
-  S.coach = n; const el = $('#coach');
-  const show = n < COACH.length && (n !== 1 || (S.sel && S.sel.kind === 'j'));
-  el.hidden = !show; if (show) $('#coach-t').textContent = w(COACH[n]);
+// ---------- story: one button through the day ----------
+let tween = null, sweep = null, STORY = [];
+function tweenTime(to) {
+  setPlaying(false);
+  if (reduced || Math.abs(to - S.m) < 1) { tween = null; setTime(to); return; }
+  tween = { from: S.m, to, t0: performance.now(), ms: Math.min(2400, Math.max(900, 1600 * Math.abs(to - S.m) / 600)) };
 }
+const poseNear = (j, d = 2600) => ({ x: j.x, y: j.y - d * 0.3, dist: d, az: POSE.az, el: 0.72 });
+const RISE = +(Q.get('rise') || 9), RISE_POSE = { x: -600, y: 700, dist: 15000, az: -0.3, el: 0.9 };
+function makeStory() {
+  const AL = k => ALERTS.find(a => a.kind === k);
+  const air = AL('air'), rain = AL('rain'), water = AL('water'), tr = AL('traffic');
+  const worstAir = () => { let b = 0; sim.J.forEach((j, i) => { if (sim.aqiAt(j, START) > sim.aqiAt(sim.J[b], START)) b = i; }); return b; };
+  const st = [];
+  st.push({ cap: () => w('st0'), go: () => { if (S.rise) { S.rise = 0; world.setFlood(null); } closeCard(); tweenTime(START); world.flyTo(POSE, 1400); } });
+  st.push({ cap: () => w('st1'), go: () => { const i = worstAir(); tweenTime(START); world.flyTo(poseNear(sim.J[i]), 1400); openCard({ kind: 'j', i }); if (!reduced) sweep = { t0: performance.now() + 500 }; } });
+  if (air && air.issue != null && air.event != null) st.push({ cap: () => w('st2', { t: dur(air.event - air.issue) }), go: () => { world.flyTo(POSE, 1400); tweenTime(START); openCard({ kind: 'air' }); } });
+  if (rain && rain.issue != null) st.push({ cap: () => w('st3'), go: () => { closeCard(); world.flyTo(POSE, 1400); tweenTime(rain.issue + 1); } });
+  if (rain && rain.event != null && rain.lead != null) st.push({ cap: () => w('st4', { t: dur(rain.lead) }), go: () => { closeCard(); tweenTime(rain.event + 20); } });
+  if (water && water.lead != null) st.push({ cap: () => w('st5', { t: dur(water.lead) }), go: () => { closeCard(); tweenTime(water.event + 30); } });
+  if (tr) {
+    const t = tr.event + Math.min(45, ((tr.end ?? SIM.M1) - tr.event) / 2);
+    st.push({ cap: () => w('st6'), go: () => { const k = sim.idx(t); let b = 0; sim.J.forEach((j, i) => { if (j.queue[k] > sim.J[b].queue[k]) b = i; }); tweenTime(t); world.flyTo(poseNear(sim.J[b]), 1400); openCard({ kind: 'j', i: b }); } });
+  }
+  st.push({ cap: () => w('st7', { r: RISE }), go: () => { closeCard(); world.flyTo(RISE_POSE, 1400); if (prepR) setRise(RISE); } });
+  st.push({ cap: () => w('st8'), go: () => { if (S.rise) { S.rise = 0; world.setFlood(null); } world.flyTo(POSE, 1400); openCard({ kind: 'dc' }); } });
+  st.push({ cap: () => w('st9'), go: () => { closeCard(); world.flyTo(POSE, 1400); tween = null; setPlaying(true); } });
+  return st;
+}
+function renderStory(animate) {
+  const t = $('#coach-t'), b = $('#coach-next'), last = S.story >= STORY.length - 1;
+  t.textContent = STORY.length ? STORY[S.story].cap() : '';
+  b.textContent = w(last ? 'again' : 'next'); b.classList.toggle('again', last);
+  if (animate) { t.classList.remove('in'); void t.offsetWidth; t.classList.add('in'); }
+}
+function storyNext() {
+  hideTitle();
+  if (!STORY.length) return;
+  S.story = S.story >= STORY.length - 1 ? 0 : S.story + 1;
+  STORY[S.story].go(); renderStory(true);
+  $('#coach-next').classList.remove('glow');
+  $('#live').textContent = STORY[S.story].cap();
+}
+let titleT = 0;
+function hideTitle() { clearTimeout(titleT); $('#title').classList.add('gone'); }
+function pulseTime() { const tb = $('#timebar'); tb.classList.remove('pulse'); void tb.offsetWidth; tb.classList.add('pulse'); }
 
 // ---------- menus, labels, language ----------
 function menu(anchor, items, multi) {
@@ -359,7 +410,7 @@ function applyLang(l) {
   document.querySelectorAll('[data-w]').forEach(el => { el.textContent = w(el.dataset.w); });
   $('#world').setAttribute('aria-label', w('simNote'));
   $('#layers').setAttribute('aria-label', w('layers'));
-  setCoach(S.coach); labelText(); lastAlertKey = '';
+  if (STORY.length) renderStory(); labelText(); lastAlertKey = '';
   if (S.ready) { tbar.redraw(); if (S.sel) { if (scene) { scene.destroy(); scene = null; } buildCard(); } setTime(S.m); }
 }
 
@@ -375,7 +426,7 @@ function onTap(cx, cy) {
   const hit = junc.pick(world.project, cx - r.left, cy - r.top, 34);
   if (hit === 'dc') return openCard({ kind: 'dc' });
   if (hit >= 0) return openCard({ kind: 'j', i: hit });
-  const g = world.pickGround(cx, cy); if (!g) return;
+  const g = world.pickGround(cx, cy); if (!g) { pulseTime(); return; }
   openCard({ kind: 'place', x: g.x, y: g.y });
 }
 function setPlaying(p) {
@@ -387,9 +438,9 @@ async function boot() {
   const t0 = performance.now(), T = {};
   for (const l of DATA.landmarks) LMK[l.id] = l;
   FX = DATA.fixture;
-  tbar = createTimebar($('#timebar'), { onTime: (m, u) => { setPlaying(false); setTime(m, u); }, alerts: () => ALERTS, dayNames: () => w('days') });
+  tbar = createTimebar($('#timebar'), { onTime: (m, u) => { tween = null; setPlaying(false); setTime(m, u); hideTitle(); }, alerts: () => ALERTS, dayNames: () => w('days') });
   applyLang(Q.get('lang') || (navigator.language || 'en').slice(0, 2).replace(/^(?!km|th).*/, 'en'));
-  setCoach(Q.has('nocoach') ? 9 : 0);
+  if (Q.has('nocoach')) $('#coach').hidden = true;
   const buildings = await gunzip(DATA.buildings);
   const terrain = decodeTerrain(DATA.terrain);
   const tier = Q.get('tier') || ((navigator.deviceMemory && navigator.deviceMemory <= 3) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) ? 'low' : 'mid');
@@ -410,11 +461,16 @@ async function boot() {
   traffic = createTraffic(world, DATA.geo, { count: tier === 'low' ? 2200 : 4200, extent: { x0: -12000, x1: 9000, y0: -9000, y1: 9000 } });
   junc = createJunctions(world, FX.junctions, DC);
   makeLabels(); tbar.resize();
+  STORY = makeStory(); renderStory();
+  titleT = setTimeout(hideTitle, Q.has('shot') ? 1e9 : 6500);
+  setTimeout(() => $('#coach-next').classList.add('glow'), 2500);
   S.ready = true; $('#app').classList.add('ready');
   setTime(S.m, 'force');
   let last = performance.now();
   const loop = now => {
     const dt = Math.min(0.1, (now - last) / 1000); last = now;
+    if (tween) { const u = Math.min(1, (now - tween.t0) / tween.ms), e = u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2; setTime(tween.from + (tween.to - tween.from) * e); if (u >= 1) tween = null; }
+    if (sweep && scene && now > sweep.t0) { const u = Math.min(1, (now - sweep.t0) / 1800), e = u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2; S.divider = 0.92 - 0.6 * e; scene.set({ divider: S.divider }); if (u >= 1) sweep = null; }
     if (S.playing) { const rate = S.m >= -30 && S.m <= 240 ? 5 : 30; setTime(S.m + dt * rate); if (S.m >= SIM.M1) setPlaying(false); }
     const k = sim.idx(S.m);
     let qm = 0, rmax = 0; for (const j of sim.J) { qm += j.queue[k]; rmax = Math.max(rmax, j.rain[k]); } qm /= sim.J.length;
@@ -441,9 +497,10 @@ async function boot() {
   if (Q.get('open')) openCard(Q.get('open') === 'j' ? { kind: 'j', i: +(Q.get('i') || 0) } : { kind: Q.get('open') });
 }
 
-$('#play').addEventListener('click', () => { if (S.m >= SIM.M1) setTime(SIM.M0); setPlaying(!S.playing); if (S.coach === 2) setCoach(9); });
+$('#play').addEventListener('click', () => { tween = null; hideTitle(); if (S.m >= SIM.M1) setTime(SIM.M0); setPlaying(!S.playing); });
 $('#card-x').addEventListener('click', closeCard);
-$('#coach-skip').addEventListener('click', () => setCoach(9));
+$('#coach-next').addEventListener('click', storyNext);
+addEventListener('pointerdown', e => { if (!e.target.closest('#coach')) hideTitle(); }, { capture: true, passive: true });
 $('#lang').addEventListener('click', e => menu(e.currentTarget, [['English', 'en'], ['ខ្មែរ', 'km'], ['ไทย', 'th']].map(([n, l]) => [n, l === lang, () => applyLang(l)])));
 $('#layers').addEventListener('click', e => menu(e.currentTarget, [['lAir', 'air'], ['lTraffic', 'traffic'], ['lCams', 'cams']].map(([k, id]) => [w(k), S.layers[id], () => { S.layers[id] = !S.layers[id]; }]), true));
 document.querySelectorAll('.cchip').forEach(b => b.addEventListener('click', () => {
@@ -453,5 +510,5 @@ document.querySelectorAll('.cchip').forEach(b => b.addEventListener('click', () 
 addEventListener('resize', () => { if (world) { world.resize(); tbar.resize(); } });
 addEventListener('keydown', e => { if (e.key === 'Escape') { closeMenu(); if (S.sel) closeCard(); } });
 
-window.__touch = { S, setTime: m => setTime(m, true), open: sel => openCard(sel), close: closeCard, play: p => setPlaying(p), alerts: () => ALERTS, active: () => activeAlerts(S.m), sim: () => sim, project: (x, y, h) => world.project(x, y, h) };
+window.__touch = { next: storyNext, story: () => STORY.length, S, setTime: m => setTime(m, true), open: sel => openCard(sel), close: closeCard, play: p => setPlaying(p), alerts: () => ALERTS, active: () => activeAlerts(S.m), sim: () => sim, project: (x, y, h) => world.project(x, y, h) };
 boot().catch(e => { console.error(e); window.__error = String(e && e.stack || e); });
