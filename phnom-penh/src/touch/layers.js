@@ -217,3 +217,31 @@ export function createJunctions(world, junctions, dc) {
     },
   };
 }
+
+// ---------- traffic lights at their OpenStreetMap positions; the red–amber–green timing is illustrative ----------
+export function createSignals(world, pts) {
+  const n = pts.length, pos = new Float32Array(n * 3), col = new Float32Array(n * 4);
+  pts.forEach(([x, y], i) => { pos[i * 3] = x; pos[i * 3 + 1] = 8; pos[i * 3 + 2] = -y; });
+  const geom = new THREE.BufferGeometry();
+  geom.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geom.setAttribute('pcol', new THREE.BufferAttribute(col, 4));
+  const U = { uPx: { value: world.renderer.getPixelRatio() }, uSize: { value: 5 } };
+  const mat = new THREE.ShaderMaterial({
+    uniforms: U, transparent: true, depthWrite: false,
+    vertexShader: `attribute vec4 pcol; varying vec4 vC; uniform float uPx, uSize; void main(){ vC = pcol; vec4 mv = modelViewMatrix*vec4(position,1.0); gl_PointSize = uSize * uPx * clamp(7000.0 / -mv.z, 0.7, 2.6); gl_Position = projectionMatrix*mv; }`,
+    fragmentShader: `varying vec4 vC; void main(){ float d = length(gl_PointCoord - 0.5); if (d > 0.5) discard; float a = smoothstep(0.5, 0.32, d); gl_FragColor = vec4(mix(vec3(0.04), vC.rgb, smoothstep(0.42, 0.2, d)), a * vC.a); }`,
+  });
+  const p = new THREE.Points(geom, mat); p.frustumCulled = false; p.renderOrder = 5; world.scene.add(p);
+  const G = [0.24, 0.85, 0.43], A = [1, 0.7, 0.28], Rd = [1, 0.3, 0.28];
+  return {
+    n,
+    frame(now, on) {
+      p.visible = on; if (!on) return;
+      const t = now / 1000;
+      for (let i = 0; i < n; i++) {
+        const ph = (t + pts[i][2] * 0.61) % 56, c = ph < 25 ? G : ph < 28 ? A : Rd;
+        col[i * 4] = c[0]; col[i * 4 + 1] = c[1]; col[i * 4 + 2] = c[2]; col[i * 4 + 3] = 1;
+      }
+      geom.attributes.pcol.needsUpdate = true;
+    },
+  };
+}

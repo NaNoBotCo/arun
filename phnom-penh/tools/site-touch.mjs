@@ -2,11 +2,11 @@
 // Copies dist/arun-touch.html with share tags, and makes card.jpg (1200 × 630) from the page itself.
 import { chromium } from 'playwright-core';
 import { createServer } from 'node:http';
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, readdirSync, copyFileSync } from 'node:fs';
 const [docs, path = 'city'] = process.argv.slice(2);
 const url = `https://nanobotco.github.io/arun/${path}/`;
 const title = 'ARUN · Phnom Penh, ready for tomorrow';
-const desc = 'A simulated Phnom Penh on the real map: street cameras that send numbers, not pictures; warnings before bad air, heavy rain, flooded streets and traffic jams; drag time; try a higher river. One offline page, English, Khmer, Thai.';
+const desc = 'Phnom Penh on the real map: a real 360° street photo at every camera, the city\'s traffic lights, and simulated air, rain, water and traffic with warnings before each. Twist to turn the city, drag time, try a higher river. English, Khmer, Thai.';
 const esc = s => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 const tags = `<link rel="canonical" href="${url}">
 <meta property="og:type" content="website"><meta property="og:site_name" content="NaNoBotCo">
@@ -18,7 +18,10 @@ const tags = `<link rel="canonical" href="${url}">
 const html = readFileSync(new URL('../dist/arun-touch.html', import.meta.url), 'utf8').replace(/(<title>[^<]*<\/title>)/, `$1\n${tags}`);
 mkdirSync(`${docs}/${path}`, { recursive: true });
 writeFileSync(`${docs}/${path}/index.html`, html);
-const srv = createServer((q, r) => { r.writeHead(200, { 'content-type': 'text/html' }); r.end(html); }).listen(0);
+// the real street photos, beside the page
+mkdirSync(`${docs}/${path}/pano`, { recursive: true });
+for (const f of readdirSync(new URL('../data/panos/', import.meta.url))) if (f.endsWith('.jpg')) copyFileSync(new URL('../data/panos/' + f, import.meta.url), `${docs}/${path}/pano/${f}`);
+const srv = createServer((q, r) => { r.writeHead(200, { 'content-type': 'text/html' }); r.end(html); }).listen(0);  // the card needs no photos
 const exe = `${process.env.HOME}/Library/Caches/ms-playwright/chromium-1228/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing`;
 const browser = await chromium.launch({ executablePath: exe, args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist'] });
 const page = await (await browser.newContext({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 1 })).newPage();

@@ -32,6 +32,9 @@ const data = {
   terrain: JSON.parse(readFileSync(R('data/terrain.json'))),
   buildings: gzipSync(readFileSync(R('data/buildings.bin')), { level: 9 }).toString('base64'),
   landmarks,
+  // real: 360° street photos at the junctions (Mapillary, CC BY-SA 4.0; files served beside the page as pano/J-xx.jpg) and OpenStreetMap traffic lights
+  panos: existsSync(R('data/panos.json')) ? JSON.parse(readFileSync(R('data/panos.json'))) : null,
+  signals: existsSync(R('data/signals.json')) ? JSON.parse(readFileSync(R('data/signals.json'))) : null,
 };
 const html = readFileSync(R('src/touch/index.html'), 'utf8')
   .replace('/*FONTS*/', fonts).replace('/*CSS*/', css)

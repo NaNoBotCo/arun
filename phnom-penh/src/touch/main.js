@@ -10,12 +10,14 @@ import { sunPosition, scenarioDate } from '../render/sun.js';
 import * as SIM from './sim.js';
 import * as K from './reach.js';
 import { createStreets } from './streets.js';
-import { createTraffic, createAir, createJunctions, STATE_COL } from './layers.js';
+import { createTraffic, createAir, createJunctions, createSignals, STATE_COL } from './layers.js';
+import { createPano } from './pano.js';
 import { createTimebar, HAZ_COL } from './timebar.js';
 import { createStreetView } from './street.js';
 import { WORDS } from './words.js';
 
 const $ = s => document.querySelector(s);
+const needle = document.getElementById('needle');
 const DATA = JSON.parse(document.getElementById('arun-data').textContent);
 const Q = new URLSearchParams(location.search);
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches || Q.has('still');
@@ -32,7 +34,8 @@ const DC = { x: 0, y: 1800, h: 900 };                 // the shared computing no
 const POSE = { x: -1700, y: 300, dist: 11500, az: -0.3, el: 0.78 };
 const LABELS = ['central-market', 'royal-palace', 'wat-phnom', 'independence', 'russian-market', 'koh-pich', 'chroy-changvar', 'olympic'];
 
-export const S = { m: START, playing: false, sel: null, layers: { air: true, traffic: true, cams: true }, story: 0, rise: 0, divider: 0.5, ready: false };
+export const S = { m: START, playing: false, sel: null, layers: { air: true, traffic: true, cams: true, signals: true }, jview: null, orbit: null, story: 0, rise: 0, divider: 0.5, ready: false };
+let pano = null, signals = null; const panoFail = new Set();
 let world, sim, ALERTS = [], FX, grid, airBuf, airLayer, traffic, junc, tbar, prepR, city, reachLayer, scene = null, simMs = 0;
 let lastAirM = 1e9, lastCard = 0;
 const LMK = {};
@@ -129,8 +132,11 @@ function chips(C) {
 }
 
 // ---------- cards ----------
+function killViews() { if (scene) { scene.destroy(); scene = null; } if (pano) { pano.destroy(); pano = null; } }
+const mapBearing = () => -world.ctrl.az * 180 / Math.PI;
+const fmtDate = d => { const [y, m, dd] = d.split('-').map(Number); return new Date(Date.UTC(y, m - 1, dd)).toLocaleDateString(lang === 'km' ? 'km-KH' : lang === 'th' ? 'th-TH' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }); };
 function openCard(sel) {
-  if (scene) { scene.destroy(); scene = null; }
+  killViews();
   if (reachLayer) reachLayer.visible(false);
   hideTitle();
   if (!(history.state && history.state.card)) history.pushState({ card: 1 }, '');
@@ -148,7 +154,7 @@ function closeCard() {
 addEventListener('popstate', () => { if (skipPop) { skipPop = false; return; } dropCard(); });
 function dropCard() {
   if (!S.sel) return;
-  if (scene) { scene.destroy(); scene = null; }
+  killViews();
   if (reachLayer) reachLayer.visible(false);
   if (S.rise) { S.rise = 0; world.setFlood(null); }
   S.sel = null; $('#card').hidden = true; document.documentElement.classList.remove('carded'); lastAlertKey = ''; renderAlerts();
@@ -163,9 +169,12 @@ function buildCard() {
   const el = $('#card-body'), s = S.sel;
   if (s.kind === 'j') {
     const j = sim.J[s.i];
+    const pn = DATA.panos && !panoFail.has(j.id) ? DATA.panos.panos[j.id] : null;
+    if (!pn) S.jview = 'shield'; else if (!S.jview) S.jview = 'photo';
     el.innerHTML = `<h2>${j.id} <span style="font-weight:400;color:var(--muted)">${esc(nearName(j.x, j.y))}</span></h2>
-      <div class="sub"><span class="tagsim">${w('camSim')}</span><span>Face Shield</span></div>
-      <div class="street" id="street"><canvas></canvas></div>
+      <div class="tabs" role="tablist">${pn ? `<button role="tab" data-v="photo">${w('vPhoto')}</button>` : ''}<button role="tab" data-v="shield">${w('tShield')}</button></div>
+      <div class="street" id="street"><canvas></canvas><span class="hint">↔ ${esc(w('st1p').split(/[.។]/)[1] || '')}</span></div>
+      <div class="credit" id="credit"></div>
       <div class="sends-h"><b>${w('sends')}</b><span id="pbytes"></span></div>
       <div class="nums" id="jnums"></div>
       <p class="fine">${w('numbersOnly')}</p>
@@ -176,7 +185,18 @@ function buildCard() {
     scene = createStreetView(cv, { seed: 11 + s.i, node: j.id, lang });
     scene.set({ divider: S.divider, still: reduced });
     if (!reduced) scene.start();
-    const div = e => { const rr = box.getBoundingClientRect(); S.divider = Math.max(0, Math.min(1, (e.clientX - rr.left) / rr.width)); scene.set({ divider: S.divider }); sweep = null; };
+    if (pn) pano = createPano(box, { url: `pano/${j.id}.jpg`, heading: pn.heading, bearing: mapBearing(),
+      onFail: () => { panoFail.add(j.id); if (S.sel && S.sel.kind === 'j' && S.sel.i === s.i) { S.jview = 'shield'; killViews(); buildCard(); updateCard(cityNow(S.m)); } },
+      onLoad: () => { if (S.sweepPano && pano) { pano.sweep(360, 7000); S.sweepPano = false; } setTimeout(() => { const h = box.querySelector('.hint'); if (h) h.style.opacity = 0; }, 3500); } });
+    const setView = v => {
+      S.jview = v; box.classList.toggle('shield', v === 'shield');
+      el.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.v === v)));
+      $('#credit').innerHTML = v === 'photo' && pn ? `<a href="https://www.mapillary.com/app/?pKey=${pn.id}" target="_blank" rel="noopener">${esc(w('photoBy', { d: fmtDate(pn.date), by: pn.by }))}</a>${pn.dist > 40 ? ' · ' + esc(w('fromCorner', { m: pn.dist })) : ''}`
+        : `<span class="tagsim">${w('camSim')}</span>`;
+    };
+    el.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => setView(b.dataset.v)));
+    setView(S.jview);
+    const div = e => { if (S.jview === 'photo') return; const rr = box.getBoundingClientRect(); S.divider = Math.max(0, Math.min(1, (e.clientX - rr.left) / rr.width)); scene.set({ divider: S.divider }); sweep = null; };
     box.addEventListener('pointerdown', e => { box.setPointerCapture(e.pointerId); div(e); });
     box.addEventListener('pointermove', e => { if (box.hasPointerCapture(e.pointerId)) div(e); });
   } else if (s.kind === 'air') {
@@ -213,6 +233,13 @@ function buildCard() {
       <h3 class="sec">${w('dcWho')}</h3><div class="who">${w('who').map(u => `<div>${esc(u)}</div>`).join('')}</div>
       <h3 class="sec">${w('dcWhy')}</h3><div class="uses">${w('why').map(u => `<span>${esc(u)}</span>`).join('')}</div>
       <p class="fine">${w('dcNote')}</p>`;
+  } else if (s.kind === 'traffic') {
+    const yrs = DATA.panos ? Object.values(DATA.panos.panos).map(p => +p.date.slice(0, 4)) : [];
+    el.innerHTML = `<h2>${w('trafficTitle')}</h2><div class="sub"><span class="tagsim">${w('modelled')}</span></div>
+      <div class="big"><b id="tr-v" style="font-size:30px"></b></div>
+      <h3 class="sec">${w('busiest')}</h3><div class="list" id="tr-list"></div>
+      <h3 class="sec">${w('realH')}</h3><p class="fine">${esc(w('realT', { n: signals ? signals.n : 0, y: yrs.length ? (Math.min(...yrs) === Math.max(...yrs) ? Math.max(...yrs) : Math.min(...yrs) + '–' + Math.max(...yrs)) : '' }))}</p>
+      <h3 class="sec">${w('modelH')}</h3><p class="fine">${w('modelT')}</p>`;
   } else if (s.kind === 'place') {
     const c = prepR ? cellAt(prepR, s.x, s.y) : -1;
     if (c < 0) { el.innerHTML = `<h2>${w('hereTitle')}</h2><p class="fine">${w('unavailable')}</p>`; return; }
@@ -250,6 +277,11 @@ function updateCard(C) {
     $('#river-v').textContent = SIM.riverStage(m).toFixed(2) + ' m';
     $('#sw-v').textContent = `${w('nJ', { n: C.wet })} · ${C.waterMax.toFixed(0)} cm`;
     drawSeries($('#wchart'), sim.J.slice(0, 6).map((j, i) => ({ a: j.water, col: ['#3aa0ff', '#5fd4e6', '#7aa7ff', '#9fd0ff', '#2f7fd6', '#a0e6ff'][i], max: 60 })), { from: -30, to: 360, mark: SIM.KERB });
+  } else if (s.kind === 'traffic') {
+    $('#tr-v').textContent = $('#c-traffic').textContent;
+    const top = sim.J.map((j, i) => ({ j, i, q: j.queue[k] })).sort((a, b) => b.q - a.q).slice(0, 4);
+    $('#tr-list').innerHTML = top.map(t => `<div role="button" tabindex="0" data-i="${t.i}" style="cursor:pointer"><span>${t.j.id} ${esc(nearName(t.j.x, t.j.y))}</span><b>${num(t.q)} m</b></div>`).join('');
+    $('#tr-list').querySelectorAll('[data-i]').forEach(d => d.onclick = () => openCard({ kind: 'j', i: +d.dataset.i }));
   } else if (s.kind === 'dc') {
     const bytes = new TextEncoder().encode(JSON.stringify({ t: '07:40', node: 'J-01', vehiclesPerMin: 64, peoplePerMin: 12, queueM: 120, rainMmH: 0, waterCm: 0, pm25: 72, quality: 'ok' })).length;
     $('#dc-bytes').textContent = w('bytes', { n: bytes });
@@ -337,14 +369,17 @@ function makeStory() {
   const worstAir = () => { let b = 0; sim.J.forEach((j, i) => { if (sim.aqiAt(j, START) > sim.aqiAt(sim.J[b], START)) b = i; }); return b; };
   const st = [];
   st.push({ cap: () => w('st0'), go: () => { if (S.rise) { S.rise = 0; world.setFlood(null); } closeCard(); tweenTime(START); world.flyTo(POSE, 1400); } });
-  st.push({ cap: () => w('st1'), go: () => { const i = worstAir(); tweenTime(START); world.flyTo(poseNear(sim.J[i]), 1400); openCard({ kind: 'j', i }); if (!reduced) sweep = { t0: performance.now() + 500 }; } });
+  st.push({ cap: () => w('stTurn'), go: () => { closeCard(); tweenTime(START); world.flyTo(POSE, 1000); if (!reduced) S.orbit = { left: 2 * Math.PI, wait: performance.now() + 1100, rate: 0.9 }; } });
+  const i1 = worstAir(), hasPano = () => DATA.panos && DATA.panos.panos[sim.J[i1].id] && !panoFail.has(sim.J[i1].id);
+  st.push({ cap: () => w(hasPano() ? 'st1p' : 'st1'), go: () => { S.orbit = null; tweenTime(START); world.flyTo(poseNear(sim.J[i1]), 1400); S.jview = hasPano() ? 'photo' : 'shield'; S.sweepPano = !reduced; if (S.sel && S.sel.kind === 'j') { killViews(); S.sel = { kind: 'j', i: i1 }; buildCard(); updateCard(cityNow(S.m)); } else openCard({ kind: 'j', i: i1 }); if (!hasPano() && !reduced) sweep = { t0: performance.now() + 500 }; } });
+  st.push({ cap: () => w('st1'), go: () => { S.jview = 'shield'; if (!(S.sel && S.sel.kind === 'j')) openCard({ kind: 'j', i: i1 }); else { const b = document.querySelector('.tabs [data-v="shield"]'); if (b) b.click(); } if (!reduced) sweep = { t0: performance.now() + 300 }; } });
   if (air && air.issue != null && air.event != null) st.push({ cap: () => w('st2', { t: dur(air.event - air.issue) }), go: () => { world.flyTo(POSE, 1400); tweenTime(START); openCard({ kind: 'air' }); } });
   if (rain && rain.issue != null) st.push({ cap: () => w('st3'), go: () => { closeCard(); world.flyTo(POSE, 1400); tweenTime(rain.issue + 1); } });
   if (rain && rain.event != null && rain.lead != null) st.push({ cap: () => w('st4', { t: dur(rain.lead) }), go: () => { closeCard(); tweenTime(rain.event + 20); } });
   if (water && water.lead != null) st.push({ cap: () => w('st5', { t: dur(water.lead) }), go: () => { closeCard(); tweenTime(water.event + 30); } });
   if (tr) {
     const t = tr.event + Math.min(45, ((tr.end ?? SIM.M1) - tr.event) / 2);
-    st.push({ cap: () => w('st6'), go: () => { const k = sim.idx(t); let b = 0; sim.J.forEach((j, i) => { if (j.queue[k] > sim.J[b].queue[k]) b = i; }); tweenTime(t); world.flyTo(poseNear(sim.J[b]), 1400); openCard({ kind: 'j', i: b }); } });
+    st.push({ cap: () => w('st6'), go: () => { const k = sim.idx(t); let b = 0; sim.J.forEach((j, i) => { if (j.queue[k] > sim.J[b].queue[k]) b = i; }); tweenTime(t); world.flyTo(poseNear(sim.J[b]), 1400); S.jview = 'shield'; openCard({ kind: 'j', i: b }); } });
   }
   st.push({ cap: () => w('st7', { r: RISE }), go: () => { closeCard(); world.flyTo(RISE_POSE, 1400); if (prepR) setRise(RISE); } });
   st.push({ cap: () => w('st8'), go: () => { if (S.rise) { S.rise = 0; world.setFlood(null); } world.flyTo(POSE, 1400); openCard({ kind: 'dc' }); } });
@@ -409,9 +444,9 @@ function applyLang(l) {
   $('#lang').textContent = { en: 'EN', km: 'ខ្មែរ', th: 'ไทย' }[lang];
   document.querySelectorAll('[data-w]').forEach(el => { el.textContent = w(el.dataset.w); });
   $('#world').setAttribute('aria-label', w('simNote'));
-  $('#layers').setAttribute('aria-label', w('layers'));
+  $('#layers').setAttribute('aria-label', w('layers')); $('#compass').setAttribute('aria-label', w('north')); $('#orbit').setAttribute('aria-label', w('orbit'));
   if (STORY.length) renderStory(); labelText(); lastAlertKey = '';
-  if (S.ready) { tbar.redraw(); if (S.sel) { if (scene) { scene.destroy(); scene = null; } buildCard(); } setTime(S.m); }
+  if (S.ready) { tbar.redraw(); if (S.sel) { killViews(); buildCard(); } setTime(S.m); }
 }
 
 // ---------- boot ----------
@@ -444,7 +479,7 @@ async function boot() {
   const buildings = await gunzip(DATA.buildings);
   const terrain = decodeTerrain(DATA.terrain);
   const tier = Q.get('tier') || ((navigator.deviceMemory && navigator.deviceMemory <= 3) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) ? 'low' : 'mid');
-  world = createWorld($('#world'), { geo: DATA.geo, terrain, buildings }, { tier, reducedMotion: reduced, preserve: Q.has('shot'), onTap });
+  world = createWorld($('#world'), { geo: DATA.geo, terrain, buildings }, { tier, reducedMotion: reduced, preserve: Q.has('shot'), onTap, minDist: 300, twoFingerModes: true });
   world.setStorm(SIM.storm); world.setRise(1); world.flyTo(POSE, 0);
   window.__world = world; window.__S = S;
   T.world = performance.now() - t0;
@@ -460,6 +495,7 @@ async function boot() {
   airLayer = createAir(world, grid);
   traffic = createTraffic(world, DATA.geo, { count: tier === 'low' ? 2200 : 4200, extent: { x0: -12000, x1: 9000, y0: -9000, y1: 9000 } });
   junc = createJunctions(world, FX.junctions, DC);
+  if (DATA.signals) signals = createSignals(world, DATA.signals.pts);
   makeLabels(); tbar.resize();
   STORY = makeStory(); renderStory();
   titleT = setTimeout(hideTitle, Q.has('shot') ? 1e9 : 6500);
@@ -471,6 +507,10 @@ async function boot() {
     const dt = Math.min(0.1, (now - last) / 1000); last = now;
     if (tween) { const u = Math.min(1, (now - tween.t0) / tween.ms), e = u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2; setTime(tween.from + (tween.to - tween.from) * e); if (u >= 1) tween = null; }
     if (sweep && scene && now > sweep.t0) { const u = Math.min(1, (now - sweep.t0) / 1800), e = u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2; S.divider = 0.92 - 0.6 * e; scene.set({ divider: S.divider }); if (u >= 1) sweep = null; }
+    if (S.orbit && now > (S.orbit.wait || 0) && !world.ctrl.anim) { const da = Math.min(S.orbit.left, dt * (S.orbit.rate || 0.35)); world.ctrl.az += da; S.orbit.left -= da; if (S.orbit.left <= 1e-6) S.orbit = null; }
+    $('#orbit').setAttribute('aria-pressed', String(!!(S.orbit && S.orbit.left === Infinity)));
+    needle.setAttribute('transform', `rotate(${(world.ctrl.az * 180 / Math.PI).toFixed(1)} 12 12)`);
+    if (signals) signals.frame(reduced ? 0 : now, S.layers.signals);
     if (S.playing) { const rate = S.m >= -30 && S.m <= 240 ? 5 : 30; setTime(S.m + dt * rate); if (S.m >= SIM.M1) setPlaying(false); }
     const k = sim.idx(S.m);
     let qm = 0, rmax = 0; for (const j of sim.J) { qm += j.queue[k]; rmax = Math.max(rmax, j.rain[k]); } qm /= sim.J.length;
@@ -499,13 +539,15 @@ async function boot() {
 
 $('#play').addEventListener('click', () => { tween = null; hideTitle(); if (S.m >= SIM.M1) setTime(SIM.M0); setPlaying(!S.playing); });
 $('#card-x').addEventListener('click', closeCard);
+$('#compass').addEventListener('click', () => { hideTitle(); S.orbit = null; const c = world.ctrl; let az = c.az % (2 * Math.PI); if (az > Math.PI) az -= 2 * Math.PI; if (az < -Math.PI) az += 2 * Math.PI; c.az = az; world.flyTo({ x: c.target.x, y: -c.target.z, dist: c.dist, az: 0, el: c.el }, 700); });
+$('#orbit').addEventListener('click', () => { hideTitle(); S.orbit = S.orbit && S.orbit.left === Infinity ? null : { left: Infinity, rate: 0.35 }; });
+$('#world').addEventListener('pointerdown', () => { if (S.orbit) S.orbit = null; });
 $('#coach-next').addEventListener('click', storyNext);
 addEventListener('pointerdown', e => { if (!e.target.closest('#coach')) hideTitle(); }, { capture: true, passive: true });
 $('#lang').addEventListener('click', e => menu(e.currentTarget, [['English', 'en'], ['ខ្មែរ', 'km'], ['ไทย', 'th']].map(([n, l]) => [n, l === lang, () => applyLang(l)])));
-$('#layers').addEventListener('click', e => menu(e.currentTarget, [['lAir', 'air'], ['lTraffic', 'traffic'], ['lCams', 'cams']].map(([k, id]) => [w(k), S.layers[id], () => { S.layers[id] = !S.layers[id]; }]), true));
+$('#layers').addEventListener('click', e => menu(e.currentTarget, [['lAir', 'air'], ['lTraffic', 'traffic'], ['lSignals', 'signals'], ['lCams', 'cams']].map(([k, id]) => [w(k), S.layers[id], () => { S.layers[id] = !S.layers[id]; }]), true));
 document.querySelectorAll('.cchip').forEach(b => b.addEventListener('click', () => {
-  if (b.dataset.k !== 'traffic') return openCard({ kind: b.dataset.k });
-  const k = sim.idx(S.m); let best = 0; sim.J.forEach((j, i) => { if (j.queue[k] > sim.J[best].queue[k]) best = i; }); openCard({ kind: 'j', i: best });
+  openCard({ kind: b.dataset.k });
 }));
 addEventListener('resize', () => { if (world) { world.resize(); tbar.resize(); } });
 addEventListener('keydown', e => { if (e.key === 'Escape') { closeMenu(); if (S.sel) closeCard(); } });

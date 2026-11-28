@@ -159,3 +159,29 @@ Object.assign(WORDS.th, {
   dcWhy: 'ศูนย์ข้อมูลเพิ่มอะไร', why: ['ทดลอง "ถ้า" ได้หลายแบบพร้อมกัน', 'ประวัติหลายปี', 'หลายเมือง', 'ระบบสำรอง'],
   dc4: 'ศูนย์ข้อมูล',
 });
+
+// Next step, 28 Nov: real 360° street photos, the city's traffic lights, gestures to turn and tilt.
+Object.assign(WORDS.en, {
+  stTurn: 'Twist two fingers to turn the city.', st1p: 'A real street photo. Drag to look around.',
+  vPhoto: '360° photo', tShield: 'Face Shield', photoBy: 'Real photo · {d} · {by} · Mapillary · CC BY-SA 4.0', fromCorner: '{m} m from the corner',
+  north: 'North up', orbit: 'Turn around the city', lSignals: 'Traffic lights',
+  trafficTitle: 'Traffic', modelled: 'Modelled', busiest: 'Longest queues now',
+  realH: 'Real', realT: 'Roads and {n} traffic lights from OpenStreetMap. A 360° street photo at every camera, from Mapillary, {y}.',
+  modelH: 'Modelled', modelT: 'The moving cars, the light timing, the counts and the queues follow a typical weekday. Live traffic for Phnom Penh is not in this demo.',
+});
+Object.assign(WORDS.km, {
+  stTurn: 'បង្វិល​ម្រាមដៃ​ពីរ​ដើម្បី​បង្វិល​ទីក្រុង។', st1p: 'រូបថត​ផ្លូវ​ពិត។ អូស​ដើម្បី​មើល​ជុំវិញ។',
+  vPhoto: 'រូបថត ៣៦០°', tShield: 'Face Shield', photoBy: 'រូបថត​ពិត · {d} · {by} · Mapillary · CC BY-SA 4.0', fromCorner: '{m} ម៉ែត្រ​ពី​ផ្លូវ​ប្រសព្វ',
+  north: 'ទិស​ខាង​ជើង​ឡើង​លើ', orbit: 'បង្វិល​ជុំវិញ​ទីក្រុង', lSignals: 'ភ្លើង​ស្តុប',
+  trafficTitle: 'ចរាចរណ៍', modelled: 'គំរូ', busiest: 'ជួរ​វែង​បំផុត​ឥឡូវ',
+  realH: 'ពិត', realT: 'ផ្លូវ និង​ភ្លើង​ស្តុប {n} ពី OpenStreetMap។ រូបថត​ផ្លូវ ៣៦០° នៅ​កាមេរ៉ា​នីមួយៗ ពី Mapillary {y}។',
+  modelH: 'គំរូ', modelT: 'រថយន្ត​ដែល​កំពុង​ធ្វើ​ដំណើរ ពេលវេលា​ភ្លើង​ស្តុប ចំនួន និង​ជួរ​រថយន្ត​តាម​ថ្ងៃ​ធ្វើការ​ធម្មតា។ ចរាចរណ៍​ផ្ទាល់​នៃ​ភ្នំពេញ​មិន​មាន​ក្នុង​ការ​បង្ហាញ​នេះ​ទេ។',
+});
+Object.assign(WORDS.th, {
+  stTurn: 'บิดสองนิ้วเพื่อหมุนเมือง', st1p: 'ภาพถนนจริง ลากเพื่อมองรอบ ๆ',
+  vPhoto: 'ภาพ 360°', tShield: 'Face Shield', photoBy: 'ภาพจริง · {d} · {by} · Mapillary · CC BY-SA 4.0', fromCorner: 'ห่างจากทางแยก {m} ม.',
+  north: 'ทิศเหนือขึ้นบน', orbit: 'หมุนรอบเมือง', lSignals: 'ไฟจราจร',
+  trafficTitle: 'การจราจร', modelled: 'แบบจำลอง', busiest: 'แถวรถยาวที่สุดตอนนี้',
+  realH: 'ข้อมูลจริง', realT: 'ถนนและไฟจราจร {n} จุดจาก OpenStreetMap ภาพถนน 360° ที่กล้องทุกตัวจาก Mapillary {y}',
+  modelH: 'แบบจำลอง', modelT: 'รถที่วิ่ง จังหวะไฟจราจร จำนวนรถ และแถวรถ เป็นไปตามวันทำงานทั่วไป ข้อมูลจราจรสดของพนมเปญไม่ได้อยู่ในเดโมนี้',
+});

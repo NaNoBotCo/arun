@@ -486,7 +486,7 @@ export function createWorld(canvas, data, opts = {}) {
 
   // ---------- camera control ----------
   const ctrl = { target: new THREE.Vector3(-1500, 0, 200), dist: 10500, az: 0.5, el: 0.52, anim: null };
-  const clampCtrl = () => { ctrl.dist = Math.max(600, Math.min(60000, ctrl.dist)); ctrl.el = Math.max(0.08, Math.min(1.45, ctrl.el)); };
+  const clampCtrl = () => { ctrl.dist = Math.max(opts.minDist || 600, Math.min(60000, ctrl.dist)); ctrl.el = Math.max(0.08, Math.min(1.45, ctrl.el)); };
   function applyCam() {
     clampCtrl();
     const ce = Math.cos(ctrl.el);
@@ -518,7 +518,7 @@ export function createWorld(canvas, data, opts = {}) {
     canvas.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY, b: e.button });
     ctrl.anim = null; moved = 0; downAt = performance.now();
     gest = ptrs.size === 1 ? { kind: e.button === 2 ? 'turn' : 'pan', g0: groundAt(e.clientX, e.clientY), x: e.clientX, y: e.clientY } : { kind: 'pinch' };
-    if (gest.kind === 'pinch') { const [a, b] = [...ptrs.values()]; gest.d = Math.hypot(a.x - b.x, a.y - b.y); gest.ang = Math.atan2(b.y - a.y, b.x - a.x); gest.my = (a.y + b.y) / 2; }
+    if (gest.kind === 'pinch') { const [a, b] = [...ptrs.values()]; gest.d = Math.hypot(a.x - b.x, a.y - b.y); gest.ang = Math.atan2(b.y - a.y, b.x - a.x); gest.my = (a.y + b.y) / 2; gest.a0 = { ...a }; gest.b0 = { ...b }; gest.d0 = gest.d; gest.mode = opts.twoFingerModes ? null : 'all'; }
   });
   canvas.addEventListener('pointermove', e => {
     if (!ptrs.has(e.pointerId)) return;
@@ -528,7 +528,14 @@ export function createWorld(canvas, data, opts = {}) {
     else if (gest.kind === 'turn') { ctrl.az -= (e.clientX - gest.x) * 0.006; ctrl.el += (e.clientY - gest.y) * 0.004; gest.x = e.clientX; gest.y = e.clientY; }
     else if (gest.kind === 'pinch' && ptrs.size >= 2) {
       const [a, b] = [...ptrs.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y), ang = Math.atan2(b.y - a.y, b.x - a.x), my = (a.y + b.y) / 2;
-      ctrl.dist *= gest.d / Math.max(10, d); ctrl.az -= ang - gest.ang; ctrl.el += (my - gest.my) * 0.004; gest.d = d; gest.ang = ang; gest.my = my;
+      if (!gest.mode) {
+        const ay = a.y - gest.a0.y, by = b.y - gest.b0.y, ax = a.x - gest.a0.x, bx = b.x - gest.b0.x, dd = Math.abs(d - gest.d0);
+        const vy = Math.abs(ay) + Math.abs(by), hx = Math.abs(ax) + Math.abs(bx);
+        if (vy + hx > 14) gest.mode = Math.sign(ay) === Math.sign(by) && vy > 2 * hx && dd < 0.3 * vy + 6 ? 'tilt' : 'turn';
+      }
+      if (gest.mode === 'tilt' || gest.mode === 'all') ctrl.el += (my - gest.my) * (gest.mode === 'tilt' ? 0.006 : 0.004);
+      if (gest.mode === 'turn' || gest.mode === 'all') { ctrl.dist *= gest.d / Math.max(10, d); let da = ang - gest.ang; if (da > Math.PI) da -= 2 * Math.PI; if (da < -Math.PI) da += 2 * Math.PI; ctrl.az -= da; }
+      gest.d = d; gest.ang = ang; gest.my = my;
     }
   });
   const up = e => {

@@ -1,12 +1,12 @@
 {
- "when": "2026-11-28T07:38:24.564Z",
+ "when": "2026-11-28T08:33:07.828Z",
  "browser": "Chrome for Testing 1228 (playwright-core), macOS, Apple M2, GPU on",
  "note": "not an Android phone",
  "results": [
   {
    "name": "opens on the simulated city with the cached world",
    "ok": true,
-   "detail": "ready 302 ms, full 660 ms, alerts air rain water traffic"
+   "detail": "ready 312 ms, full 686 ms, alerts air rain water traffic"
   },
   {
    "name": "07:40 Friday: an air alert is on screen, with its warning time",
@@ -131,7 +131,7 @@
   {
    "name": "CPU slowed 4×: ready, one time step, frame rate with a street view open",
    "ok": true,
-   "detail": "first frame 1091 ms ({\"world\":776,\"sim\":251,\"ready\":1091}), all ready 2386 ms; one time step 83 ms; 58 fps"
+   "detail": "first frame 1063 ms ({\"world\":756,\"sim\":249,\"ready\":1063}), all ready 2324 ms; one time step 85 ms; 59 fps"
   },
   {
    "name": "no outside requests",

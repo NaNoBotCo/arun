@@ -4,7 +4,11 @@ import { createServer } from 'node:http';
 import { readFileSync, mkdirSync } from 'node:fs';
 const [file, out, lang = 'en', W = '390', H = '844'] = process.argv.slice(2);
 mkdirSync(out, { recursive: true });
-const srv = createServer((q, r) => { r.writeHead(200, { 'content-type': 'text/html' }); r.end(readFileSync(file)); }).listen(0);
+const srv = createServer((q, r) => {
+  const m = q.url.match(/^\/pano\/(J-\d+\.jpg)/);  // the real photos are served beside the page, as on the site
+  if (m) { try { r.writeHead(200, { 'content-type': 'image/jpeg' }); r.end(readFileSync(new URL('../data/panos/' + m[1], import.meta.url))); } catch { r.writeHead(404); r.end(); } return; }
+  r.writeHead(200, { 'content-type': 'text/html' }); r.end(readFileSync(file));
+}).listen(0);
 const base = `http://localhost:${srv.address().port}/`;
 const exe = `${process.env.HOME}/Library/Caches/ms-playwright/chromium-1228/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing`;
 const browser = await chromium.launch({ executablePath: exe, args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist'] });
