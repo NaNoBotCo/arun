@@ -12,6 +12,7 @@ import * as K from './reach.js';
 import { createStreets } from './streets.js';
 import { createTraffic, createAir, createJunctions, createSignals, STATE_COL } from './layers.js';
 import { createPano } from './pano.js';
+import { createDrive, CONG } from './drive.js';
 import { createTimebar, HAZ_COL } from './timebar.js';
 import { createStreetView } from './street.js';
 import { WORDS } from './words.js';
@@ -35,7 +36,7 @@ const POSE = { x: -1700, y: 300, dist: 11500, az: -0.3, el: 0.78 };
 const LABELS = ['central-market', 'royal-palace', 'wat-phnom', 'independence', 'russian-market', 'koh-pich', 'chroy-changvar', 'olympic'];
 
 export const S = { m: START, playing: false, sel: null, layers: { air: true, traffic: true, cams: true, signals: true }, jview: null, orbit: null, story: 0, rise: 0, divider: 0.5, ready: false };
-let pano = null, signals = null; const panoFail = new Set();
+let pano = null, signals = null, drive = null; const panoFail = new Set();
 let world, sim, ALERTS = [], FX, grid, airBuf, airLayer, traffic, junc, tbar, prepR, city, reachLayer, scene = null, simMs = 0;
 let lastAirM = 1e9, lastCard = 0;
 const LMK = {};
@@ -136,7 +137,7 @@ function killViews() { if (scene) { scene.destroy(); scene = null; } if (pano) {
 const mapBearing = () => -world.ctrl.az * 180 / Math.PI;
 const fmtDate = d => { const [y, m, dd] = d.split('-').map(Number); return new Date(Date.UTC(y, m - 1, dd)).toLocaleDateString(lang === 'km' ? 'km-KH' : lang === 'th' ? 'th-TH' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }); };
 function openCard(sel) {
-  killViews();
+  killViews(); if (drive) drive.clear();
   if (reachLayer) reachLayer.visible(false);
   hideTitle();
   if (!(history.state && history.state.card)) history.pushState({ card: 1 }, '');
@@ -154,7 +155,7 @@ function closeCard() {
 addEventListener('popstate', () => { if (skipPop) { skipPop = false; return; } dropCard(); });
 function dropCard() {
   if (!S.sel) return;
-  killViews();
+  killViews(); if (drive) drive.clear();
   if (reachLayer) reachLayer.visible(false);
   if (S.rise) { S.rise = 0; world.setFlood(null); }
   S.sel = null; $('#card').hidden = true; document.documentElement.classList.remove('carded'); lastAlertKey = ''; renderAlerts();
@@ -175,6 +176,7 @@ function buildCard() {
       <div class="tabs" role="tablist">${pn ? `<button role="tab" data-v="photo">${w('vPhoto')}</button>` : ''}<button role="tab" data-v="shield">${w('tShield')}</button></div>
       <div class="street" id="street"><canvas></canvas><span class="hint">↔ ${esc(w('st1p').split(/[.។]/)[1] || '')}</span></div>
       <div class="credit" id="credit"></div>
+      ${drive && drive.on ? `<div class="drive"><h3 class="sec">${w('liveH')} <span class="tagreal">${w('real')}</span></h3><div id="drive-o" aria-live="polite"></div><button class="btn" id="drive-b"></button></div>` : ''}
       <div class="sends-h"><b>${w('sends')}</b><span id="pbytes"></span></div>
       <div class="nums" id="jnums"></div>
       <p class="fine">${w('numbersOnly')}</p>
@@ -196,6 +198,8 @@ function buildCard() {
     };
     el.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => setView(b.dataset.v)));
     setView(S.jview);
+    if (S.dkFor !== s.i) { S.dk = 0; S.dkFor = s.i; }
+    if ($('#drive-b')) { driveLabel(s.i); $('#drive-b').onclick = () => runDrive(s.i); }
     const div = e => { if (S.jview === 'photo') return; const rr = box.getBoundingClientRect(); S.divider = Math.max(0, Math.min(1, (e.clientX - rr.left) / rr.width)); scene.set({ divider: S.divider }); sweep = null; };
     box.addEventListener('pointerdown', e => { box.setPointerCapture(e.pointerId); div(e); });
     box.addEventListener('pointermove', e => { if (box.hasPointerCapture(e.pointerId)) div(e); });
@@ -238,8 +242,10 @@ function buildCard() {
     el.innerHTML = `<h2>${w('trafficTitle')}</h2><div class="sub"><span class="tagsim">${w('modelled')}</span></div>
       <div class="big"><b id="tr-v" style="font-size:30px"></b></div>
       <h3 class="sec">${w('busiest')}</h3><div class="list" id="tr-list"></div>
+      ${drive && drive.on ? `<h3 class="sec">${w('liveTitle')} <span class="tagreal">${w('real')}</span></h3><p class="fine">${w('liveT')}</p><button class="btn" id="tr-live">${w('trLive')}</button>` : ''}
       <h3 class="sec">${w('realH')}</h3><p class="fine">${esc(w('realT', { n: signals ? signals.n : 0, y: yrs.length ? (Math.min(...yrs) === Math.max(...yrs) ? Math.max(...yrs) : Math.min(...yrs) + '–' + Math.max(...yrs)) : '' }))}</p>
       <h3 class="sec">${w('modelH')}</h3><p class="fine">${w('modelT')}</p>`;
+    if ($('#tr-live')) $('#tr-live').onclick = () => { const i = busiestAt(S.m); openCard({ kind: 'j', i }); runDrive(i); };
   } else if (s.kind === 'place') {
     const c = prepR ? cellAt(prepR, s.x, s.y) : -1;
     if (c < 0) { el.innerHTML = `<h2>${w('hereTitle')}</h2><p class="fine">${w('unavailable')}</p>`; return; }
@@ -290,6 +296,55 @@ function updateCard(C) {
     const pm = sim.air.at(s.x, s.y, m);
     $('#p-aqi').textContent = `${SIM.aqi(pm)} · ${pm.toFixed(0)} µg/m³`; $('#p-rain').textContent = `${SIM.rainAtM(s.x, s.y, m).toFixed(0)} mm/h`;
   }
+}
+
+// ---------- real drive times from Mapbox, asked when a person taps ----------
+const KEYW = { low: 'kLow', moderate: 'kMod', heavy: 'kHeavy', severe: 'kSevere', unknown: 'kNone' };
+const busiestAt = m => { const k = sim.idx(m); let b = 0; sim.J.forEach((j, i) => { if (j.queue[k] > sim.J[b].queue[k]) b = i; }); return b; };
+function destsFor(i) {
+  const a = sim.J[i];
+  return sim.J.map((j, k) => ({ k, d: Math.hypot(j.x - a.x, j.y - a.y) })).filter(o => o.d >= 1000).sort((p, q) => p.d - q.d).slice(0, 4).map(o => o.k);
+}
+const ppTime = () => new Date().toLocaleTimeString(lang === 'km' ? 'km-KH' : lang === 'th' ? 'th-TH' : 'en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Phnom_Penh' });
+function driveLabel(i) { const b = $('#drive-b'), ds = destsFor(i); if (b && ds.length) b.textContent = w('liveB', { to: sim.J[ds[S.dk % ds.length]].id }); }
+// a pose that fits the route into the part of the map the card leaves visible
+function fitRoute(pts) {
+  const c = world.ctrl, az = c.az, el = 1.0, cam = world.camera, ca = Math.cos(az), sa = Math.sin(az);
+  let u0 = 1e9, u1 = -1e9, v0 = 1e9, v1 = -1e9, x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+  for (const p of pts) {
+    const u = p.x * ca + p.y * sa, v = -p.x * sa + p.y * ca;
+    u0 = Math.min(u0, u); u1 = Math.max(u1, u); v0 = Math.min(v0, v); v1 = Math.max(v1, v);
+    x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y);
+  }
+  const H = cam.view && cam.view.enabled ? cam.view.fullHeight : innerHeight, k = H / (2 * Math.tan(cam.fov * Math.PI / 360));
+  const side = innerWidth > innerHeight && innerHeight <= 520;
+  const visW = innerWidth - (side && S.sel ? $('#card').offsetWidth : 0), visH = innerHeight - (side ? 74 : (S.sel ? $('#card').offsetHeight + 74 : 130)) - 60;
+  const dist = Math.max(900, k * Math.max((u1 - u0) / (visW * 0.78), (v1 - v0) * Math.sin(el) / (Math.max(160, visH) * 0.78)));
+  return { x: (x0 + x1) / 2, y: (y0 + y1) / 2, dist, az, el };
+}
+async function runDrive(i) {
+  const o = $('#drive-o'), b = $('#drive-b'); if (!o || !b || !drive || drive.busy) return;
+  const ds = destsFor(i); if (!ds.length) return;
+  const a = sim.J[i], z = sim.J[ds[S.dk % ds.length]];
+  b.disabled = true; o.innerHTML = `<p class="fine">${esc(w('liveWait'))}</p>`;
+  try {
+    const r = await drive.ask(a, z);
+    if (!(S.sel && S.sel.kind === 'j' && S.sel.i === i) || !document.body.contains(o)) { drive.clear(); return; }
+    const gap = r.usualMin ? r.min / r.usualMin - 1 : null;
+    const verdict = gap == null ? '' : Math.abs(gap) < 0.05 ? w('usual') : w(gap > 0 ? 'slower' : 'faster', { p: Math.round(Math.abs(gap) * 100) });
+    const vcol = gap == null ? 'var(--muted)' : gap > 0.25 ? CONG.heavy : gap > 0.05 ? CONG.moderate : CONG.low;
+    const key = ['low', 'moderate', 'heavy', 'severe', 'unknown'].filter(c => r.share[c] > 0.005)
+      .map(c => `<span><i style="background:${CONG[c]}"></i>${esc(w(KEYW[c]))} ${Math.round(r.share[c] * 100)}%</span>`).join('');
+    o.innerHTML = `<div class="list"><div><span>${a.id} → ${z.id} · ${r.km.toFixed(1)} km</span><b>${esc(w('liveNow'))} ${Math.round(r.min)} min</b></div>${r.usualMin ? `<div><span>${esc(w('liveUsual'))}</span><b>${Math.round(r.usualMin)} min</b></div>` : ''}</div>
+      ${verdict ? `<p class="verdict" style="color:${vcol}">${esc(verdict)}</p>` : ''}<div class="ckey">${key}</div>
+      <div class="credit mb"><a class="mb-logo" href="https://www.mapbox.com/" target="_blank" rel="noopener" aria-label="Mapbox"></a><span><a href="https://www.mapbox.com/about/maps/" target="_blank" rel="noopener">© Mapbox</a> <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap</a> <a href="${drive.feedback(a.x, a.y)}" target="_blank" rel="noopener"><b>Improve this map</b></a></span></div>
+      <p class="fine">${esc(w('liveAt', { t: ppTime() }))} ${esc(w('liveNote'))}</p>`;
+    world.flyTo(fitRoute(r.pts), 1200);
+    o.scrollIntoView({ block: 'nearest', behavior: reduced ? 'auto' : 'smooth' });
+    S.dk++;
+  } catch (e) {
+    if (document.body.contains(o)) o.innerHTML = `<p class="fine">${esc(w({ offline: 'liveOff', limit: 'liveLimit' }[e && e.why] || 'liveFail'))}</p>`;
+  } finally { if (document.body.contains(b)) { b.disabled = false; driveLabel(i); } }
 }
 
 // a small chart of one or more series over the window (or a part), with the playhead
@@ -379,7 +434,8 @@ function makeStory() {
   if (water && water.lead != null) st.push({ cap: () => w('st5', { t: dur(water.lead) }), go: () => { closeCard(); tweenTime(water.event + 30); } });
   if (tr) {
     const t = tr.event + Math.min(45, ((tr.end ?? SIM.M1) - tr.event) / 2);
-    st.push({ cap: () => w('st6'), go: () => { const k = sim.idx(t); let b = 0; sim.J.forEach((j, i) => { if (j.queue[k] > sim.J[b].queue[k]) b = i; }); tweenTime(t); world.flyTo(poseNear(sim.J[b]), 1400); S.jview = 'shield'; openCard({ kind: 'j', i: b }); } });
+    st.push({ cap: () => w('st6'), go: () => { const b = busiestAt(t); tweenTime(t); world.flyTo(poseNear(sim.J[b]), 1400); S.jview = 'shield'; openCard({ kind: 'j', i: b }); } });
+    if (drive && drive.on) st.push({ cap: () => w('stLive'), go: () => { const b = busiestAt(t); if (!(S.sel && S.sel.kind === 'j' && S.sel.i === b)) openCard({ kind: 'j', i: b }); runDrive(b); } });
   }
   st.push({ cap: () => w('st7', { r: RISE }), go: () => { closeCard(); world.flyTo(RISE_POSE, 1400); if (prepR) setRise(RISE); } });
   st.push({ cap: () => w('st8'), go: () => { if (S.rise) { S.rise = 0; world.setFlood(null); } world.flyTo(POSE, 1400); openCard({ kind: 'dc' }); } });
@@ -496,6 +552,10 @@ async function boot() {
   traffic = createTraffic(world, DATA.geo, { count: tier === 'low' ? 2200 : 4200, extent: { x0: -12000, x1: 9000, y0: -9000, y1: 9000 } });
   junc = createJunctions(world, FX.junctions, DC);
   if (DATA.signals) signals = createSignals(world, DATA.signals.pts);
+  if (DATA.mapbox && DATA.mapbox.token) {
+    drive = createDrive(world, DATA.geo, DATA.mapbox.token);
+    document.documentElement.style.setProperty('--mb-logo', `url("data:image/svg+xml;charset=utf-8,${encodeURIComponent(DATA.mapbox.logo)}")`);
+  }
   makeLabels(); tbar.resize();
   STORY = makeStory(); renderStory();
   titleT = setTimeout(hideTitle, Q.has('shot') ? 1e9 : 6500);
@@ -511,6 +571,7 @@ async function boot() {
     $('#orbit').setAttribute('aria-pressed', String(!!(S.orbit && S.orbit.left === Infinity)));
     needle.setAttribute('transform', `rotate(${(world.ctrl.az * 180 / Math.PI).toFixed(1)} 12 12)`);
     if (signals) signals.frame(reduced ? 0 : now, S.layers.signals);
+    if (drive) drive.frame(world.ctrl.dist, world.camera);
     if (S.playing) { const rate = S.m >= -30 && S.m <= 240 ? 5 : 30; setTime(S.m + dt * rate); if (S.m >= SIM.M1) setPlaying(false); }
     const k = sim.idx(S.m);
     let qm = 0, rmax = 0; for (const j of sim.J) { qm += j.queue[k]; rmax = Math.max(rmax, j.rain[k]); } qm /= sim.J.length;
@@ -552,5 +613,5 @@ document.querySelectorAll('.cchip').forEach(b => b.addEventListener('click', () 
 addEventListener('resize', () => { if (world) { world.resize(); tbar.resize(); } });
 addEventListener('keydown', e => { if (e.key === 'Escape') { closeMenu(); if (S.sel) closeCard(); } });
 
-window.__touch = { next: storyNext, story: () => STORY.length, S, setTime: m => setTime(m, true), open: sel => openCard(sel), close: closeCard, play: p => setPlaying(p), alerts: () => ALERTS, active: () => activeAlerts(S.m), sim: () => sim, project: (x, y, h) => world.project(x, y, h) };
+window.__touch = { drive: i => runDrive(i), dests: i => destsFor(i), route: () => !!(drive && drive.shown), next: storyNext, story: () => STORY.length, S, setTime: m => setTime(m, true), open: sel => openCard(sel), close: closeCard, play: p => setPlaying(p), alerts: () => ALERTS, active: () => activeAlerts(S.m), sim: () => sim, project: (x, y, h) => world.project(x, y, h) };
 boot().catch(e => { console.error(e); window.__error = String(e && e.stack || e); });

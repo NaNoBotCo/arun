@@ -185,3 +185,44 @@ Object.assign(WORDS.th, {
   realH: 'ข้อมูลจริง', realT: 'ถนนและไฟจราจร {n} จุดจาก OpenStreetMap ภาพถนน 360° ที่กล้องทุกตัวจาก Mapillary {y}',
   modelH: 'แบบจำลอง', modelT: 'รถที่วิ่ง จังหวะไฟจราจร จำนวนรถ และแถวรถ เป็นไปตามวันทำงานทั่วไป ข้อมูลจราจรสดของพนมเปญไม่ได้อยู่ในเดโมนี้',
 });
+
+// Live drive times, 28 Nov: real traffic from Mapbox, asked when a person taps.
+Object.assign(WORDS.en, {
+  liveH: 'Drive time now', real: 'Real', liveB: 'Check the drive to {to} now',
+  liveNow: 'Now', liveUsual: 'Usually',
+  slower: '{p}% slower than usual', faster: '{p}% faster than usual', usual: 'About usual',
+  liveAt: 'Checked {t}, Phnom Penh time.',
+  kLow: 'Light', kMod: 'Moderate', kHeavy: 'Heavy', kSevere: 'Severe', kNone: 'No data',
+  liveWait: 'Asking Mapbox…', liveOff: 'No internet. Drive times need a connection.',
+  liveLimit: 'This month’s free Mapbox checks are used up.', liveFail: 'Mapbox didn’t answer. Try again.',
+  liveNote: 'Live traffic from Mapbox, not modelled. It is an estimate: follow road signs, traffic lights and the law.',
+  stLive: 'Those cars are modelled. This drive is real: right now, from Mapbox.',
+  liveTitle: 'Right now', liveT: 'Real drive times from Mapbox. Tap a camera, then the drive button.', trLive: 'Check a real drive now',
+  modelT: 'The moving cars, the light timing, the counts and the queues follow a typical weekday.',
+});
+Object.assign(WORDS.km, {
+  liveH: 'រយៈពេល​បើកបរ​ឥឡូវ', real: 'ពិត', liveB: 'ពិនិត្យ​ការ​បើកបរ​ទៅ {to} ឥឡូវ',
+  liveNow: 'ឥឡូវ', liveUsual: 'ជាធម្មតា',
+  slower: 'យឺត​ជាង​ធម្មតា {p}%', faster: 'លឿន​ជាង​ធម្មតា {p}%', usual: 'ប្រហាក់ប្រហែល​ធម្មតា',
+  liveAt: 'ពិនិត្យ​ម៉ោង {t} ម៉ោង​ភ្នំពេញ។',
+  kLow: 'ស្រាល', kMod: 'មធ្យម', kHeavy: 'ច្រើន', kSevere: 'កកស្ទះ​ខ្លាំង', kNone: 'គ្មាន​ទិន្នន័យ',
+  liveWait: 'កំពុង​សួរ Mapbox…', liveOff: 'គ្មាន​អ៊ីនធឺណិត។ រយៈពេល​បើកបរ​ត្រូវការ​អ៊ីនធឺណិត។',
+  liveLimit: 'ការ​ពិនិត្យ Mapbox ឥតគិតថ្លៃ​ខែ​នេះ​អស់​ហើយ។', liveFail: 'Mapbox មិន​បាន​ឆ្លើយ។ សាកល្បង​ម្តង​ទៀត។',
+  liveNote: 'ចរាចរណ៍​ផ្ទាល់​ពី Mapbox មិនមែន​គំរូ​ទេ។ វា​ជា​ការ​ប៉ាន់ស្មាន៖ សូម​គោរព​ស្លាកសញ្ញា​ផ្លូវ ភ្លើង​ស្តុប និង​ច្បាប់។',
+  stLive: 'រថយន្ត​ទាំងនោះ​ជា​គំរូ។ ការ​បើកបរ​នេះ​ពិត៖ ឥឡូវ​នេះ ពី Mapbox។',
+  liveTitle: 'ឥឡូវ​នេះ', liveT: 'រយៈពេល​បើកបរ​ពិត​ពី Mapbox។ ចុច​កាមេរ៉ា រួច​ចុច​ប៊ូតុង​បើកបរ។', trLive: 'ពិនិត្យ​ការ​បើកបរ​ពិត​ឥឡូវ',
+  modelT: 'រថយន្ត​ដែល​កំពុង​ធ្វើ​ដំណើរ ពេលវេលា​ភ្លើង​ស្តុប ចំនួន និង​ជួរ​រថយន្ត​តាម​ថ្ងៃ​ធ្វើការ​ធម្មតា។',
+});
+Object.assign(WORDS.th, {
+  liveH: 'เวลาขับรถตอนนี้', real: 'ของจริง', liveB: 'เช็กเวลาขับไป {to} ตอนนี้',
+  liveNow: 'ตอนนี้', liveUsual: 'ปกติ',
+  slower: 'ช้ากว่าปกติ {p}%', faster: 'เร็วกว่าปกติ {p}%', usual: 'ใกล้เคียงปกติ',
+  liveAt: 'เช็กเมื่อ {t} เวลาพนมเปญ',
+  kLow: 'คล่อง', kMod: 'ปานกลาง', kHeavy: 'หนาแน่น', kSevere: 'ติดหนัก', kNone: 'ไม่มีข้อมูล',
+  liveWait: 'กำลังถาม Mapbox…', liveOff: 'ไม่มีอินเทอร์เน็ต เวลาขับรถต้องใช้อินเทอร์เน็ต',
+  liveLimit: 'สิทธิ์เช็ก Mapbox ฟรีของเดือนนี้หมดแล้ว', liveFail: 'Mapbox ไม่ตอบ ลองอีกครั้ง',
+  liveNote: 'ข้อมูลจราจรสดจาก Mapbox ไม่ใช่แบบจำลอง เป็นค่าประมาณ โปรดทำตามป้ายจราจร ไฟจราจร และกฎหมาย',
+  stLive: 'รถพวกนั้นเป็นแบบจำลอง เส้นทางนี้เป็นของจริง ตอนนี้ จาก Mapbox',
+  liveTitle: 'ตอนนี้', liveT: 'เวลาขับรถจริงจาก Mapbox แตะกล้อง แล้วแตะปุ่มเช็กเวลาขับ', trLive: 'เช็กเวลาขับจริงตอนนี้',
+  modelT: 'รถที่วิ่ง จังหวะไฟจราจร จำนวนรถ และแถวรถ เป็นไปตามวันทำงานทั่วไป',
+});
