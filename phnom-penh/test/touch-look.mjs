@@ -1,0 +1,31 @@
+// Frames to look at while designing: node test/touch-look.mjs [outDir] [lang]
+import { chromium } from 'playwright-core';
+import { createServer } from 'node:http';
+import { readFileSync, mkdirSync } from 'node:fs';
+const out = process.argv[2] || 'test/results/touch/look';
+mkdirSync(out, { recursive: true });
+const srv = createServer((q, r) => { r.writeHead(200, { 'content-type': 'text/html' }); r.end(readFileSync('dist/arun-touch.html')); }).listen(0);
+const base = `http://localhost:${srv.address().port}/`;
+const exe = `${process.env.HOME}/Library/Caches/ms-playwright/chromium-1228/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing`;
+const browser = await chromium.launch({ executablePath: exe, args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist'] });
+const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true });
+const page = await ctx.newPage(); const errs = [];
+page.on('pageerror', e => errs.push(e.message)); page.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
+await page.goto(base + '?lang=' + (process.argv[3] || 'en'));
+await page.waitForFunction(() => (window.__ready && window.__ready.full) || window.__error, null, { timeout: 30000 });
+console.log('ready', JSON.stringify(await page.evaluate(() => window.__ready || window.__error)));
+const shot = async (name, wait = 700) => { await page.waitForTimeout(wait); await page.screenshot({ path: `${out}/${name}.png` }); };
+const T = (d, h, mi = 0) => d * 1440 + h * 60 + mi - 900;
+await shot('01-open-0740');
+await page.evaluate(() => __touch.open({ kind: 'j', i: 2 })); await shot('02-junction-0740', 1500);
+await page.evaluate(() => __touch.close());
+for (const [n, m] of [['03-1555-warn', T(0, 15, 55)], ['04-1620-storm', T(0, 16, 20)], ['05-1710-water', T(0, 17, 10)], ['06-2130-night', T(0, 21, 30)], ['07-sat-0730', T(1, 7, 30)]]) { await page.evaluate(m => __touch.setTime(m), m); await shot(n, 900); }
+await page.evaluate(m => { __touch.setTime(m); __touch.open({ kind: 'j', i: 9 }); }, T(0, 16, 30)); await shot('08-junction-storm', 1500);
+await page.evaluate(m => { __touch.setTime(m); __touch.open({ kind: 'air' }); }, T(0, 6, 0)); await shot('09-air-0600');
+await page.evaluate(m => { __touch.setTime(m); __touch.open({ kind: 'rain' }); }, T(0, 16, 10)); await shot('10-rain');
+await page.evaluate(m => { __touch.setTime(m); __touch.open({ kind: 'water' }); }, T(0, 17, 0)); await page.waitForTimeout(300);
+await page.evaluate(() => { const r = document.querySelector('#rise'); r.value = 11.5; r.dispatchEvent(new Event('input')); }); await shot('11-water-rise');
+await page.evaluate(() => __touch.open({ kind: 'dc' })); await shot('12-dc');
+console.log('active at end', JSON.stringify(await page.evaluate(() => __touch.active().map(a => a.kind + a.phase))));
+console.log('errors', JSON.stringify(errs));
+await browser.close(); srv.close();
