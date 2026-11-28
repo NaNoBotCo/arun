@@ -239,7 +239,7 @@ Object.assign(WORDS.en, {
   liveWaitAll: 'Getting readings…', liveOffAll: 'No internet. Live readings need a connection.', liveFailAll: 'The readings didn’t arrive. Try again.',
   airSrc: 'Sensors: AirGradient, CC BY 4.0, via OpenAQ', noSensors: 'No sensor in the city has reported in the last 3 hours.',
   temp: 'Temperature', humid: 'Humidity', windW: 'Wind', wxSrc: 'Phnom Penh at {t}, CC BY 4.0',
-  thenBy: 'Then: {d} · {by}', thenNowA: 'Drag between then and now', modelInstead: 'Showing the tuk-tuk model instead:',
+  thenBy: 'Then: {d} · {by}', thenNowA: 'Drag between then and now', modelInstead: 'Showing the tuk-tuk model instead:', pkS: 'School', pkH: 'Hospital', pkM: 'Market',
 });
 Object.assign(WORDS.km, {
   lBuses: 'ឡានក្រុង', busStop: 'ចំណត​ឡានក្រុង', busLines: 'ខ្សែ​ឡានក្រុង {n} ឈប់​នៅ​ទីនេះ', busLines1: 'ខ្សែ​ឡានក្រុង ១ ឈប់​នៅ​ទីនេះ',
@@ -252,7 +252,7 @@ Object.assign(WORDS.km, {
   liveWaitAll: 'កំពុង​ទាញ​យក​ការ​វាស់…', liveOffAll: 'គ្មាន​អ៊ីនធឺណិត។ ការ​វាស់​ផ្ទាល់​ត្រូវការ​អ៊ីនធឺណិត។', liveFailAll: 'ការ​វាស់​មិន​បាន​មក​ដល់។ សាកល្បង​ម្តង​ទៀត។',
   airSrc: 'ឧបករណ៍​វាស់៖ AirGradient, CC BY 4.0, តាម OpenAQ', noSensors: 'គ្មាន​ឧបករណ៍​វាស់​ណា​ក្នុង​ទីក្រុង​រាយការណ៍​ក្នុង ៣ ម៉ោង​ចុងក្រោយ​ទេ។',
   temp: 'សីតុណ្ហភាព', humid: 'សំណើម', windW: 'ខ្យល់', wxSrc: 'ភ្នំពេញ​ម៉ោង {t}, CC BY 4.0',
-  thenBy: 'មុន៖ {d} · {by}', thenNowA: 'អូស​រវាង​មុន​និង​ឥឡូវ', modelInstead: 'បង្ហាញ​គំរូ​តុកតុក​ជំនួស៖',
+  thenBy: 'មុន៖ {d} · {by}', thenNowA: 'អូស​រវាង​មុន​និង​ឥឡូវ', modelInstead: 'បង្ហាញ​គំរូ​តុកតុក​ជំនួស៖', pkS: 'សាលារៀន', pkH: 'មន្ទីរពេទ្យ', pkM: 'ផ្សារ',
 });
 Object.assign(WORDS.th, {
   lBuses: 'รถเมล์', busStop: 'ป้ายรถเมล์', busLines: 'รถเมล์ {n} สายจอดที่นี่', busLines1: 'รถเมล์ 1 สายจอดที่นี่',
@@ -265,5 +265,5 @@ Object.assign(WORDS.th, {
   liveWaitAll: 'กำลังดึงค่าที่วัดได้…', liveOffAll: 'ไม่มีอินเทอร์เน็ต ค่าสดต้องใช้อินเทอร์เน็ต', liveFailAll: 'ค่าที่วัดได้ยังไม่มา ลองอีกครั้ง',
   airSrc: 'เซนเซอร์: AirGradient, CC BY 4.0, ผ่าน OpenAQ', noSensors: 'ไม่มีเซนเซอร์ในเมืองรายงานในช่วง 3 ชั่วโมงที่ผ่านมา',
   temp: 'อุณหภูมิ', humid: 'ความชื้น', windW: 'ลม', wxSrc: 'พนมเปญ เวลา {t}, CC BY 4.0',
-  thenBy: 'ก่อน: {d} · {by}', thenNowA: 'ลากระหว่างก่อนและตอนนี้', modelInstead: 'แสดงแบบจำลองตุ๊กตุ๊กแทน:',
+  thenBy: 'ก่อน: {d} · {by}', thenNowA: 'ลากระหว่างก่อนและตอนนี้', modelInstead: 'แสดงแบบจำลองตุ๊กตุ๊กแทน:', pkS: 'โรงเรียน', pkH: 'โรงพยาบาล', pkM: 'ตลาด',
 });

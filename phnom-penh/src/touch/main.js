@@ -13,7 +13,7 @@ import { createStreets } from './streets.js';
 import { createTraffic, createAir, createJunctions, createSignals, STATE_COL } from './layers.js';
 import { createPano } from './pano.js';
 import { createDrive, CONG } from './drive.js';
-import { createBuses, createSpots, createArea, inRing, fetchLive, fetchIsochrone } from './real.js';
+import { createBuses, createSpots, createArea, inRing, fetchLive, fetchIsochrone, PLACE_COL } from './real.js';
 import { createTimebar, HAZ_COL } from './timebar.js';
 import { createStreetView } from './street.js';
 import { WORDS } from './words.js';
@@ -431,7 +431,7 @@ function setRise(r) {
   if (r > 0) {
     flood(prepR, r, mask); world.setFlood(mask); const u = streetsUnder(prepR, mask, DATA.geo), c = underBlue(mask);
     if (spots) spots.set(c.list);
-    if (t) t.innerHTML = `${esc(w('streetsUnder', { km: u.km.toFixed(0) }))}<br><b>${esc(w('inBlue', c.w))}</b><br><span class="credit">${esc(w('popSrc'))}</span>`;
+    if (t) t.innerHTML = `${esc(w('streetsUnder', { km: u.km.toFixed(0) }))}<br><b>${esc(w('inBlue', c.w))}</b>${placeKey()}<span class="credit">${esc(w('popSrc'))}</span>`;
     return u.km;
   }
   world.setFlood(null); if (spots) spots.clear(); if (t) t.textContent = ''; return 0;
@@ -462,6 +462,7 @@ function insideRings(rings) {
   const list = DATA.places ? DATA.places.pts.filter(p => inside(p[0], p[1])) : [];
   return { list, w: countWords(people / 10, list) };
 }
+const placeKey = () => `<div class="ckey">${['s', 'h', 'm'].map(k => `<span><i style="background:${PLACE_COL[k]};height:9px;width:9px"></i>${esc(w('pk' + k.toUpperCase()))}</span>`).join('')}</div>`;
 const mbCredit = (x, y) => `<div class="credit mb"><a class="mb-logo" href="https://www.mapbox.com/" target="_blank" rel="noopener" aria-label="Mapbox"></a><span><a href="https://www.mapbox.com/about/maps/" target="_blank" rel="noopener">© Mapbox</a> <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap</a> <a href="${drive.feedback(x, y)}" target="_blank" rel="noopener"><b>Improve this map</b></a></span></div>`;
 const ppHM = iso => new Date(iso).toLocaleTimeString(lang === 'km' ? 'km-KH' : lang === 'th' ? 'th-TH' : 'en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Phnom_Penh' });
 let sensorEls = [];
@@ -507,7 +508,7 @@ async function runReach(x, y) {
       if (!(S.sel && S.sel.kind === 'place') || !document.body.contains(o)) return;
       area.set(rings); if (reachLayer) reachLayer.visible(false);
       const c = insideRings(rings); if (spots) spots.set(c.list);
-      o.innerHTML = `<b class="verdict">${esc(w('reach10Out', c.w))}</b>${mbCredit(x, y)}<p class="fine">${esc(w('liveAt', { t: ppTime() }))} ${esc(w('liveNote'))} ${esc(w('popSrc'))}</p>`;
+      o.innerHTML = `<b class="verdict">${esc(w('reach10Out', c.w))}</b>${placeKey()}${mbCredit(x, y)}<p class="fine">${esc(w('liveAt', { t: ppTime() }))} ${esc(w('liveNote'))} ${esc(w('popSrc'))}</p>`;
       world.flyTo(fitRoute(rings.flat().map(([px, py]) => ({ x: px, y: py }))), 1200);
       if (document.body.contains(b)) b.disabled = false;
       return;
