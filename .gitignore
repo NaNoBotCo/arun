@@ -3,3 +3,10 @@ dist/
 spec/
 ARUN — what was built*.txt
 .DS_Store
+
+# touch draft: frames, screenshots and video stay local
+phnom-penh/test/results/touch/look/
+phnom-penh/test/results/touch/street/
+phnom-penh/test/results/touch/more/
+phnom-penh/test/results/touch/video/
+phnom-penh/test/results/touch/*.png

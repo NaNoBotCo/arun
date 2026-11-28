@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#0b1220">
+<link rel="icon" href="data:,">
+<title>ARUN · Phnom Penh</title>
+<meta name="description" content="A simulated Phnom Penh, ready for tomorrow: warnings before bad air, heavy rain, flooded streets and traffic jams. Touch a street camera, drag time, try a higher river.">
+<style>/*FONTS*/</style>
+<style>/*CSS*/</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="world" role="img" aria-label="Map of Phnom Penh"></canvas>
+  <div id="labels"></div>
+  <header id="top">
+    <div class="brand"><b>ARUN</b><span data-w="place">Phnom Penh</span><span class="simtag" data-w="sim">Simulated city</span></div>
+    <button id="lang" class="chip" aria-haspopup="true" aria-label="Language">EN</button>
+  </header>
+  <div id="alerts" aria-live="polite"></div>
+  <button id="layers" class="round" aria-haspopup="true" aria-label="Layers"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5-10-5Zm-7.6 8.2L2 12.4l10 5 10-5-2.4-1.2L12 15l-7.6-3.8Zm0 4.4L2 16.8l10 5 10-5-2.4-1.2L12 19.4l-7.6-3.8Z" fill="currentColor"/></svg></button>
+  <button id="compass" class="round" aria-label="North up"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><g id="needle"><path d="M12 2.5 15.2 12H8.8z" fill="#ff5a4d"/><path d="M12 21.5 8.8 12h6.4z" fill="currentColor"/></g></svg></button>
+  <button id="orbit" class="round" aria-label="Turn around the city" aria-pressed="false"><b>360°</b></button>
+  <div id="title" aria-hidden="true"><span data-w="title">A city ready for tomorrow</span></div>
+  <div id="coach" role="status"><span id="coach-t"></span><button id="coach-next" data-w="next">Next</button></div>
+  <section id="card" hidden aria-live="off">
+    <button id="card-x" class="x" aria-label="Close">×</button>
+    <div id="card-body"></div>
+  </section>
+  <nav id="chips" aria-label="City now">
+    <button class="cchip" data-k="air"><span class="tl" data-w="tAir">Air</span><span class="tv"><i class="dot" id="d-air"></i><b id="c-air">·</b></span></button>
+    <button class="cchip" data-k="rain"><span class="tl" data-w="tRain">Rain</span><span class="tv"><i class="dot" id="d-rain"></i><b id="c-rain">·</b></span></button>
+    <button class="cchip" data-k="water"><span class="tl" data-w="tWater">Water</span><span class="tv"><i class="dot" id="d-water"></i><b id="c-water">·</b></span></button>
+    <button class="cchip" data-k="traffic"><span class="tl" data-w="tTraffic">Traffic</span><span class="tv"><i class="dot" id="d-traffic"></i><b id="c-traffic">·</b></span></button>
+  </nav>
+  <div id="timebar">
+    <button id="play" class="round" aria-label="Play"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path id="play-i" d="M7 4v16l13-8z" fill="currentColor"/></svg></button>
+    <div class="tb">
+      <div class="tb-row"><span id="t-day"></span><b id="t-clock">07:40</b></div>
+      <canvas id="tb-cv" aria-hidden="true"></canvas>
+      <input id="tb-in" type="range" class="sr-range" aria-label="Time">
+    </div>
+  </div>
+  <div id="live" class="sr" aria-live="polite"></div>
+</div>
+<script id="arun-data" type="application/json">/*DATA*/</script>
+<script>/*JS*/</script>
+</body>
+</html>

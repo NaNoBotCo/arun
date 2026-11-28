@@ -1,0 +1,147 @@
+{
+ "when": "2026-11-28T08:33:07.828Z",
+ "browser": "Chrome for Testing 1228 (playwright-core), macOS, Apple M2, GPU on",
+ "note": "not an Android phone",
+ "results": [
+  {
+   "name": "opens on the simulated city with the cached world",
+   "ok": true,
+   "detail": "ready 312 ms, full 686 ms, alerts air rain water traffic"
+  },
+  {
+   "name": "07:40 Friday: an air alert is on screen, with its warning time",
+   "ok": true,
+   "detail": "● · Bad air now · 9 corners · warned 4 h 10 min ahead"
+  },
+  {
+   "name": "words on the first screen, counted",
+   "ok": true,
+   "detail": "25: ● Bad air now corners warned ahead Each glowing dot is a street camera. Next Air Unhealthy Rain None Water Dry Traffic Heavy Fri Nov"
+  },
+  {
+   "name": "map above the chips and time bar at rest",
+   "ok": true,
+   "detail": "85% of the screen height"
+  },
+  {
+   "name": "touching a camera on the map opens its street view",
+   "ok": true,
+   "detail": "junction 0"
+  },
+  {
+   "name": "dragging the Face Shield line moves it",
+   "ok": true,
+   "detail": "0.15"
+  },
+  {
+   "name": "what leaves the camera: numbers only",
+   "ok": true,
+   "detail": "node,peoplePerMin,pm25,quality,queueM,rainMmH,t,vehiclesPerMin,waterCm"
+  },
+  {
+   "name": "dragging the time bar moves time",
+   "ok": true,
+   "detail": "minute 75 (16:15)"
+  },
+  {
+   "name": "16:15: heavy rain and water alerts, issued before the rain",
+   "ok": true,
+   "detail": "rain:a water:w"
+  },
+  {
+   "name": "16:02: the rain warning is out, the heavy rain has not come",
+   "ok": true,
+   "detail": "rain:w water:w"
+  },
+  {
+   "name": "21:00: night falls (lamps on)",
+   "ok": true,
+   "detail": "1.00"
+  },
+  {
+   "name": "play moves time forward",
+   "ok": true,
+   "detail": "-360 → -314"
+  },
+  {
+   "name": "air card opens",
+   "ok": true,
+   "detail": "Air quality"
+  },
+  {
+   "name": "rain card opens",
+   "ok": true,
+   "detail": "Rain and early warning"
+  },
+  {
+   "name": "water card opens",
+   "ok": true,
+   "detail": "Water"
+  },
+  {
+   "name": "dc card opens",
+   "ok": true,
+   "detail": "One city. Many public uses."
+  },
+  {
+   "name": "possible water level: streets under water from the river model",
+   "ok": true,
+   "detail": "354 km of street under water"
+  },
+  {
+   "name": "touching the ground: facts here and how far from here",
+   "ok": true,
+   "detail": "place 38,494 buildings within 10 min by tuk-tuk"
+  },
+  {
+   "name": "controls at least 40 px tall",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "km: no raw keys or placeholders",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "th: no raw keys or placeholders",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "360×780: no sideways scroll, time bar on screen with a card open",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "412×915: no sideways scroll, time bar on screen with a card open",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "844×390: no sideways scroll, time bar on screen with a card open",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "reduced motion: play stays off, time moves only by hand",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "CPU slowed 4×: ready, one time step, frame rate with a street view open",
+   "ok": true,
+   "detail": "first frame 1063 ms ({\"world\":756,\"sim\":249,\"ready\":1063}), all ready 2324 ms; one time step 85 ms; 59 fps"
+  },
+  {
+   "name": "no outside requests",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "no errors",
+   "ok": true,
+   "detail": ""
+  }
+ ]
+}

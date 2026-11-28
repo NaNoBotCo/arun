@@ -1,0 +1,46 @@
+// A captioned walk-through recording: node test/touch-demo.mjs → test/results/touch/demo.webm (+ .mp4 with ffmpeg)
+import { chromium } from 'playwright-core';
+import { createServer } from 'node:http';
+import { readFileSync, mkdirSync, renameSync, readdirSync } from 'node:fs';
+import { execSync } from 'node:child_process';
+const out = 'test/results/touch/video'; mkdirSync(out, { recursive: true });
+const srv = createServer((q, r) => { r.writeHead(200, { 'content-type': 'text/html' }); r.end(readFileSync('dist/arun-touch.html')); }).listen(0);
+const exe = `${process.env.HOME}/Library/Caches/ms-playwright/chromium-1228/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing`;
+const browser = await chromium.launch({ executablePath: exe, args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist'] });
+const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true, recordVideo: { dir: out, size: { width: 390, height: 844 } } });
+const page = await ctx.newPage(); const cdp = await ctx.newCDPSession(page);
+await page.goto(`http://localhost:${srv.address().port}/?lang=en&nocoach`);
+await page.waitForFunction(() => window.__ready && window.__ready.full);
+await page.addStyleTag({ content: '#cap{position:fixed;left:10px;right:10px;top:calc(env(safe-area-inset-top) + 160px);z-index:99;padding:8px 12px;border-radius:12px;background:rgba(245,196,81,.95);color:#0b1220;font:600 14px/1.35 Kantumruy Pro,system-ui;pointer-events:none;transition:opacity .3s}' });
+const cap = t => page.evaluate(t => { let d = document.getElementById('cap'); if (!d) { d = document.createElement('div'); d.id = 'cap'; document.body.append(d); } d.style.opacity = t ? 1 : 0; d.textContent = t || ''; }, t);
+const wait = ms => page.waitForTimeout(ms);
+const T = (d, h, mi = 0) => d * 1440 + h * 60 + mi - 900;
+const scrub = async (a, b, ms) => { const n = Math.max(2, Math.round(ms / 50)); for (let i = 1; i <= n; i++) { await page.evaluate(m => __touch.setTime(m), Math.round(a + (b - a) * i / n)); await wait(50); } };
+const tap = async (x, y) => { await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] }); await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); };
+const drag = async (pts, step = 30) => { await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: pts[0][0], y: pts[0][1] }] }); for (const q of pts.slice(1)) { await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: q[0], y: q[1] }] }); await wait(step); } await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); };
+
+await cap('Simulated Phnom Penh, Friday 07:40. The air sensors warned of unhealthy air 4 hours ahead.'); await wait(3800);
+const p = await page.evaluate(() => { const J = __touch.sim().J; for (let i = 0; i < J.length; i++) { const q = __touch.project(J[i].x, J[i].y, 120); if (q.on && q.y > 250 && q.y < 520 && q.x > 60 && q.x < 300) return { x: q.x, y: q.y }; } });
+await cap('Touch a camera at a junction.'); await wait(900); await tap(p.x, p.y); await wait(1800);
+const box = await page.locator('#street').boundingBox();
+await cap('Face Shield: left, what the camera sees. Right, what leaves: counts, no faces, no plates.');
+const xs = []; for (let i = 0; i <= 24; i++) xs.push([box.x + box.width * (0.5 - 0.42 * Math.sin(i / 24 * Math.PI)), box.y + box.height / 2]);
+for (let i = 0; i <= 24; i++) xs.push([box.x + box.width * (0.5 + 0.45 * Math.sin(i / 24 * Math.PI)), box.y + box.height / 2]);
+await drag(xs, 70); await wait(1500);
+await page.evaluate(() => __touch.close()); await wait(400);
+await cap('Drag time forward. Traffic, sun and air change with it.'); await scrub(T(0, 7, 40), T(0, 15, 55), 5000);
+await cap('16:00. Cameras and gauges see the storm moving: a heavy-rain warning goes to 28 junctions.'); await scrub(T(0, 15, 55), T(0, 16, 3), 1200); await wait(2600);
+await cap('The rain arrives. Water at the kerb was warned a median 28 minutes ahead.'); await scrub(T(0, 16, 3), T(0, 16, 40), 4000); await wait(1200);
+await page.evaluate(() => __touch.open({ kind: 'j', i: 9 })); await cap('The same street camera in the storm.'); await wait(3500);
+await page.evaluate(() => __touch.open({ kind: 'rain' })); await cap('Every warning and when it came, junction by junction.'); await wait(3000);
+await page.evaluate(() => __touch.open({ kind: 'water' })); await cap('Possible water level: raise the river and see which streets go under. Not a forecast.'); await wait(1200);
+for (let r = 0; r <= 11.5; r += 0.5) { await page.evaluate(r => { const e = document.querySelector('#rise'); e.value = r; e.dispatchEvent(new Event('input')); }, r); await wait(110); }
+await wait(1500);
+await page.evaluate(() => __touch.open({ kind: 'dc' })); await cap('One city. Many public uses. Small packets in, shared computing, public services out.'); await wait(3800);
+await page.evaluate(() => __touch.close());
+await cap('Night: traffic as light. Then Saturday morning.'); await scrub(T(0, 16, 40), T(0, 21, 30), 3500); await wait(1200); await scrub(T(0, 21, 30), T(1, 7, 30), 3500); await wait(1200);
+await cap('Simulated: traffic, air, rain, river, cameras. Real: streets, buildings, ground.'); await wait(3000);
+const v = page.video(); await ctx.close(); const path = await v.path(); await browser.close(); srv.close();
+renameSync(path, `${out}/demo.webm`);
+execSync(`ffmpeg -y -loglevel error -i ${out}/demo.webm -vf "scale=390:-2" -c:v libx264 -pix_fmt yuv420p -crf 27 -movflags +faststart ${out}/demo.mp4`);
+console.log('done', readdirSync(out));
