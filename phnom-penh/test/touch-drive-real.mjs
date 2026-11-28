@@ -1,4 +1,4 @@
-// One real Mapbox check, by hand, on the local build: node test/touch-drive-real.mjs dist/arun-touch.html <outDir> [junction index]
+// One real Mapbox check, by hand: node test/touch-drive-real.mjs <dist/arun-touch.html | https://… live URL> <outDir> [junction index]
 // Makes exactly one Directions request; prints the result and saves a screenshot (no Mapbox data written to disk).
 import { chromium } from 'playwright-core';
 import { createServer } from 'node:http';
@@ -16,7 +16,7 @@ const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, de
 const page = await ctx.newPage(); let n = 0; const errs = [];
 page.on('request', q => { if (q.url().startsWith('https://api.mapbox.com/')) n++; });
 page.on('pageerror', e => errs.push(e.message));
-await page.goto(`http://localhost:${srv.address().port}/?lang=en&nocoach`);
+await page.goto(file.startsWith('http') ? `${file}?lang=en&nocoach&v=${Date.now()}` : `http://localhost:${srv.address().port}/?lang=en&nocoach`);
 await page.waitForFunction(() => window.__ready && window.__ready.full, null, { timeout: 30000 });
 await page.evaluate(i => __touch.open({ kind: 'j', i }), +ji); await page.waitForTimeout(600);
 await page.tap('#drive-b');
