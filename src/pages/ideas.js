@@ -227,7 +227,7 @@ export function ideas(main) {
     state.name = nameIn.value;
     if (fbBuilt) buildFb();
   });
-  const zia = h('section', {},
+  const exportSec = h('section', {},
     h('h2', {}, 'Feedback export'),
     h('p', { class: 'muted' }, 'Builds a text file with your pitch, retelling, scores and comments. Copy it or download it, then send it yourself if you choose to.'),
     h('label', { class: 'check', for: 'ideas-incl' }, nameBox, 'Include my name'),
@@ -325,6 +325,6 @@ export function ideas(main) {
     h('h1', {}, t('nav.ideas')),
     h('p', { class: 'lede' }, 'Write a pitch in 100 words, test whether someone can retell it, and pass feedback and task drafts to the team as text.'),
     h('p', {}, h('a', { class: 'btn primary', href: '#e21' }, 'Compare candidate projects in E21 →')),
-    pitchSec, testSec, feedbackSec, zia, wheel));
+    pitchSec, testSec, feedbackSec, exportSec, wheel));
   return { destroy() {} };
 }

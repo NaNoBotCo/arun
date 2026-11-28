@@ -1,0 +1,55 @@
+ARUN over the shoulder: decision log
+27 November 2026 · branch over-the-shoulder · base main 05d01b5 (PR 1)
+
+Baseline, rerun on this branch before any change: 293 kernel tests pass, 14 browser checks pass (Chromium 149, Apple M2). Saved in team/ots/baseline/ with phone screenshots of home, tour, E02, E03, E07.
+
+1. One new route, #wonder, three beats on one scroll: the flood (E02 kernel); where the wetland protects most (a map of E02 runs at every spot, checked live); a thousand tomorrows and what the wetland saves (E03 kernel). The chain E02 → E03 is the one the lab already links. Revert: remove "wonder" from src/pages/index.js.
+
+2. Not linked from the menu. Reachable by link only until observer tests say it should lead. #home and #tour are unchanged.
+
+3. No separate hook screen. The storm is already falling at second 0 and is the opening. The hook tournament (E01, E08, E10, E12) is not run: it needs observers. First A/B for observers: #wonder against #tour, which opens on the dawn globe.
+
+4. Optional reveals (E17 resilience, E05 privacy) not built. The packet puts them after the core passes on Android.
+
+5. No exhibit file edited, archived or deleted. All 21 routes, tests, export schemas and deep links are as they were. The pruning sheet is applied by leaving exhibits out of the new route, nothing else.
+
+6. E07 (buyer's desk) is not in the main scroll. Beat 3 shows what the wetland saves and who it protects: the hotel's flood costs from E03, and the river's peak downstream from E02 (not priced). A cost slider gives the share of futures in which the hotel's savings alone pay for restoring it. No build-or-wait verdict: on 27 Nov a first version answered "Not yet" for a wetland on a hilltop, which read as a modelling app advising against a wetland. E07 is linked under "How it works".
+
+7. Phone layout: the square valley is cropped to the river corridor and shown as two tall strips side by side, Today and With wetland, so both fit one screen.
+
+8. Moving the wetland: tap either valley, arrow keys on the focused map, or three presets.
+   Above the hotel (default): hotel under water 3.26 h without the wetland, 1.41 h with it.
+   Best spot on the map: the position the map ranks first for the hotel.
+   Below the hotel: 3.26 h to 3.26 h. The counterexample.
+   A hilltop (3.26 h to 3.09 h; the basin stores no water there) is left to the map, where it shows dark.
+   Numbers from the E02 kernel, seed 20261125, default storm.
+
+9. Integrator exception to CONTRACT.md. Shared files changed by the integrator only, each change backward compatible, every earlier check still passing:
+   src/core/jobs.js     streaming jobs can send frames (onFrame); count of live workers for cleanup checks
+   src/worker.js        emit() for frames
+   src/jobs-registry.js route jobs from src/wonder/flow.js
+   src/main.js          build option for the route a link without # opens; loop and worker counts on window.__arun
+   src/pages/index.js   the route
+   src/i18n/en.js, th.js, km.js   route lines
+   tools/build.mjs      --home <route>
+   test/browser/run.mjs 12 new checks (N to Y); "wonder" added to the all-routes sweep
+
+10. Compute. Each valley streams from its own worker. The five-storm sweep runs as ten one-valley jobs over up to five workers. The Today valley never reads the wetland settings, so its runs are reused after a wetland move and only the wetland valley reruns. test/kernels/wonder.test.mjs shows the split reproduces E02's runPair and hazardCurve exactly.
+
+11. Stale and racing results. Moving the wetland marks beats 2 and 3 stale at once (dimmed, labelled), cancels obsolete jobs, and shows new numbers only when the sweep hash matches the current inputs. Browser checks P, R and U cover this.
+
+12. Beat 3 defaults: E03's own (1,000 futures, 20 years, 0.35 big storms a year, US$400k cost, US$10k a year to run, 6% discount). The futures chart shows savings rising year by year in each future, with the cost as a dotted line. Prices fictional, labelled where they appear.
+
+13. Calm motion: no autoplay. When the run is in, the still shows the moment the hotel was deepest, with the result.
+
+14. Thai and Khmer for the route's headings and key lines, written in this build; disclosures in English, like the rest of the site. The packet's aliases (NAGA, ANANTA, SOVANN and the rest) are not on screen.
+
+15. Protection map. The E02 wetland run at all 10,201 positions the page can set (every 0.01 of the valley each way), default storm and wetland size, computed ahead by tools/protection-map.mjs and packed in src/wonder/protection-map.data.js. When the wetland moves, this device reruns that spot and the line under the map says whether the two agree, to the second. Kernel tests recompute five spots and require exact equality. With any other storm or wetland size the page says the map does not apply.
+
+16. Two map layers: hours the hotel stays dry, and how much lower the river's peak is downstream. The second is a benefit to everyone below the valley and is shown in percent, not priced.
+
+17. Why a data center, in a disclosure under the map: the map's measured CPU time, this device's measured time for one spot, and arithmetic for a 20 × 20 km river at 5 m cells, every step shown and labelled as arithmetic, not a server measurement.
+
+18. Look (her notes 27 Nov: hour caption blinked, contrast and colour, landscape, other views, viewport). src/wonder/render.js draws the same E02 region in a brighter palette (paddies with bunds, forest, dry hilltops, a clay-roofed town, sandbanks) and water that stays faint as a sheet of rain and turns deep blue where it stands. The hour reads in whole hours from one bar under the stage. The two valleys fill the phone; labels and the hotel's number sit on the maps. Tabs add a side view (the river at the hotel, both valleys stacked) and a gauge (water at the hotel by the hour) from the same frames. The lab's own drawing (src/viz/watershed.js) is unchanged.
+
+19. Side view water (her note 27 Nov: "This representation of water is not procedurally correct… Water is liquid."). The side view joined each cell's water surface with straight lines, so between the channel and a dry bank the water rose up the bank above its own level. src/wonder/section.js now draws it as a liquid: water held between banks lies level at the surface of its deepest cell; water on ground above that level runs as a sheet whose surface at each cell is the model's ground plus depth, the hotel's exactly, with streaks moving downhill; against dry ground the surface stays level until it meets the ground; water on an open slope is never levelled. Five tests in test/kernels/wonder.test.mjs, including the screenshot's moment and the storm's peak on the hotel's row. The model, the numbers and the map are unchanged.

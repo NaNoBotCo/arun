@@ -4,7 +4,7 @@ import { launch, openPage, ROOT } from './browser.mjs';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
-const ROUTES = ['home', 'tour', 'lab', 'desk', 'trust', 'sources', 'compare', 'ideas', 'status', ...Array.from({ length: 21 }, (_, i) => 'e' + String(i + 1).padStart(2, '0'))];
+const ROUTES = ['home', 'tour', 'lab', 'desk', 'trust', 'sources', 'compare', 'ideas', 'status', 'wonder', ...Array.from({ length: 21 }, (_, i) => 'e' + String(i + 1).padStart(2, '0'))];
 const results = [];
 const record = (name, ok, detail = '') => {
   results.push({ name, ok, detail });
@@ -23,7 +23,7 @@ for (const size of [{ width: 1366, height: 820, label: 'desktop 1366×820' }, { 
     if (errors.length || requests.length || overflow) bad.push(`${r}: ${errors.length} errors, ${requests.length} requests, overflow ${overflow}${errors[0] ? ' — ' + errors[0] : ''}`);
     await context.close();
   }
-  record(`A. 30 routes load clean at ${size.label}`, bad.length === 0, bad.join(' | '));
+  record(`A. ${ROUTES.length} routes load clean at ${size.label}`, bad.length === 0, bad.join(' | '));
 }
 
 // B. Every exhibit exports a run record that passes the schema check.
@@ -206,6 +206,123 @@ for (const size of [{ width: 1366, height: 820, label: 'desktop 1366×820' }, { 
   const repro = await page.$eval('.repro h4', (e) => e.textContent).catch(() => 'none');
   record('L. Replay from Compare reproduces every metric', /Reproduced/.test(repro), repro);
   await context.close();
+}
+
+
+// N–V. The phone route #wonder (over-the-shoulder). Timings are this machine's Chromium, not a phone.
+const PHONE = { width: 390, height: 844, isMobile: true, hasTouch: true };
+const wq = (page) => page.evaluate(() => ({
+  frame: Number(document.querySelector('.w-stage').dataset.frame),
+  stage: document.querySelector('.w-stage').dataset.state,
+  b2: document.querySelector('.w-b2').dataset.state,
+  hash: document.querySelector('.w-b2').dataset.hash,
+  result: document.querySelector('.w-result').textContent,
+  kind: document.querySelector('.w-result').dataset.kind || '',
+  pressed: [...document.querySelectorAll('[data-preset]')].filter((b) => b.getAttribute('aria-pressed') === 'true').map((b) => b.dataset.preset),
+}));
+const waitDone = (page, ms = 60000) => page.waitForFunction(() => document.querySelector('.w-stage').dataset.state === 'done' && document.querySelector('.w-b2').dataset.state === 'current', null, { timeout: ms });
+let wonderHash0 = '';
+{
+  const { page, context, errors, requests } = await openPage(browser, 'wonder', PHONE);
+  const t0 = Date.now();
+  await page.waitForFunction(() => Number(document.querySelector('.w-stage').dataset.frame) >= 1, null, { timeout: 10000 }).catch(() => {});
+  const tFirst = Date.now() - t0;
+  const q0 = await wq(page);
+  record('N. #wonder shows a computed, moving flood without a tap', q0.frame >= 1 && errors.length === 0, `frame ${q0.frame} at ${tFirst} ms after load (desktop Chromium, phone viewport)`);
+  await waitDone(page);
+  const tDone = Date.now() - t0;
+  const q1 = await wq(page);
+  wonderHash0 = q1.hash;
+  const m1 = await page.evaluate(() => document.querySelector('.w-check').dataset.match);
+  const ok1 = q1.kind === 'better' && /under water 1\.4 h instead of 3\.3 h/.test(q1.result) && q1.pressed.join() === 'above' && m1 === 'yes';
+  record('O. Default wetland: result matches the E02 kernel (3.26 h → 1.41 h) and the precomputed map', ok1, `${q1.result} · map check: ${m1} · flood + futures ready ${tDone} ms after load`);
+  // Counterexample: below the hotel changes nothing for the hotel.
+  await page.click('[data-preset="below"]');
+  const q2 = await wq(page);
+  await waitDone(page);
+  const q3 = await wq(page);
+  record('P. Moving the wetland makes the futures stale, then current for the new wetland', q2.b2 !== 'current' && q3.b2 === 'current' && q3.hash && q3.hash !== wonderHash0, `right after the tap: ${q2.b2}; then ${q3.b2}, hash ${wonderHash0.slice(0, 8)} → ${q3.hash.slice(0, 8)}`);
+  record('Q. Counterexample: a wetland below the hotel leaves its flooding unchanged', q3.kind === 'same' && /3\.3 h becomes 3\.3 h/.test(q3.result), q3.result);
+  // Race: two quick moves; only the last one may show.
+  await page.click('[data-preset="best"]');
+  await page.waitForTimeout(60);
+  await page.click('[data-preset="above"]');
+  await waitDone(page);
+  const q4 = await wq(page);
+  record('R. Two quick moves: only the last wetland’s results show', q4.pressed.join() === 'above' && q4.hash === wonderHash0 && q4.kind === 'better', `pressed ${q4.pressed.join()}, hash ${q4.hash.slice(0, 8)}, ${q4.result}`);
+  // Direct tap on the right valley, then keyboard.
+  const box = await page.locator('.w-canvas').boundingBox();
+  await page.touchscreen.tap(box.x + box.width * 0.75, box.y + box.height * 0.2);
+  await page.waitForTimeout(150);
+  const q5 = await wq(page);
+  await page.focus('.w-canvas');
+  await page.keyboard.press('ArrowLeft');
+  await page.waitForTimeout(150);
+  const q6 = await wq(page);
+  const capexBefore = await page.textContent('.w-payline');
+  await waitDone(page);
+  await page.fill('.w-value .ctl input[type=number]', '50000');
+  await page.dispatchEvent('.w-value .ctl input[type=number]', 'change');
+  await page.waitForTimeout(100);
+  const capexAfter = await page.textContent('.w-payline');
+  record('S. Tap, arrow keys and the cost lever each change the computed result', q5.pressed.length === 0 && q5.b2 !== 'current' && q6.b2 !== 'current' && capexAfter !== capexBefore && /US\$50/.test(capexAfter), `after tap: ${q5.b2}; after ←: ${q6.b2}; cost lever: “${capexAfter.trim()}”`);
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1);
+  record('T. #wonder: no outside requests, no console errors, no sideways scroll', requests.length === 0 && errors.length === 0 && !overflow, `${requests.length} requests, ${errors.length} errors${errors[0] ? ' — ' + errors[0] : ''}, overflow ${overflow}`);
+  // Tap the map: the wetland goes there, this device recomputes the spot, and it must equal the map.
+  await page.evaluate(() => document.querySelector('#w-map').scrollIntoView());
+  const mb = await page.locator('.w-map').boundingBox();
+  await page.touchscreen.tap(mb.x + mb.width * 0.62, mb.y + mb.height * 0.36);
+  await page.waitForTimeout(150);
+  const q7 = await wq(page);
+  await waitDone(page);
+  const mc = await page.evaluate(() => ({ match: document.querySelector('.w-check').dataset.match, text: document.querySelector('.w-check').textContent }));
+  record('Y. Tapping the map moves the wetland; this device recomputes that spot and it equals the map', q7.pressed.length === 0 && mc.match === 'yes', mc.text);
+  // Leaving mid-run releases every loop and worker.
+  await page.click('[data-preset="below"]');
+  await page.waitForTimeout(300);
+  await page.evaluate(() => (location.hash = '#lab'));
+  await page.waitForTimeout(400);
+  const live = await page.evaluate(() => ({ loops: window.__arun.liveLoops(), workers: window.__arun.liveWorkers() }));
+  record('U. Leaving #wonder mid-run stops its loops and workers', live.loops === 0 && live.workers === 0 && errors.length === 0, `loops ${live.loops}, workers ${live.workers}`);
+  // The lab's E03 reads the sweep #wonder made.
+  await page.evaluate(() => (location.hash = '#wonder'));
+  await waitDone(page);
+  await page.evaluate(() => (location.hash = '#e03'));
+  await page.waitForTimeout(1200);
+  const linked = await page.evaluate(() => document.body.innerText.match(/Linked: hotel depths come from the E02 sweep[^.]*\./)?.[0] || '');
+  record('V. E03 in the lab links to the storm sweep #wonder computed', /Linked/.test(linked), linked);
+  await context.close();
+}
+{
+  const { page, context, errors } = await openPage(browser, 'wonder', { ...PHONE, reducedMotion: 'reduce' });
+  await page.waitForTimeout(1200);
+  const a = await wq(page);
+  await page.waitForFunction(() => document.querySelector('.w-stage').dataset.state === 'done', null, { timeout: 60000 }).catch(() => {});
+  const b = await wq(page);
+  const loops = await page.evaluate(() => window.__arun.liveLoops());
+  record('W. Calm motion: no autoplay; the still shows the hotel at its deepest, with the result', a.frame <= 0 && b.stage === 'done' && b.frame > 0 && b.kind === 'better' && loops === 0 && errors.length === 0, `frame at 1.2 s: ${a.frame}; still frame ${b.frame}; loops after: ${loops}`);
+  await context.close();
+}
+{
+  const bad = [];
+  for (const width of [320, 360, 430]) {
+    const { page, context, errors, requests } = await openPage(browser, 'wonder', { width, height: 800, isMobile: true, hasTouch: true });
+    await page.waitForTimeout(1500);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1);
+    const small = await page.evaluate(() => [...document.querySelectorAll('.w-chip, .w-b2 .seg, .w-b3 .seg, .w-more > summary')].filter((e) => e.getBoundingClientRect().height < 44).length);
+    if (overflow || errors.length || requests.length || small) bad.push(`${width}px: overflow ${overflow}, ${errors.length} errors, ${requests.length} requests, ${small} targets under 44 px`);
+    await context.close();
+  }
+  const { page, context } = await openPage(browser, 'wonder', PHONE);
+  await page.click('.lang-btn[data-code="th"]');
+  await page.waitForTimeout(300);
+  const th = await page.textContent('.w-b1 h1');
+  await page.click('.lang-btn[data-code="km"]');
+  await page.waitForTimeout(300);
+  const km = await page.textContent('.w-b1 h1');
+  await page.click('.lang-btn[data-code="en"]');
+  await context.close();
+  record('X. #wonder at 320, 360 and 430 px; touch targets 44 px; Thai and Khmer titles', bad.length === 0 && /พายุ/.test(th) && /ព្យុះ/.test(km), bad.join(' | ') || `${th} | ${km}`);
 }
 
 // M. Opens from disk with no server (file://).

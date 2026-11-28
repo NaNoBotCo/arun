@@ -20,5 +20,7 @@ import { jobs as j18 } from './kernels/e18.js';
 import { jobs as j19 } from './kernels/e19.js';
 import { jobs as j20 } from './kernels/e20.js';
 import { jobs as j21 } from './kernels/e21.js';
+// Integrator exception (over-the-shoulder route, 2026-11-27): route jobs that reuse the E02 kernel unchanged.
+import { jobs as jw } from './wonder/flow.js';
 
-export const JOBS = Object.assign({}, j01, j02, j03, j04, j05, j06, j07, j08, j09, j10, j11, j12, j13, j14, j15, j16, j17, j18, j19, j20, j21);
+export const JOBS = Object.assign({}, j01, j02, j03, j04, j05, j06, j07, j08, j09, j10, j11, j12, j13, j14, j15, j16, j17, j18, j19, j20, j21, jw);

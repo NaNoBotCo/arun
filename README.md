@@ -23,15 +23,26 @@ ARUN (working name; อรุณ and អរុណ both mean dawn) is a static, o
 
 ```
 npm install                  # esbuild 0.25.12 and playwright-core 1.63.0, pinned in package-lock.json
-npm test                     # 293 kernel tests in 21 files (node:test); writes test/results/kernels.json
+npm test                     # 299 kernel tests in 22 files (node:test); writes test/results/kernels.json
 npm run build                # dist/index.html and dist/artifact.html (same page without its own <html> wrapper)
 npm run site                 # build, then docs/: the published copy with share-card tags, card.jpg, sitemap, robots, llms.txt
-node test/browser/run.mjs    # 14 acceptance checks in Chromium; writes test/results/browser.json
+node test/browser/run.mjs    # 25 acceptance checks in Chromium; writes test/results/browser.json
+node tools/build.mjs --home wonder --out dist/ots   # a candidate copy that opens on #wonder when the link has no #
 node test/browser/smoke.mjs e02 e03 --mobile   # quick look at any routes, with screenshots
 npm run serve                # optional: http://127.0.0.1:8788/
 ```
 
 Run `npm test` before `npm run build` so the Status page shows the current test results.
+
+## Over the shoulder: `#wonder`
+
+A phone-first route for one person showing another: open `…/arun/#wonder`, no tap needed.
+
+1. **Same storm. Two valleys.** Rain is already falling on two copies of the fictional valley, without and with a wetland. Tap either valley (or use the arrow keys, or a preset) to move the wetland; both valleys run again and the hotel's hours under water update. *Below the hotel* is the counterexample: no change.
+2. **Where does it protect most?** The same run at all 10,201 spots the page can set, computed ahead (`node tools/protection-map.mjs`), glowing where the wetland spares the hotel the most hours under water or lowers the river's peak downstream. Tap a spot: the wetland moves there, this device reruns that spot, and the page says whether it equals the map. A disclosure works through what the same search needs on a real river.
+3. **A thousand tomorrows. One better today.** That wetland's five-storm sweep feeds 1,000 twenty-year futures (E03): what it saves the hotel, year by year, against a cost line; who it protects; a cost slider.
+
+Not linked from the menu yet. Decisions and gaps: `team/ots/DECISIONS.txt`, `team/ots/GAPS.txt`.
 
 ## The 60-second meeting run
 

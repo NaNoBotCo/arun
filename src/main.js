@@ -7,9 +7,13 @@ import { renderExhibit } from './core/frame.js';
 import { restoreRuns } from './core/tray.js';
 import { CONFIG } from './config.js';
 import { PAGES } from './pages/index.js';
+import { liveLoopCount } from './core/loop.js';
+import { liveWorkers } from './core/jobs.js';
 
 const NAV = ['tour', 'lab', 'desk', 'trust', 'sources', 'compare', 'ideas', 'status'];
 let current = null;
+// eslint-disable-next-line no-undef
+const HOME = typeof __HOME_ROUTE__ === 'string' ? __HOME_ROUTE__ : 'home';
 
 function setMotion(mode) {
   document.documentElement.dataset.motion = mode;
@@ -91,7 +95,7 @@ function markNav() {
 let mainEl = null;
 
 function route() {
-  const name = (location.hash || '#home').slice(1).toLowerCase() || 'home';
+  const name = (location.hash || '#' + HOME).slice(1).toLowerCase() || HOME;
   if (current) {
     try {
       current.destroy();
@@ -131,4 +135,4 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else boot();
 
 // For tests and debugging: a read-only view of what is running.
-window.__arun = { BY_ID, route: () => location.hash };
+window.__arun = { BY_ID, route: () => location.hash, liveLoops: () => liveLoopCount(), liveWorkers: () => liveWorkers() };
